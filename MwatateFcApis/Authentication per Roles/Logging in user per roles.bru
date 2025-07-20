@@ -1,0 +1,18 @@
+meta {
+  name: Logging in user per roles
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:9090/api/login
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "email":"coach@gmail.com",
+    "password":"password123"
+  }
+}

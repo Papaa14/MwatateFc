@@ -1,0 +1,21 @@
+meta {
+  name: Registering user per Roles
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:9090/api/register
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+      "name": "Test Coach",
+      "email": "coach@gmail.com",
+      "password": "password123",
+      "password_confirmation": "password123",
+      "role": "coach"
+  }
+}
