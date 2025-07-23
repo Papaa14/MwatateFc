@@ -156,7 +156,7 @@
                                 const message = error.response?.data?.message || 'An unknown error occurred.';
                                 errorContainer.textContent = message;
                                 Toastify({
-                                    text: message, duration: 3000, gravity: "top", position: "right",
+                                    text: message, duration: 3000, gravity: "top", position: "centre",
                                     backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
                                 }).showToast();
                             }

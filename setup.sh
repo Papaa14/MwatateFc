@@ -14,8 +14,12 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
-# Check if Docker Compose is installed
-if ! command -v docker-compose &> /dev/null; then
+# Determine Docker Compose command (binary vs plugin)
+if command -v docker-compose &> /dev/null; then
+    DC="docker-compose"
+elif docker compose version &> /dev/null; then
+    DC="docker compose"
+else
     echo "❌ Docker Compose is not installed. Please install Docker Compose first."
     exit 1
 fi
