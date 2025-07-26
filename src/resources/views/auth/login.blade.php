@@ -17,16 +17,37 @@
     <style>
         body {
             font-family: 'Montserrat', sans-serif;
+            background-image: url('mwatate.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: -1;
         }
 
         .error-message {
             color: #ef4444;
-            /* red-500 */
             font-size: 0.875rem;
             margin-top: 0.5rem;
             text-align: center;
             min-height: 1.25rem;
-            /* Prevents layout shift */
+        }
+
+        .login-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            border-radius: 1rem;
         }
     </style>
 
@@ -36,9 +57,9 @@
             theme: {
                 extend: {
                     colors: {
-                        'brand-green': '#16a34a', // A nice, modern green
+                        'brand-green': '#16a34a',
                         'brand-green-dark': '#15803d',
-                        'brand-purple': '#6d28d9', // A vibrant purple for links
+                        'brand-purple': '#6d28d9',
                         'brand-light': '#f5fbf9'
                     }
                 }
@@ -47,11 +68,10 @@
     </script>
 </head>
 
-<body class="bg-brand-light flex items-center justify-center min-h-screen p-4">
-
-    <div class="w-full max-w-sm">
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-sm login-container shadow-2xl">
         <!-- Branding Section -->
-        <div class="text-center">
+        <div class="text-center pt-8">
             <div class="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full shadow-md mx-auto">
                 <svg class="w-9 h-9 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
@@ -65,15 +85,13 @@
         </div>
 
         <!-- Form Card -->
-        <div class="mt-8 bg-white py-8 px-8 shadow-xl rounded-xl">
+        <div class="mt-4 py-8 px-8">
             <form id="loginForm" class="space-y-6" method="POST">
-
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700">Email address</label>
                     <div class="mt-1">
                         <input id="email" name="email" type="email" autocomplete="email" placeholder="johndoe@gmail.com"
-                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400  placeholder:text-sm
-                                      focus:outline-none focus:ring-1 focus:ring-brand-green focus:border-brand-green">
+                            class="w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 placeholder:text-sm focus:outline-none focus:ring-1 focus:ring-brand-green focus:border-brand-green">
                     </div>
                 </div>
 
@@ -81,8 +99,7 @@
                     <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
                     <div class="mt-1">
                         <input id="password" name="password" placeholder="password must be at least 8 characters"
-                            type="password" autocomplete="current-password" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400  placeholder:text-sm
-                                      focus:outline-none focus:ring-1 focus:ring-brand-green focus:border-brand-green">
+                            type="password" autocomplete="current-password" required class="w-full px-3 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 placeholder:text-sm focus:outline-none focus:ring-1 focus:ring-brand-green focus:border-brand-green">
                     </div>
                 </div>
 
@@ -95,17 +112,16 @@
                     </div>
                 </div>
 
-                <!-- Container for displaying login errors (hidden by default) -->
+                <!-- Container for displaying login errors -->
                 <div id="login-error" class="error-message hidden text-red-600 text-sm min-h-[1.5rem] mb-2"></div>
 
                 <!-- Submit Button -->
                 <div>
-                    <button type="submit" id="submit-button" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white
-               bg-brand-green hover:bg-brand-green-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green
-               transition-colors duration-200">
+                    <button type="submit" id="submit-button" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-brand-green hover:bg-brand-green-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-green transition-colors duration-200">
                         Sign In
                     </button>
                 </div>
+
                 <!-- Sign Up Prompt -->
                 <div class="mt-4 text-center text-sm text-gray-600">
                     Don't have an account?
@@ -113,57 +129,63 @@
                         Sign Up
                     </a>
                 </div>
-                <!-- The JavaScript for AJAX submission remains unchanged -->
-                <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-                <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-                <script>
-                    // Your existing, excellent JavaScript logic goes here.
-                    document.addEventListener('DOMContentLoaded', function () {
-                        const loginForm = document.getElementById('loginForm');
-                        const submitButton = document.getElementById('submit-button');
-                        const errorContainer = document.getElementById('login-error');
+            </form>
+        </div>
+    </div>
 
-                        loginForm.addEventListener('submit', async function (event) {
-                            event.preventDefault();
-                            submitButton.disabled = true;
-                            submitButton.textContent = 'Signing In...';
-                            errorContainer.textContent = '';
-                            const formData = new FormData(loginForm);
-                            const data = Object.fromEntries(formData.entries());
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginForm = document.getElementById('loginForm');
+            const submitButton = document.getElementById('submit-button');
+            const errorContainer = document.getElementById('login-error');
 
-                            try {
-                                const response = await axios.post('{{ url("/api/login") }}', data, {
-                                    headers: { 'Accept': 'application/json' }
-                                });
-                                localStorage.setItem('api_token', response.data.token);
-                                localStorage.setItem('user', JSON.stringify(response.data.user));
-                                Toastify({
-                                    text: "Login Successful! Redirecting...", duration: 2000, gravity: "top", position: "centre",
-                                    backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
-                                }).showToast();
-                                const userRole = response.data.user.role;
-                                let redirectUrl = '/';
-                                switch (userRole) {
-                                    case 'admin': redirectUrl = '{{ route("dashboard") }}'; break;
-                                    case 'coach': redirectUrl = '{{ route("coach-dashboard") }}'; break;
-                                    case 'player': redirectUrl = '{{ route("players-dashboard") }}'; break;
-                                    case 'fan': redirectUrl = '{{ route("fan-dashboard") }}'; break;
-                                }
-                                setTimeout(() => { window.location.href = redirectUrl; }, 2000);
-                            } catch (error) {
-                                submitButton.disabled = false;
-                                submitButton.textContent = 'Sign In';
-                                const message = error.response?.data?.message || 'An unknown error occurred.';
-                                errorContainer.textContent = message;
-                                Toastify({
-                                    text: message, duration: 3000, gravity: "top", position: "centre",
-                                    backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
-                                }).showToast();
-                            }
-                        });
+            loginForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                submitButton.disabled = true;
+                submitButton.textContent = 'Signing In...';
+                errorContainer.textContent = '';
+                const formData = new FormData(loginForm);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await axios.post('{{ url("/api/login") }}', data, {
+                        headers: { 'Accept': 'application/json' }
                     });
-                </script>
-
+                    localStorage.setItem('api_token', response.data.token);
+                    localStorage.setItem('user', JSON.stringify(response.data.user));
+                    Toastify({
+                        text: "Login Successful! Redirecting...", 
+                        duration: 2000, 
+                        gravity: "top", 
+                        position: "center",
+                        backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
+                    }).showToast();
+                    const userRole = response.data.user.role;
+                    let redirectUrl = '/';
+                    switch (userRole) {
+                        case 'admin': redirectUrl = '{{ route("dashboard") }}'; break;
+                        case 'coach': redirectUrl = '{{ route("coach-dashboard") }}'; break;
+                        case 'player': redirectUrl = '{{ route("players-dashboard") }}'; break;
+                        case 'fan': redirectUrl = '{{ route("fan-dashboard") }}'; break;
+                    }
+                    setTimeout(() => { window.location.href = redirectUrl; }, 2000);
+                } catch (error) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = 'Sign In';
+                    const message = error.response?.data?.message || 'An unknown error occurred.';
+                    errorContainer.textContent = message;
+                    Toastify({
+                        text: message, 
+                        duration: 3000, 
+                        gravity: "top", 
+                        position: "center",
+                        backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                    }).showToast();
+                }
+            });
+        });
+    </script>
 </body>
-
 </html>

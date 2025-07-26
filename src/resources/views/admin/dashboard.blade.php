@@ -51,9 +51,9 @@
             background-position: center;
         }
         
-        .blog-bg {
+        .posts-bg {
             background-image: linear-gradient(rgba(255,255,255,0.95), rgba(255,255,255,0.95)), 
-                            url('https://images.unsplash.com/photo-1499750310107-5fef28a66643?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
+                            url('https://images.unsplash.com/photo-1434030216411-0b793f4b4173?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
             background-size: cover;
             background-position: center;
         }
@@ -223,9 +223,9 @@
                         <i class="fas fa-money-bill-wave mr-3"></i>
                         Financials
                     </button>
-                    <button data-section="blog" class="nav-btn btn w-full flex items-center px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100">
+                    <button data-section="posts" class="nav-btn btn w-full flex items-center px-4 py-3 text-sm font-medium text-gray-700 bg-gray-50 rounded-lg hover:bg-gray-100">
                         <i class="fas fa-newspaper mr-3"></i>
-                        Blog
+                        Team Announcements
                     </button>
                 </nav>
             </div>
@@ -284,7 +284,7 @@
                             <div>
                                 <p class="text-sm font-medium text-gray-500 uppercase">Coaching Staff</p>
                                 <p class="mt-2 text-3xl font-bold text-gray-900">8</p>
-                                <button class="btn mt-4 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                <button id="manage-staff-btn" class="btn mt-4 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                     Manage Staff
                                 </button>
                             </div>
@@ -303,7 +303,7 @@
                                 <h3 class="text-lg font-semibold text-gray-800">Team Performance Overview</h3>
                                 <p class="text-sm text-gray-500">January - June 2023</p>
                             </div>
-                            <button class="btn px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            <button id="export-data-btn" class="btn px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                                 Export Data
                             </button>
                         </div>
@@ -321,7 +321,7 @@
                     <div class="p-6 border-b">
                          <div class="flex justify-between items-center">
                             <h3 class="text-lg font-semibold text-gray-800">Upcoming Fixtures</h3>
-                            <button class="btn px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            <button id="add-fixture-btn" class="btn px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                                 Add Fixture
                             </button>
                          </div>
@@ -552,7 +552,7 @@
                 <div class="card p-6 rounded-lg shadow-sm">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-2xl font-bold text-gray-800">Coaching Staff</h2>
-                        <button class="btn px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                        <button onclick="showStaffModal()" class="btn px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
                             Add Staff Member
                         </button>
                     </div>
@@ -569,15 +569,224 @@
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">Full-time</span>
-                                <button class="btn text-blue-600 hover:text-blue-800">
+                                <button onclick="toggleProfile('profile1')" class="btn text-blue-600 hover:text-blue-800">
                                     View Profile
                                 </button>
+                            </div>
+                            <!-- Profile content (hidden by default) -->
+                            <div id="profile1" class="hidden mt-4 p-3 bg-gray-50 rounded-lg">
+                                <h4 class="font-medium text-gray-800 mb-2">About Coach Miller</h4>
+                                <p class="text-sm text-gray-600">10 years of coaching experience. Specializes in offensive strategies and player development. Former professional player with championship experience.</p>
+                                <div class="mt-2">
+                                    <span class="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded mr-1">Strategy</span>
+                                    <span class="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">Development</span>
+                                </div>
                             </div>
                         </div>
                         <!-- More staff cards would go here -->
                     </div>
                 </div>
             </section>
+
+            <!-- Add Staff Member Modal -->
+            <div id="staffModal" class="fixed inset-0 z-50 hidden">
+                <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity"></div>
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-lg shadow-xl max-w-md w-full transform transition-all">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xl font-bold text-gray-800">Add New Staff Member</h3>
+                                <button onclick="hideStaffModal()" class="text-gray-400 hover:text-gray-500">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <form id="addStaffForm" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                                    <input type="text" id="staffName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Role</label>
+                                    <select id="staffRole" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <option value="">Select Role</option>
+                                        <option value="Head Coach">Head Coach</option>
+                                        <option value="Assistant Coach">Assistant Coach</option>
+                                        <option value="Goalkeeping Coach">Goalkeeping Coach</option>
+                                        <option value="Fitness Coach">Fitness Coach</option>
+                                        <option value="Medical Staff">Medical Staff</option>
+                                        <option value="Analyst">Analyst</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Employment Type</label>
+                                    <select id="staffType" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <option value="Full-time">Full-time</option>
+                                        <option value="Part-time">Part-time</option>
+                                        <option value="Contract">Contract</option>
+                                        <option value="Volunteer">Volunteer</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Specialization</label>
+                                    <input type="text" id="staffSpecialization" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="e.g. Defense, Fitness, Nutrition">
+                                </div>
+                                <div class="mt-6 flex justify-end space-x-3">
+                                    <button type="button" onclick="hideStaffModal()" class="btn-secondary">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="btn-primary">
+                                        Add Staff
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Posts Content Section -->
+            <section id="posts-content" class="content-section">
+                <div class="card p-6 rounded-lg shadow-sm">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Team Announcements</h2>
+                        <button onclick="showPostModal()" class="btn px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                            Add New Post
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- Post Card -->
+                        <div class="card p-4 rounded-lg border border-gray-200 hover:border-blue-300">
+                            <div class="flex items-start mb-4">
+                                <img class="w-10 h-10 rounded-full mr-4" src="https://i.pravatar.cc/150?u=coach1" alt="Author">
+                                <div class="flex-1">
+                                    <div class="flex justify-between items-center">
+                                        <h3 class="text-lg font-semibold text-gray-800">Training Schedule Update</h3>
+                                        <span class="text-xs text-gray-500">2 hours ago</span>
+                                    </div>
+                                    <p class="text-sm text-gray-600 mt-1">All players should note that Wednesday's training session will start at 9am instead of 10am due to field availability.</p>
+                                    <div class="mt-3 flex items-center text-sm text-gray-500">
+                                        <span class="mr-3">Posted by: Coach Miller</span>
+                                        <button onclick="togglePostActions('post1')" class="text-gray-400 hover:text-gray-600 ml-auto">
+                                            <i class="fas fa-ellipsis-h"></i>
+                                        </button>
+                                        <div id="post1" class="hidden absolute right-0 mt-6 w-48 bg-white rounded-md shadow-lg z-10">
+                                            <div class="py-1">
+                                                <button class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Edit</button>
+                                                <button class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">Delete</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- More post cards would go here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Add New Post Modal -->
+            <div id="postModal" class="fixed inset-0 z-50 hidden">
+                <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity"></div>
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full transform transition-all">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xl font-bold text-gray-800">Create New Post</h3>
+                                <button onclick="hidePostModal()" class="text-gray-400 hover:text-gray-500">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <form id="addPostForm" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Title</label>
+                                    <input type="text" id="postTitle" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Content</label>
+                                    <textarea id="postContent" rows="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Category</label>
+                                    <select id="postCategory" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <option value="Announcement">Announcement</option>
+                                        <option value="Training">Training</option>
+                                        <option value="Match">Match</option>
+                                        <option value="General">General</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Visibility</label>
+                                    <select id="postVisibility" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <option value="Public">Public (Visible to everyone)</option>
+                                        <option value="Team">Team (Visible to team members only)</option>
+                                        <option value="Staff">Staff (Visible to coaching staff only)</option>
+                                    </select>
+                                </div>
+                                <div class="mt-6 flex justify-end space-x-3">
+                                    <button type="button" onclick="hidePostModal()" class="btn-secondary">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="btn-primary">
+                                        Publish Post
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Fixture Modal -->
+            <div id="fixtureModal" class="fixed inset-0 z-50 hidden">
+                <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity"></div>
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-lg shadow-xl max-w-md w-full transform transition-all">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-xl font-bold text-gray-800">Add New Fixture</h3>
+                                <button onclick="hideFixtureModal()" class="text-gray-400 hover:text-gray-500">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            <form id="addFixtureForm" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Opponent</label>
+                                    <input type="text" id="fixtureOpponent" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Competition</label>
+                                    <select id="fixtureCompetition" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <option value="League">League</option>
+                                        <option value="Cup">Cup</option>
+                                        <option value="Friendly">Friendly</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Date</label>
+                                    <input type="date" id="fixtureDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Venue</label>
+                                    <select id="fixtureVenue" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                        <option value="Home">Home</option>
+                                        <option value="Away">Away</option>
+                                    </select>
+                                </div>
+                                <div class="mt-6 flex justify-end space-x-3">
+                                    <button type="button" onclick="hideFixtureModal()" class="btn-secondary">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="btn-primary">
+                                        Add Fixture
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Financials Content -->
             <section id="financials-content" class="content-section">
@@ -604,36 +813,6 @@
                     </div>
                 </div>
             </section>
-
-            <!-- Blog Content -->
-            <section id="blog-content" class="content-section">
-                <div class="card p-6 rounded-lg shadow-sm">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800">Blog Management</h2>
-                        <button class="btn px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-                            New Post
-                        </button>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Blog Post Card -->
-                        <div class="card p-4 rounded-lg border border-gray-200 hover:border-blue-300">
-                            <div class="h-40 bg-gray-200 rounded-lg mb-4 flex items-center justify-center">
-                                <i class="fas fa-image text-gray-400 text-2xl"></i>
-                            </div>
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Match Recap: Victory Against Vihiga</h3>
-                            <p class="text-sm text-gray-500 mb-4">Published: 16 Oct 2023</p>
-                            <div class="flex justify-between items-center">
-                                <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Published</span>
-                                <button class="btn text-blue-600 hover:text-blue-800">
-                                    Edit
-                                </button>
-                            </div>
-                        </div>
-                        <!-- More blog post cards would go here -->
-                    </div>
-                </div>
-            </section>
         </main>
     </div>
 
@@ -650,6 +829,61 @@
             modal.classList.add('hidden');
             // Reset form
             document.getElementById('addPlayerForm').reset();
+        }
+
+        // Staff Modal Functions
+        function showStaffModal() {
+            document.getElementById('staffModal').classList.remove('hidden');
+            showNotification('Opening add staff form...', 'info');
+        }
+
+        function hideStaffModal() {
+            document.getElementById('staffModal').classList.add('hidden');
+            // Reset form
+            document.getElementById('addStaffForm').reset();
+        }
+
+        // Post Modal Functions
+        function showPostModal() {
+            document.getElementById('postModal').classList.remove('hidden');
+            showNotification('Creating new post...', 'info');
+        }
+
+        function hidePostModal() {
+            document.getElementById('postModal').classList.add('hidden');
+            // Reset form
+            document.getElementById('addPostForm').reset();
+        }
+
+        // Fixture Modal Functions
+        function showFixtureModal() {
+            document.getElementById('fixtureModal').classList.remove('hidden');
+            showNotification('Adding new fixture...', 'info');
+        }
+
+        function hideFixtureModal() {
+            document.getElementById('fixtureModal').classList.add('hidden');
+            // Reset form
+            document.getElementById('addFixtureForm').reset();
+        }
+
+        // Profile Toggle Function
+        function toggleProfile(profileId) {
+            const profile = document.getElementById(profileId);
+            profile.classList.toggle('hidden');
+        }
+
+        // Post Actions Toggle
+        function togglePostActions(postId) {
+            const postActions = document.getElementById(postId);
+            postActions.classList.toggle('hidden');
+            
+            // Close other open post actions
+            document.querySelectorAll('[id^="post"]').forEach(el => {
+                if (el.id !== postId && !el.classList.contains('hidden')) {
+                    el.classList.add('hidden');
+                }
+            });
         }
 
         // Initialize when DOM is loaded
@@ -684,10 +918,105 @@
                 }, 1000);
             });
 
+            // Add Staff Form Submission
+            document.getElementById('addStaffForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const name = document.getElementById('staffName').value;
+                const role = document.getElementById('staffRole').value;
+                const type = document.getElementById('staffType').value;
+
+                if (!name || !role) {
+                    showNotification('Please fill in all required fields', 'error');
+                    return;
+                }
+
+                // Show processing notification
+                showNotification('Adding new staff member...', 'info');
+
+                // Simulate API call delay
+                setTimeout(() => {
+                    // Here you would typically make an API call to save the staff
+                    
+                    // Show success message
+                    showNotification('Staff member added successfully!', 'success');
+                    
+                    // Close modal
+                    hideStaffModal();
+                }, 1000);
+            });
+
+            // Add Post Form Submission
+            document.getElementById('addPostForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const title = document.getElementById('postTitle').value;
+                const content = document.getElementById('postContent').value;
+
+                if (!title || !content) {
+                    showNotification('Please fill in all required fields', 'error');
+                    return;
+                }
+
+                // Show processing notification
+                showNotification('Publishing new post...', 'info');
+
+                // Simulate API call delay
+                setTimeout(() => {
+                    // Here you would typically make an API call to save the post
+                    
+                    // Show success message
+                    showNotification('Post published successfully!', 'success');
+                    
+                    // Close modal
+                    hidePostModal();
+                }, 1000);
+            });
+
+            // Add Fixture Form Submission
+            document.getElementById('addFixtureForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const opponent = document.getElementById('fixtureOpponent').value;
+                const competition = document.getElementById('fixtureCompetition').value;
+                const date = document.getElementById('fixtureDate').value;
+
+                if (!opponent || !date) {
+                    showNotification('Please fill in all required fields', 'error');
+                    return;
+                }
+
+                // Show processing notification
+                showNotification('Adding new fixture...', 'info');
+
+                // Simulate API call delay
+                setTimeout(() => {
+                    // Here you would typically make an API call to save the fixture
+                    
+                    // Show success message
+                    showNotification('Fixture added successfully!', 'success');
+                    
+                    // Close modal
+                    hideFixtureModal();
+                }, 1000);
+            });
+
             // Close modal when clicking outside
-            document.getElementById('playerModal').addEventListener('click', function(e) {
-                if (e.target === this) {
+            document.addEventListener('click', function(e) {
+                if (e.target.id === 'playerModal' || e.target.parentElement.id === 'playerModal') {
                     hidePlayerModal();
+                }
+                if (e.target.id === 'staffModal' || e.target.parentElement.id === 'staffModal') {
+                    hideStaffModal();
+                }
+                if (e.target.id === 'postModal' || e.target.parentElement.id === 'postModal') {
+                    hidePostModal();
+                }
+                if (e.target.id === 'fixtureModal' || e.target.parentElement.id === 'fixtureModal') {
+                    hideFixtureModal();
                 }
             });
 
@@ -721,30 +1050,10 @@
                 });
             });
             
-            // Notification function
-            function showNotification(message, type = 'success') {
-                const notification = document.createElement('div');
-                notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg text-white text-sm font-medium z-50 transition-all duration-300 transform translate-y-full opacity-0 ${
-                    type === 'success' ? 'bg-green-600' : 
-                    type === 'error' ? 'bg-red-600' : 
-                    'bg-blue-600'
-                }`;
-                notification.textContent = message;
-                document.body.appendChild(notification);
-                
-                requestAnimationFrame(() => {
-                    notification.classList.remove('translate-y-full', 'opacity-0');
-                });
-                
-                setTimeout(() => {
-                    notification.classList.add('translate-y-full', 'opacity-0');
-                    setTimeout(() => notification.remove(), 300);
-                }, 3000);
-            }
-
             // Button click handlers
             const buttons = [
-                'view-players-btn', 'view-analytics-btn'
+                'view-players-btn', 'view-analytics-btn', 'manage-staff-btn',
+                'export-data-btn', 'add-fixture-btn'
             ];
             
             buttons.forEach(btnId => {
@@ -794,10 +1103,55 @@
                             setTimeout(() => {
                                 showNotification('Fan analytics dashboard loaded successfully!', 'success');
                             }, 1000);
+                        } else if (btnId === 'manage-staff-btn') {
+                            // Navigate to staff section
+                            showNotification('Loading staff management...', 'info');
+                            navButtons.forEach(btn => {
+                                btn.classList.remove('active', 'text-white', 'bg-blue-600');
+                                btn.classList.add('text-gray-700', 'bg-gray-50');
+                            });
+                            
+                            document.querySelector('[data-section="staff"]').classList.add('active', 'text-white', 'bg-blue-600');
+                            document.querySelector('[data-section="staff"]').classList.remove('text-gray-700', 'bg-gray-50');
+                            
+                            contentSections.forEach(section => {
+                                section.classList.remove('active');
+                            });
+                            
+                            document.getElementById('staff-content').classList.add('active');
+                            document.body.className = 'antialiased staff-bg';
+                        } else if (btnId === 'export-data-btn') {
+                            showNotification('Exporting team performance data...', 'info');
+                            setTimeout(() => {
+                                showNotification('Data exported successfully!', 'success');
+                            }, 1500);
+                        } else if (btnId === 'add-fixture-btn') {
+                            showFixtureModal();
                         }
                     });
                 }
             });
+
+            // Notification function
+            function showNotification(message, type = 'success') {
+                const notification = document.createElement('div');
+                notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg text-white text-sm font-medium z-50 transition-all duration-300 transform translate-y-full opacity-0 ${
+                    type === 'success' ? 'bg-green-600' : 
+                    type === 'error' ? 'bg-red-600' : 
+                    'bg-blue-600'
+                }`;
+                notification.textContent = message;
+                document.body.appendChild(notification);
+                
+                requestAnimationFrame(() => {
+                    notification.classList.remove('translate-y-full', 'opacity-0');
+                });
+                
+                setTimeout(() => {
+                    notification.classList.add('translate-y-full', 'opacity-0');
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
 
             // Add handlers for all action buttons
             const actionButtons = {
