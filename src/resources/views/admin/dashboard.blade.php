@@ -181,6 +181,24 @@
             background-color: rgba(255, 255, 255, 0.9);
             backdrop-filter: blur(10px);
         }
+
+        /* Video upload specific styles */
+        .video-upload-container {
+            border: 2px dashed #d1d5db;
+            transition: all 0.3s ease;
+        }
+        .video-upload-container:hover {
+            border-color: #93c5fd;
+            background-color: #f8fafc;
+        }
+        .video-upload-container.drag-over {
+            border-color: #3b82f6;
+            background-color: #e0e7ff;
+        }
+        .video-thumbnail {
+            position: relative;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+        }
     </style>
 </head>
 <body class="dashboard-bg">
@@ -389,21 +407,178 @@
             <!-- Uploads Content -->
             <section id="uploads-content" class="content-section">
                 <div class="card p-6 rounded-lg shadow-sm">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Uploads Management</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Upload Card -->
-                        <div class="card p-4 rounded-lg border border-gray-200 hover:border-blue-300">
-                            <div class="flex items-center justify-between mb-3">
-                                <i class="fas fa-image text-blue-500 text-2xl"></i>
-                                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Images</span>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Media Management</h2>
+                    
+                    <!-- Video Upload Section -->
+                    <div class="card p-6 mb-8 rounded-lg border-2 border-dashed border-gray-200 hover:border-blue-300 transition-colors video-upload-container" id="videoUploadContainer">
+                        <div class="text-center">
+                            <i class="fas fa-video text-blue-500 text-4xl mb-4"></i>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Upload New Video</h3>
+                            <p class="text-gray-500 mb-4">Drag & drop video files here or click to browse</p>
+                            
+                            <!-- Upload Form -->
+                            <form id="videoUploadForm" class="space-y-4">
+                                <div class="flex flex-col items-center justify-center">
+                                    <label for="videoFile" class="btn px-6 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 cursor-pointer">
+                                        <i class="fas fa-cloud-upload-alt mr-2"></i> Select Video File
+                                    </label>
+                                    <input type="file" id="videoFile" name="videoFile" accept="video/*" class="hidden" required>
+                                    <p id="fileName" class="mt-2 text-sm text-gray-500"></p>
+                                </div>
+                                
+                                <div id="uploadProgress" class="hidden">
+                                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                    <p id="progressText" class="text-xs text-gray-500 mt-1">Uploading: 0%</p>
+                                </div>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="videoTitle" class="block text-sm font-medium text-gray-700">Video Title</label>
+                                        <input type="text" id="videoTitle" name="videoTitle" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                    </div>
+                                    <div>
+                                        <label for="videoCategory" class="block text-sm font-medium text-gray-700">Category</label>
+                                        <select id="videoCategory" name="videoCategory" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" required>
+                                            <option value="">Select Category</option>
+                                            <option value="Match Highlights">Match Highlights</option>
+                                            <option value="Training Sessions">Training Sessions</option>
+                                            <option value="Player Interviews">Player Interviews</option>
+                                            <option value="Behind the Scenes">Behind the Scenes</option>
+                                            <option value="Promotional">Promotional</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label for="videoDescription" class="block text-sm font-medium text-gray-700">Description</label>
+                                    <textarea id="videoDescription" name="videoDescription" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                                </div>
+                                
+                                <div class="flex justify-end space-x-3">
+                                    <button type="reset" class="btn px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" id="uploadBtn" class="btn px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
+                                        Upload Video
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Video Gallery -->
+                    <div class="mt-8">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Uploads</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Video Card 1 -->
+                            <div class="card group relative overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-all">
+                                <div class="video-thumbnail">
+                                    <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                                         alt="Match Highlights" 
+                                         class="absolute inset-0 w-full h-full object-cover">
+                                    <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button class="btn p-3 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all transform hover:scale-110">
+                                            <i class="fas fa-play text-blue-600 text-xl"></i>
+                                        </button>
+                                    </div>
+                                    <span class="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                                        4:32
+                                    </span>
+                                </div>
+                                <div class="p-4">
+                                    <div class="flex justify-between items-start">
+                                        <h4 class="font-semibold text-gray-800 mb-1">Match Highlights vs Vihiga United</h4>
+                                        <button class="btn text-gray-400 hover:text-gray-600">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                    <p class="text-sm text-gray-500 mb-2">28 Oct 2023</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Match Highlights</span>
+                                        <div class="flex space-x-2">
+                                            <span class="text-xs text-gray-500"><i class="fas fa-eye mr-1"></i> 1.2K</span>
+                                            <span class="text-xs text-gray-500"><i class="fas fa-thumbs-up mr-1"></i> 84</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <h3 class="text-lg font-semibold text-gray-800 mb-1">Team Photos</h3>
-                            <p class="text-sm text-gray-500 mb-3">Last updated: 15 Oct 2023</p>
-                            <button class="btn w-full py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700">
-                                View Uploads
+                            
+                            <!-- Video Card 2 -->
+                            <div class="card group relative overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-all">
+                                <div class="video-thumbnail">
+                                    <img src="https://images.unsplash.com/photo-1543357486-c2505d3d0385?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" 
+                                         alt="Training Session" 
+                                         class="absolute inset-0 w-full h-full object-cover">
+                                    <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button class="btn p-3 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all transform hover:scale-110">
+                                            <i class="fas fa-play text-blue-600 text-xl"></i>
+                                        </button>
+                                    </div>
+                                    <span class="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                                        8:15
+                                    </span>
+                                </div>
+                                <div class="p-4">
+                                    <div class="flex justify-between items-start">
+                                        <h4 class="font-semibold text-gray-800 mb-1">Pre-Match Training Session</h4>
+                                        <button class="btn text-gray-400 hover:text-gray-600">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                    <p class="text-sm text-gray-500 mb-2">25 Oct 2023</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Training Sessions</span>
+                                        <div class="flex space-x-2">
+                                            <span class="text-xs text-gray-500"><i class="fas fa-eye mr-1"></i> 856</span>
+                                            <span class="text-xs text-gray-500"><i class="fas fa-thumbs-up mr-1"></i> 42</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Video Card 3 -->
+                            <div class="card group relative overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-all">
+                                <div class="video-thumbnail">
+                                    <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80" 
+                                         alt="Player Interview" 
+                                         class="absolute inset-0 w-full h-full object-cover">
+                                    <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button class="btn p-3 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all transform hover:scale-110">
+                                            <i class="fas fa-play text-blue-600 text-xl"></i>
+                                        </button>
+                                    </div>
+                                    <span class="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                                        3:45
+                                    </span>
+                                </div>
+                                <div class="p-4">
+                                    <div class="flex justify-between items-start">
+                                        <h4 class="font-semibold text-gray-800 mb-1">John Okoro Post-Match Interview</h4>
+                                        <button class="btn text-gray-400 hover:text-gray-600">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                    </div>
+                                    <p class="text-sm text-gray-500 mb-2">22 Oct 2023</p>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">Player Interviews</span>
+                                        <div class="flex space-x-2">
+                                            <span class="text-xs text-gray-500"><i class="fas fa-eye mr-1"></i> 1.5K</span>
+                                            <span class="text-xs text-gray-500"><i class="fas fa-thumbs-up mr-1"></i> 127</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- View More Button -->
+                        <div class="mt-6 text-center">
+                            <button class="btn px-6 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100">
+                                View All Videos
                             </button>
                         </div>
-                        <!-- More upload cards would go here -->
                     </div>
                 </div>
             </section>
@@ -885,6 +1060,254 @@
                 }
             });
         }
+
+        // Video Upload Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoUploadForm = document.getElementById('videoUploadForm');
+            const videoFileInput = document.getElementById('videoFile');
+            const fileNameDisplay = document.getElementById('fileName');
+            const uploadProgress = document.getElementById('uploadProgress');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const videoUploadContainer = document.getElementById('videoUploadContainer');
+            
+            // Handle file selection
+            videoFileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    const file = this.files[0];
+                    fileNameDisplay.textContent = file.name;
+                    
+                    // Check file size (max 500MB)
+                    const maxSize = 500 * 1024 * 1024; // 500MB in bytes
+                    if (file.size > maxSize) {
+                        fileNameDisplay.textContent = 'File too large (max 500MB)';
+                        fileNameDisplay.classList.add('text-red-500');
+                        uploadBtn.disabled = true;
+                    } else {
+                        fileNameDisplay.classList.remove('text-red-500');
+                        uploadBtn.disabled = false;
+                    }
+                }
+            });
+            
+            // Handle drag and drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                videoUploadContainer.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                videoUploadContainer.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                videoUploadContainer.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                videoUploadContainer.classList.add('border-blue-400', 'bg-blue-50', 'drag-over');
+            }
+            
+            function unhighlight() {
+                videoUploadContainer.classList.remove('border-blue-400', 'bg-blue-50', 'drag-over');
+            }
+            
+            videoUploadContainer.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                videoFileInput.files = files;
+                
+                // Trigger change event
+                const event = new Event('change');
+                videoFileInput.dispatchEvent(event);
+            }
+            
+            // Handle form submission
+            videoUploadForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(this);
+                const file = videoFileInput.files[0];
+                
+                if (!file) {
+                    showNotification('Please select a video file', 'error');
+                    return;
+                }
+                
+                // Simulate upload progress (in a real app, you'd use XMLHttpRequest or fetch with progress events)
+                uploadProgress.classList.remove('hidden');
+                uploadBtn.disabled = true;
+                
+                let progress = 0;
+                const interval = setInterval(() => {
+                    progress += Math.random() * 10;
+                    if (progress > 100) progress = 100;
+                    
+                    progressBar.style.width = `${progress}%`;
+                    progressText.textContent = `Uploading: ${Math.round(progress)}%`;
+                    
+                    if (progress === 100) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            showNotification('Video uploaded successfully!', 'success');
+                            videoUploadForm.reset();
+                            fileNameDisplay.textContent = '';
+                            uploadProgress.classList.add('hidden');
+                            uploadBtn.disabled = false;
+                            
+                            // Add the new video to the gallery (simulated)
+                            addNewVideoToGallery(
+                                formData.get('videoTitle') || 'New Video',
+                                formData.get('videoCategory') || 'Uncategorized',
+                                'Just now'
+                            );
+                        }, 500);
+                    }
+                }, 200);
+            });
+            
+            // Function to simulate adding a new video to the gallery
+            function addNewVideoToGallery(title, category, date) {
+                const gallery = document.querySelector('#uploads-content .grid');
+                if (!gallery) return;
+                
+                const newVideo = document.createElement('div');
+                newVideo.className = 'card group relative overflow-hidden rounded-lg shadow-sm hover:shadow-md transition-all';
+                newVideo.innerHTML = `
+                    <div class="relative pt-[56.25%]">
+                        <img src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1605&q=80" 
+                             alt="${title}" 
+                             class="absolute inset-0 w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button class="btn p-3 bg-white bg-opacity-80 rounded-full hover:bg-opacity-100 transition-all transform hover:scale-110">
+                                <i class="fas fa-play text-blue-600 text-xl"></i>
+                            </button>
+                        </div>
+                        <span class="absolute top-2 right-2 bg-black bg-opacity-70 text-white text-xs px-2 py-1 rounded">
+                            0:00
+                        </span>
+                    </div>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-semibold text-gray-800 mb-1">${title}</h4>
+                            <button class="btn text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-2">${date}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">${category}</span>
+                            <div class="flex space-x-2">
+                                <span class="text-xs text-gray-500"><i class="fas fa-eye mr-1"></i> 0</span>
+                                <span class="text-xs text-gray-500"><i class="fas fa-thumbs-up mr-1"></i> 0</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                gallery.insertBefore(newVideo, gallery.firstChild);
+                
+                // Add click handler to the new play button
+                newVideo.querySelector('.fa-play').addEventListener('click', function() {
+                    const videoCard = this.closest('.card');
+                    const videoTitle = videoCard.querySelector('h4').textContent;
+                    
+                    // Create modal
+                    const modal = document.createElement('div');
+                    modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75';
+                    modal.innerHTML = `
+                        <div class="relative w-full max-w-4xl mx-4">
+                            <button class="absolute -top-10 right-0 text-white hover:text-gray-300">
+                                <i class="fas fa-times text-2xl"></i>
+                            </button>
+                            <div class="bg-black rounded-lg overflow-hidden">
+                                <div class="relative pt-[56.25%]">
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <i class="fas fa-play-circle text-white text-6xl opacity-70"></i>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-900">
+                                    <h3 class="text-xl font-semibold text-white mb-2">${videoTitle}</h3>
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex space-x-4">
+                                            <button class="btn text-white hover:text-blue-400">
+                                                <i class="fas fa-thumbs-up mr-1"></i> Like
+                                            </button>
+                                            <button class="btn text-white hover:text-blue-400">
+                                                <i class="fas fa-share mr-1"></i> Share
+                                            </button>
+                                        </div>
+                                        <span class="text-sm text-gray-400">Uploaded: ${date}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(modal);
+                    
+                    // Close modal
+                    modal.querySelector('button').addEventListener('click', function() {
+                        modal.remove();
+                    });
+                });
+            }
+            
+            // Video player modal for existing videos
+            document.querySelectorAll('#uploads-content .fa-play').forEach(playBtn => {
+                playBtn.addEventListener('click', function() {
+                    const videoCard = this.closest('.card');
+                    const videoTitle = videoCard.querySelector('h4').textContent;
+                    const videoDate = videoCard.querySelector('p').textContent;
+                    
+                    // Create modal
+                    const modal = document.createElement('div');
+                    modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75';
+                    modal.innerHTML = `
+                        <div class="relative w-full max-w-4xl mx-4">
+                            <button class="absolute -top-10 right-0 text-white hover:text-gray-300">
+                                <i class="fas fa-times text-2xl"></i>
+                            </button>
+                            <div class="bg-black rounded-lg overflow-hidden">
+                                <div class="relative pt-[56.25%]">
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <i class="fas fa-play-circle text-white text-6xl opacity-70"></i>
+                                    </div>
+                                </div>
+                                <div class="p-4 bg-gray-900">
+                                    <h3 class="text-xl font-semibold text-white mb-2">${videoTitle}</h3>
+                                    <div class="flex justify-between items-center">
+                                        <div class="flex space-x-4">
+                                            <button class="btn text-white hover:text-blue-400">
+                                                <i class="fas fa-thumbs-up mr-1"></i> Like
+                                            </button>
+                                            <button class="btn text-white hover:text-blue-400">
+                                                <i class="fas fa-share mr-1"></i> Share
+                                            </button>
+                                        </div>
+                                        <span class="text-sm text-gray-400">Uploaded: ${videoDate}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(modal);
+                    
+                    // Close modal
+                    modal.querySelector('button').addEventListener('click', function() {
+                        modal.remove();
+                    });
+                });
+            });
+        });
 
         // Initialize when DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
