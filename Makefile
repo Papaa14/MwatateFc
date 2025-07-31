@@ -1,9 +1,13 @@
 # Laravel Docker Development Commands
-# Export user ID and group ID for consistent permissions across systems
-export UID = $(shell id -u)
-export GID = $(shell id -g)
 
-.PHONY: help up down build restart exec logs install migrate seed artisan composer test clean
+# Dynamically detect docker-compose vs docker compose
+DC := $(shell command -v docker-compose >/dev/null 2>&1 && echo docker-compose || echo docker compose)
+
+# Export user ID and group ID for consistent permissions across systems
+export UID := $(shell id -u)
+export GID := $(shell id -g)
+
+.PHONY: help up down build restart exec logs install migrate seed artisan composer test clean setup key cache-clear fix-permissions
 
 # Default target
 help:
@@ -25,72 +29,72 @@ help:
 
 # Start services
 up:
-	docker-compose up -d
+	$(DC) up -d
 
 # Stop services
 down:
-	docker-compose down
+	$(DC) down
 
 # Build containers
 build:
-	docker-compose build --no-cache
+	$(DC) build --no-cache
 
 # Restart services
 restart: down up
 
 # Execute commands in PHP container
 exec:
-	docker-compose exec app sh
+	$(DC) exec app sh
 
 # View logs
 logs:
-	docker-compose logs -f app
+	$(DC) logs -f app
 
 # Install PHP dependencies
 install:
-	docker-compose exec app composer install
+	$(DC) exec app composer install
 
 # Run database migrations
 migrate:
-	docker-compose exec app php artisan migrate
+	$(DC) exec app php artisan migrate
 
 # Run database seeders
 seed:
-	docker-compose exec app php artisan db:seed
+	$(DC) exec app php artisan db:seed
 
 # Run artisan commands
 artisan:
-	docker-compose exec app php artisan $(CMD)
+	$(DC) exec app php artisan $(CMD)
 
 # Run composer commands
 composer:
-	docker-compose exec app composer $(CMD)
+	$(DC) exec app composer $(CMD)
 
 # Run tests
 test:
-	docker-compose exec app php artisan test
+	$(DC) exec app php artisan test
 
 # Generate application key
 key:
-	docker-compose exec app php artisan key:generate
+	$(DC) exec app php artisan key:generate
 
-# Clear caches
+# Clear Laravel caches
 cache-clear:
-	docker-compose exec app php artisan cache:clear
-	docker-compose exec app php artisan config:clear
-	docker-compose exec app php artisan route:clear
-	docker-compose exec app php artisan view:clear
+	$(DC) exec app php artisan cache:clear
+	$(DC) exec app php artisan config:clear
+	$(DC) exec app php artisan route:clear
+	$(DC) exec app php artisan view:clear
 
-# Fix permissions for storage and bootstrap/cache
+# Fix permissions for Laravel
 fix-permissions:
-	docker-compose exec app chmod -R 775 storage bootstrap/cache
+	$(DC) exec app chmod -R 775 storage bootstrap/cache
 
-# Clean up
+# Remove volumes, networks, etc.
 clean:
-	docker-compose down -v
+	$(DC) down -v
 	docker system prune -f
 
-# Complete setup for new developers
+# Full setup for new developers
 setup: build up install key migrate
 	@echo "Setting up Laravel permissions..."
 	@make fix-permissions

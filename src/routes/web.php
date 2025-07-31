@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Coach\LineupController;
 
 // Authentication Routes
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
@@ -19,9 +20,11 @@ Route::get('/dashboard', function () {
     return view('admin.dashboard');
 })->name('dashboard'); // Admin
 
-Route::get('/coach-dashboard', function () {
-    return view('coach.dashboard');
-})->name('coach-dashboard'); // Coach
+Route::middleware(['auth', 'role:coach'])->group(function () {
+    Route::get('/coach-dashboard', [App\Http\Controllers\Coach\DashboardController::class, 'index'])->name('coach-dashboard');
+    Route::get('/coach/training/create', [App\Http\Controllers\Coach\TrainingController::class, 'create'])->name('coach.training.create');
+    Route::get('/coach/message/create', [App\Http\Controllers\Coach\MessageController::class, 'create'])->name('coach.message.create');
+}); // Coach
 
 Route::get('/player-dashboard', function () {
     return view('player.dashboard');
@@ -30,3 +33,7 @@ Route::get('/player-dashboard', function () {
 Route::get('/fan-dashboard', function () {
     return view('fan.index');
 })->name('fan-dashboard'); // Fan (Note: I corrected the name from your example)
+
+Route::get('/coach-dashboard', function () {
+    return view('coach.dashboard');
+})->name('coach-dashboard'); // Coach
