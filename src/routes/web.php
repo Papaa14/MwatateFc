@@ -20,11 +20,11 @@ Route::get('/dashboard', function () {
     return view('admin.dashboard');
 })->name('dashboard'); // Admin
 
-Route::middleware(['auth', 'role:coach'])->group(function () {
-    Route::get('/coach-dashboard', [App\Http\Controllers\Coach\DashboardController::class, 'index'])->name('coach-dashboard');
-    Route::get('/coach/training/create', [App\Http\Controllers\Coach\TrainingController::class, 'create'])->name('coach.training.create');
-    Route::get('/coach/message/create', [App\Http\Controllers\Coach\MessageController::class, 'create'])->name('coach.message.create');
-}); // Coach
+// Route::middleware(['auth', 'role:coach'])->group(function () {
+//     Route::get('/coach-dashboard', [App\Http\Controllers\Coach\DashboardController::class, 'index'])->name('coach-dashboard');
+//     Route::get('/coach/training/create', [App\Http\Controllers\Coach\TrainingController::class, 'create'])->name('coach.training.create');
+//     Route::get('/coach/message/create', [App\Http\Controllers\Coach\MessageController::class, 'create'])->name('coach.message.create');
+// }); // Coach
 
 Route::get('/player-dashboard', function () {
     return view('player.dashboard');

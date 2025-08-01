@@ -31,10 +31,7 @@ class AuthController extends Controller
             'role' => $validated['role'],
         ]);
 
-        return response()->json([
-            'message' => 'User registered successfully!',
-            'user' => $user
-        ], 201);
+        return $this->sendResponse($user, 'User registered successfully!');
     }
 
     /**
@@ -48,18 +45,17 @@ class AuthController extends Controller
         ]);
 
         if (!Auth::attempt($validated)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+            return $this->sendError('Invalid credentials', [], 401);
         }
 
         $user = User::where('email', $validated['email'])->first();
 
         $token = $user->createToken('api-token')->plainTextToken;
 
-        return response()->json([
-            'message' => 'Login successful',
+        return $this->sendResponse([
             'user' => $user,
-            'token' => $token,
-        ]);
+            'token' => $token
+        ], 'Login successful');
     }
 
     /**
@@ -69,6 +65,6 @@ class AuthController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Successfully logged out']);
+        return $this->sendResponse(null, 'Successfully logged out');
     }
 }

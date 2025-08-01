@@ -153,8 +153,8 @@
                     const response = await axios.post('{{ url("/api/login") }}', data, {
                         headers: { 'Accept': 'application/json' }
                     });
-                    localStorage.setItem('api_token', response.data.token);
-                    localStorage.setItem('user', JSON.stringify(response.data.user));
+                    localStorage.setItem('api_token', response.data.data.token);
+                    localStorage.setItem('user', JSON.stringify(response.data.data.user));
                     Toastify({
                         text: "Login Successful! Redirecting...", 
                         duration: 2000, 
@@ -162,7 +162,7 @@
                         position: "center",
                         backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)",
                     }).showToast();
-                    const userRole = response.data.user.role;
+                    const userRole = response.data.data.user.role;
                     let redirectUrl = '/';
                     switch (userRole) {
                         case 'admin': redirectUrl = '{{ route("dashboard") }}'; break;
