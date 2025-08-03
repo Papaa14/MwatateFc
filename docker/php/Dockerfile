@@ -38,6 +38,9 @@ RUN mkdir -p /var/www/html/storage/app/public \
     && mkdir -p /var/www/html/bootstrap/cache \
     && mkdir -p /home/appuser/.composer
 
+# Copy Laravel application files
+COPY --chown=appuser:appgroup ./src /var/www/html
+
 # Set proper ownership
 RUN chown -R appuser:appgroup /var/www/html \
     && chown -R appuser:appgroup /home/appuser
@@ -48,6 +51,9 @@ RUN sed -i 's/user = www-data/user = appuser/g' /usr/local/etc/php-fpm.d/www.con
 
 # Switch to non-root user
 USER appuser
+
+# Install composer dependencies
+RUN composer install --no-dev --optimize-autoloader
 
 # Expose port 9000 and start php-fpm server
 EXPOSE 9000
