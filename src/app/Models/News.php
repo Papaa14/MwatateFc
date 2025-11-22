@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Models;
 
@@ -7,12 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class News extends Model
 {
- use HasFactory;
+    use HasFactory;
 
- protected $fillable = [
- 'title',
- 'content',
- 'author',
- 'featured_image',
- ];
+    protected $fillable = [
+        'title',
+        'content',
+        'image_path',
+    ];
 }

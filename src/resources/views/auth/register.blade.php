@@ -68,6 +68,20 @@
                     </div>
                     <!-- No error needed here, password error will show "confirmation does not match" -->
                 </div>
+                <div>
+                    <label for="role" class="block text-sm font-medium text-gray-700">Select Role</label>
+                    <div class="mt-1">
+                        <select id="role" name="role" required class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Choose a role</option>
+                            <option value="admin">Admin</option>
+                            <option value="fan">Fan</option>
+                            <option value="coach">Coach</option>
+                            <option value="player">Player</option>
+                        </select>
+                    </div>
+                    <div id="role-error" class="error-message"></div>
+                </div>
+
 
                 <div>
                     <button type="submit" id="submit-button"
@@ -112,9 +126,6 @@
             const formData = new FormData(form);
             const data = Object.fromEntries(formData.entries());
 
-            // 3. Set the 'role' as per your business logic.
-            // Since the form says "Join us to be our number one fan", 'fan' is the logical choice.
-            data.role = 'fan';
 
             try {
                 // 4. Send the data asynchronously to our Laravel API

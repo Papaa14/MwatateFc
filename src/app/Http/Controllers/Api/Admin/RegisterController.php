@@ -16,22 +16,25 @@ class RegisterController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'role' => ['required', new Enum(UserRole::class)]
+            'password' => 'required|string|min:8',              
+            'role' => ['required', new Enum(UserRole::class)],
+            'position' => 'sometimes|string',
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role
+            'role' => $request->role,
+            'position' => $request->position ?? null,
         ]);
 
         $userData = [
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'role' => $user->role->value
+            'role' => $user->role->value,
+            'position' => $user->position,
         ];
 
         return $this->sendResponse($userData, ucfirst($user->role->value) . ' registered successfully');
@@ -48,6 +51,32 @@ class RegisterController extends Controller
         return $this->sendResponse($counts, 'User counts retrieved successfully');
     }
 
+    public function getUsers(Request $request)
+{
+    $request->validate([
+        'role' => ['sometimes', new Enum(UserRole::class)],
+    ]);
+
+    $query = User::select('id', 'name', 'email', 'role', 'position', 'created_at');
+    
+    if ($request->has('role')) {
+        $query->where('role', $request->role);
+    }
+
+    $users = $query->get()->map(function ($user) {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role->value,
+            'position' => $user->position,
+            'created_at' => $user->created_at,
+        ];
+    });
+
+    return $this->sendResponse($users, 'Users retrieved successfully');
+}
+
     public function updateUser(Request $request, $id)
     {
         $user = User::find($id);
@@ -60,10 +89,11 @@ class RegisterController extends Controller
             'name' => 'sometimes|string|max:255',
             'email' => 'sometimes|string|email|max:255|unique:users,email,' . $id,
             'password' => 'sometimes|string|min:8',
-            'role' => ['sometimes', new Enum(UserRole::class)]
+            'role' => ['sometimes', new Enum(UserRole::class)],
+            'position' => 'sometimes|string',
         ]);
 
-        $updateData = $request->only(['name', 'email', 'role']);
+        $updateData = $request->only(['name', 'email', 'role', 'position' ]);
         
         if ($request->has('password')) {
             $updateData['password'] = Hash::make($request->password);
@@ -75,7 +105,8 @@ class RegisterController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'role' => $user->role->value
+            'role' => $user->role->value,
+            'position' => $user->position,
         ];
 
         return $this->sendResponse($userData, 'User updated successfully');
