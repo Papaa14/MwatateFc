@@ -12,6 +12,7 @@ class  Controller
     public function sendResponse($result, $message = 'Operation completed successfully'): JsonResponse
     {
         $response = [
+            'success' => true,
             'status' => 'success',
             'message' => $message,
             'data' => $result,
@@ -27,6 +28,7 @@ class  Controller
     public function sendError($error, $errorMessages = [], $code = 404): JsonResponse
     {
         $response = [
+            'success' => false,
             'status' => 'error',
             'message' => $error,
             'data' => null,
