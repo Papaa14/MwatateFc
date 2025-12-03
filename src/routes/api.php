@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Admin\NewsController;
 use App\Http\Controllers\Api\Admin\RegisterController;
 use App\Http\Controllers\Api\Admin\TicketController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\Admin\JerseyController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,7 @@ Route::delete('/admin/delete/{id}', [RegisterController::class, 'deleteUser']);
 Route::apiResource('news', NewsController::class);
 Route::apiResource('fixtures', FixtureController::class);
 Route::apiResource('tickets', TicketController::class);
+Route::apiResource('jerseys', JerseyController::class);
 
 Route::get('/user-counts', [RegisterController::class, 'getUserCounts']);
 Route::post('/register', [RegisterController::class, 'Register']);

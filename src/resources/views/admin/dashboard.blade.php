@@ -70,6 +70,11 @@
                 class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-blue-600">
                 <i class="fas fa-ticket-alt w-6"></i> Tickets
             </button>
+            <button onclick="switchSection('jerseys')" id="nav-jerseys"
+                class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-blue-600">
+                <i class="fa-solid fa-shirt  w-6"></i> Jerseys
+            </button>
+
         </nav>
 
         <!-- Admin Profile -->
@@ -229,7 +234,7 @@
             </div>
         </section>
 
-        <!-- TICKETS SECTION (Unchanged) -->
+        <!-- TICKETS SECTION-->
         <section id="tickets-section" class="section-content hidden animate-fadeIn">
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                 <div class="flex justify-between items-center mb-6">
@@ -242,6 +247,21 @@
                 <div id="tickets-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <!-- Dynamic Content -->
                 </div>
+            </div>
+        </section>
+        <!-- Jerseys SECTION-->
+        <!-- JERSEYS SECTION -->
+        <section id="jerseys-section" class="section-content hidden animate-fadeIn">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Jerseys Management</h2>
+                <button onclick="openJerseyModal()"
+                    class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium transition flex items-center">
+                    <i class="fas fa-shirt mr-2"></i> Add New Jersey
+                </button>
+            </div>
+            <!-- Grid for Jersey Cards -->
+            <div id="jerseys-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Dynamic Content Injected Here -->
             </div>
         </section>
 
@@ -457,6 +477,52 @@
             </form>
         </div>
     </div>
+    <!-- JERSEY MODAL -->
+    <div id="jerseyModal"
+        class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm">
+            <form id="jerseyForm" onsubmit="handleJerseySubmit(event)" class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="jerseyModalTitle" class="text-xl font-bold text-gray-800">Add Jersey</h3>
+                    <button type="button" onclick="closeModal('jerseyModal')" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <input type="hidden" name="id" id="jerseyId">
+
+                <div class="space-y-4">
+                    <!-- Image Input -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Jersey Image</label>
+                        <input type="file" name="image" id="jerseyImage" accept="image/*"
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        <p class="text-xs text-gray-400 mt-1">Supported: JPG, PNG, JPEG</p>
+                    </div>
+
+                    <!-- Price Input -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Price (KES)</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">KES</span>
+                            <input type="number" name="price" id="jerseyPrice" placeholder="0.00" required min="0"
+                                step="0.01"
+                                class="w-full border rounded-lg p-2.5 pl-12 bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('jerseyModal')"
+                        class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md">
+                        Save Jersey
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
         const API_URL = '/api';
@@ -483,6 +549,7 @@
             if (id === 'news') loadNews();
             if (id === 'fixtures') loadFixtures();
             if (id === 'tickets') loadTickets();
+            if (id === 'jerseys') loadJerseys();
         }
 
         function toggleAdminMenu() { document.getElementById('adminMenu').classList.toggle('hidden'); }
@@ -754,7 +821,6 @@
                     </div>`;
             });
         }
-
         async function handleTicketSubmit(e) {
             e.preventDefault();
             const payload = Object.fromEntries(new FormData(e.target));
@@ -763,6 +829,105 @@
             const method = id ? 'PUT' : 'POST';
             const res = await fetch(url, { method: method, headers, body: JSON.stringify(payload) });
             if (res.ok) { showToast('Ticket saved!'); closeModal('ticketModal'); loadTickets(); }
+        }
+
+        // --- JERSEYS LOGIC ---
+
+        // 1. Open Modal
+        function openJerseyModal(item = null) {
+            document.getElementById('jerseyForm').reset();
+            document.getElementById('jerseyId').value = '';
+            document.getElementById('jerseyModalTitle').innerText = 'Add New Jersey';
+
+            // Remove "required" from image if editing (since they might not want to change the image)
+            document.getElementById('jerseyImage').required = true;
+
+            if (item) {
+                document.getElementById('jerseyId').value = item.id;
+                document.getElementById('jerseyPrice').value = item.price;
+                document.getElementById('jerseyModalTitle').innerText = 'Edit Jersey';
+                // Image is optional during edit
+                document.getElementById('jerseyImage').required = false;
+            }
+            document.getElementById('jerseyModal').classList.remove('hidden');
+        }
+
+        // 2. Load Data
+        async function loadJerseys() {
+            const grid = document.getElementById('jerseys-grid');
+            grid.innerHTML = '<p class="text-gray-500 col-span-full text-center">Loading jerseys...</p>';
+
+            try {
+                const res = await fetch(`${API_URL}/jerseys`);
+                const json = await res.json();
+
+                grid.innerHTML = '';
+
+                if (!json.data || json.data.length === 0) {
+                    grid.innerHTML = '<p class="text-gray-400 col-span-full text-center py-8">No jerseys added yet.</p>';
+                    return;
+                }
+
+                json.data.forEach(item => {
+                    grid.innerHTML += `
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition group">
+                <div class="h-56 bg-gray-100 relative overflow-hidden">
+                    <img src="/storage/${item.image_path}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                    <div class="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                         <button onclick='openJerseyModal(${JSON.stringify(item)})' class="bg-white p-2 rounded-full shadow text-blue-600 hover:text-blue-800"><i class="fas fa-edit"></i></button>
+                         <button onclick="deleteItem('jerseys', ${item.id})" class="bg-white p-2 rounded-full shadow text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                <div class="p-4 text-center">
+                    <p class="text-gray-500 text-xs uppercase font-bold tracking-wider mb-1">Official Kit</p>
+                    <h3 class="text-xl font-bold text-gray-800">KES ${parseFloat(item.price).toLocaleString()}</h3>
+                </div>
+            </div>`;
+                });
+            } catch (error) {
+                console.error(error);
+                grid.innerHTML = '<p class="text-red-500">Failed to load jerseys.</p>';
+            }
+        }
+
+        // 3. Handle Submit (Create/Update with File Upload)
+        async function handleJerseySubmit(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const id = document.getElementById('jerseyId').value;
+
+            let url = `${API_URL}/jerseys`;
+            let method = 'POST';
+
+            if (id) {
+                url = `${API_URL}/jerseys/${id}`;
+                // Laravel requires POST with _method field for file uploads on update
+                formData.append('_method', 'PUT');
+            }
+
+            try {
+                const res = await fetch(url, {
+                    method: 'POST', // Always POST when sending FormData with files (even for PUT via _method)
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken
+                        // Note: Do NOT set 'Content-Type': 'application/json' here.
+                        // Let the browser set the Content-Type automatically for FormData (multipart/form-data).
+                    },
+                    body: formData
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    showToast('Jersey saved successfully!');
+                    closeModal('jerseyModal');
+                    loadJerseys();
+                } else {
+                    showToast(data.message || 'Error saving jersey', 'error');
+                }
+            } catch (error) {
+                showToast('Network error', 'error');
+            }
         }
 
         async function deleteItem(endpoint, id) {

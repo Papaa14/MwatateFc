@@ -24,6 +24,52 @@ else
     exit 1
 fi
 
+# Check if make is installed
+if ! command -v make &> /dev/null; then
+    echo "❌ Make is not installed. Installing make..."
+    
+    # Detect OS and install make
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        if command -v apt &> /dev/null; then
+            sudo apt update && sudo apt install -y make
+        elif command -v yum &> /dev/null; then
+            sudo yum install -y make
+        elif command -v dnf &> /dev/null; then
+            sudo dnf install -y make
+        else
+            echo "❌ Cannot auto-install make. Please install it manually:"
+            echo "   Ubuntu/Debian: sudo apt install make"
+            echo "   CentOS/RHEL: sudo yum install make"
+            exit 1
+        fi
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        if command -v brew &> /dev/null; then
+            brew install make
+        else
+            echo "❌ Please install make manually:"
+            echo "   xcode-select --install"
+            echo "   or install Homebrew and run: brew install make"
+            exit 1
+        fi
+    else
+        echo "❌ Unsupported OS. Please install make manually."
+        exit 1
+    fi
+    
+    echo "✅ Make installed successfully!"
+fi
+
+# Check Docker permissions
+if ! docker ps &> /dev/null; then
+    echo "❌ Docker permission denied. Adding user to docker group..."
+    sudo usermod -aG docker $USER
+    echo "⚠️  You need to log out and log back in (or restart) for docker group changes to take effect."
+    echo "   Then run this script again."
+    echo "   Alternatively, run: newgrp docker"
+    exit 1
+fi
+
+
 # Create .env file for docker-compose with user permissions
 echo "📝 Creating .env file with user permissions..."
 cat > .env << EOF
@@ -77,6 +123,10 @@ make key
 # Run migrations
 echo "🗄️  Running database migrations..."
 make migrate
+
+# Create storage symbolic link
+echo "🔗 Creating storage symbolic link..."
+make artisan CMD='storage:link'
 
 # Fix permissions again after setup
 echo "🔧 Fixing final permissions..."

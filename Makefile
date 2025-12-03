@@ -42,6 +42,10 @@ restart: down up
 exec:
 	docker compose exec app sh
 
+# Create storage link
+storage-link:
+	docker compose exec app php artisan storage:link
+
 # View logs
 logs:
 	docker compose logs -f app
