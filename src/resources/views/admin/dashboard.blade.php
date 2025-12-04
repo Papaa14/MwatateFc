@@ -795,20 +795,22 @@
             }
             document.getElementById('newsModal').classList.remove('hidden');
         }
+async function loadNews() {
+    const res = await fetch(`${API_URL}/news`);
+    const json = await res.json();
+    const grid = document.getElementById('news-grid');
+    const newsData = json.data || json;
 
-        async function loadNews() {
-            const res = await fetch(`${API_URL}/news`);
-            const json = await res.json();
-            const grid = document.getElementById('news-grid');
-            grid.innerHTML = '';
-            const newsData = json.data || json;
-            newsData.forEach(item => {
-                if (item.image_path) {
-                    // Card format with image
-                    grid.innerHTML += `
+    // Separate items by type
+    const imageItems = newsData.filter(item => item.image_path);
+    const textItems = newsData.filter(item => !item.image_path);
+
+    grid.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            ${imageItems.map(item => `
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
-                    <div class="h-48 bg-gray-200 relative">
-                        <img src="/storage/${item.image_path}" class="w-full h-full object-cover">
+                    <div class="aspect-video bg-gray-200 relative overflow-hidden">
+                        <img src="/storage/${item.image_path}" class="w-full h-full object-cover" onload="this.parentElement.style.aspectRatio = this.naturalWidth/this.naturalHeight">
                     </div>
                     <div class="p-5">
                         <h3 class="font-bold text-lg text-gray-800 mb-2">${item.title}</h3>
@@ -821,10 +823,11 @@
                             </div>
                         </div>
                     </div>
-                </div>`;
-                } else {
-                    // Plain text format without image
-                    grid.innerHTML += `
+                </div>
+            `).join('')}
+        </div>
+        <div class="flex flex-col gap-4 mt-6">
+            ${textItems.map(item => `
                 <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition">
                     <h3 class="font-bold text-xl text-gray-800 mb-3">${item.title}</h3>
                     <p class="text-gray-700 text-base leading-relaxed mb-4">${item.content}</p>
@@ -835,10 +838,13 @@
                             <button onclick="deleteItem('news', ${item.id})" class="text-red-500 hover:text-red-700 text-sm font-medium">Delete</button>
                         </div>
                     </div>
-                </div>`;
-                }
-            });
-        }
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+
 
         async function handleNewsSubmit(e) {
             e.preventDefault();
