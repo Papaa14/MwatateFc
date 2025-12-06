@@ -153,9 +153,10 @@
 
     <!-- Pass Laravel Auth Data to JS -->
     <script>
-        const CURRENT_USER_ID = "{{ Auth::id() }}";
-        const CURRENT_USER_NAME = "{{ Auth::user()->name ?? 'Guest' }}";
+        const CURRENT_USER_ID = "{{ Auth::check() ? Auth::id() : '' }}";
+        const CURRENT_USER_NAME = "{{ Auth::check() ? Auth::user()->name : 'Guest' }}";
     </script>
+
 
     <!-- Toast Notification -->
     <div id="toast-container"
@@ -197,7 +198,8 @@
                 <div class="relative">
                     <button id="profileButton" class="flex items-center space-x-2 focus:outline-none">
                         <span
-                            class="text-white font-medium hidden sm:block">{{ Auth::user()->name ?? 'Guest User' }}</span>
+                            class="user-name text-white font-medium hidden sm:block">{{ Auth::user()->name ?? 'Guest User' }}</span>
+
                         <img class="w-10 h-10 rounded-full ring-2 ring-white/50"
                             src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'Guest') }}&background=random"
                             alt="Fan Avatar">
@@ -208,8 +210,11 @@
                     <div id="profileDropdown"
                         class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                         <div class="p-3 border-b border-gray-100">
-                            <p class="font-medium text-gray-800">{{ Auth::user()->name ?? 'Guest User' }}</p>
-                            <p class="text-sm text-gray-500">{{ Auth::user()->email ?? 'guest@example.com' }}</p>
+                            <p class="user-name font-medium text-gray-800">{{ Auth::user()->name ?? 'Guest User' }}</p>
+
+                            <p class="user-email text-sm text-gray-500">{{ Auth::user()->email ?? 'guest@example.com' }}
+                            </p>
+
                         </div>
                         <div class="py-1">
                             <button onclick="logout()"
@@ -280,8 +285,11 @@
                         <img class="w-24 h-24 rounded-full mx-auto ring-4 ring-blue-500/50"
                             src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'Guest') }}&background=0D8ABC&color=fff"
                             alt="Fan Avatar">
-                        <h3 class="mt-4 text-xl font-bold text-gray-800">{{ Auth::user()->name ?? 'Guest User' }}</h3>
-                        <p class="text-sm text-gray-500">{{ Auth::user()->email ?? 'Join us today!' }}</p>
+                        <h3 class="user-name mt-4 text-xl font-bold text-gray-800">
+                            {{ Auth::user()->name ?? 'Guest User' }}</h3>
+
+                        <p class="user-email text-sm text-gray-500">{{ Auth::user()->email ?? 'Join us today!' }}</p>
+
                         <button onclick="showProfileModal()"
                             class="btn mt-4 w-full px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-full hover:bg-gray-300">Edit
                             Profile</button>
@@ -421,6 +429,17 @@
     <script>
         const API_URL = '/api';
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        // Store token after login and use it in API calls
+        const token = localStorage.getItem('api_token'); // Store this after login
+
+        fetch('/api/user', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+
 
         // --- UTILITIES ---
         function showToast(message, type = 'success') {
@@ -510,7 +529,7 @@
                                     </div>
                                     <div class="text-right">
                                         <span class="font-bold text-blue-600">KES ${formatCurrency(ticket.price)}</span>
-                                        <button onclick="prepareTicketOrder('${fixture.opponent}', '${fixture.match_date}', ${ticket.id}, ${ticket.price})" 
+                                        <button onclick="prepareTicketOrder('${fixture.opponent}', '${fixture.match_date}', ${ticket.id}, ${ticket.price})"
                                             class="ml-2 btn bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700">
                                             Book Now
                                         </button>
@@ -575,7 +594,7 @@
             try {
                 const res = await fetch(`${API_URL}/jerseys`);
                 const json = await res.json();
-                console.log('Shop API Response:', json); // Debug log
+                // console.log('Shop API Response:', json); // Debug log
                 const container = document.getElementById('shop-grid');
 
                 // Check different possible response structures
@@ -603,7 +622,7 @@
                         </div>
                         <div class="flex items-center justify-between mt-2">
                             <span class="text-lg font-bold text-blue-600">KES ${formatCurrency(item.price)}</span>
-                            <button onclick="prepareJerseyOrder(${item.id}, ${item.price})" 
+                            <button onclick="prepareJerseyOrder(${item.id}, ${item.price})"
                                 class="btn bg-gray-900 text-white text-xs px-4 py-2 rounded-full hover:bg-gray-800">
                                 Buy Now
                             </button>
@@ -721,22 +740,29 @@
 
         async function loadCurrentUser() {
             try {
+                console.log('Token from localStorage:', localStorage.getItem('api_token'));
                 const res = await fetch(`${API_URL}/user`, {
                     headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                        'Authorization': `Bearer ${localStorage.getItem('api_token')}`,
                         'Accept': 'application/json'
                     }
                 });
+                console.log('Response status:', res.status);
                 if (res.ok) {
                     const user = await res.json();
+                    console.log('Fetched user data:', user);
+                    console.log('User name:', user.user?.name || user.name);
                     // Update UI with user info
-                    document.querySelectorAll('.user-name').forEach(el => el.textContent = user.name);
-                    document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
+                    document.querySelectorAll('.user-name').forEach(el => el.textContent = user.user?.name || user.name);
+                    document.querySelectorAll('.user-email').forEach(el => el.textContent = user.user?.email || user.email);
+                } else {
+                    console.log('Failed to fetch user, status:', res.status);
                 }
             } catch (e) {
-                console.log('User info not available');
+                console.log('User info not available:', e);
             }
         }
+
 
         function showProfileModal() { showModal('profileModal'); }
 
