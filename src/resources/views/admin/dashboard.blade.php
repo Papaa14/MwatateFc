@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Mwatate FC</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
@@ -13,9 +14,24 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    animation: { fadeIn: 'fadeIn 0.3s ease-out' },
-                    keyframes: { fadeIn: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    },
+                    animation: {
+                        fadeIn: 'fadeIn 0.3s ease-out'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': {
+                                opacity: '0',
+                                transform: 'translateY(10px)'
+                            },
+                            '100%': {
+                                opacity: '1',
+                                transform: 'translateY(0)'
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -104,10 +120,12 @@
     <!-- Main Content -->
     <main class="flex-1 h-screen overflow-y-auto p-6 lg:p-8 relative">
 
-        <!-- DASHBOARD (Unchanged) -->
+        <!-- DASHBOARD SECTION -->
         <section id="dashboard-section" class="section-content block animate-fadeIn">
             <h1 class="text-2xl font-bold text-gray-800 mb-6">Dashboard Overview</h1>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <!-- User Stats (Existing) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                     <div class="flex justify-between items-center">
                         <div>
@@ -136,6 +154,60 @@
                         </div>
                         <div class="p-3 bg-purple-50 text-purple-600 rounded-full"><i class="fas fa-users text-xl"></i>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Financial Analytics -->
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Financial Analytics</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                <!-- 1. Sales Cards Column -->
+                <div class="space-y-6">
+                    <!-- Total Revenue -->
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-6 rounded-xl shadow-lg text-white">
+                        <p class="text-blue-100 text-sm font-medium mb-1">Total Revenue</p>
+                        <h3 id="dash-total-revenue" class="text-3xl font-bold">KES 0.00</h3>
+                        <p class="text-xs text-blue-200 mt-2">Combined Jerseys & Tickets</p>
+                    </div>
+
+                    <!-- Jersey Sales -->
+                    <div
+                        class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-gray-400 font-bold uppercase">Jersey Sales</p>
+                            <h4 id="dash-jersey-revenue" class="text-2xl font-bold text-gray-800">KES 0.00</h4>
+                        </div>
+                        <div
+                            class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
+                            <i class="fa-solid fa-shirt"></i>
+                        </div>
+                    </div>
+
+                    <!-- Ticket Sales -->
+                    <div
+                        class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-gray-400 font-bold uppercase">Ticket Sales</p>
+                            <h4 id="dash-ticket-revenue" class="text-2xl font-bold text-gray-800">KES 0.00</h4>
+                        </div>
+                        <div class="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-600">
+                            <i class="fas fa-ticket-alt"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Chart Section (Takes up 2 columns) -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-gray-700">Revenue Distribution</h3>
+                        <select class="text-xs border rounded p-1 bg-gray-50 text-gray-500">
+                            <option>All Time</option>
+                        </select>
+                    </div>
+                    <!-- Canvas for Chart.js -->
+                    <div class="relative h-64 w-full">
+                        <canvas id="salesChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -249,7 +321,7 @@
                 </div>
             </div>
         </section>
-        <!-- Jerseys SECTION-->
+
         <!-- JERSEYS SECTION -->
         <section id="jerseys-section" class="section-content hidden animate-fadeIn">
             <div class="flex justify-between items-center mb-6">
@@ -276,8 +348,8 @@
             <form id="addUserForm" onsubmit="handleRegisterUser(event)" class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 id="userModalTitle" class="text-xl font-bold text-gray-800">Add New User</h3>
-                    <button type="button" onclick="closeModal('userModal')" class="text-gray-400 hover:text-gray-600"><i
-                            class="fas fa-times"></i></button>
+                    <button type="button" onclick="closeModal('userModal')"
+                        class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
                 </div>
                 <input type="hidden" name="role" id="userRoleInput">
                 <div class="space-y-4">
@@ -334,7 +406,8 @@
                     <button type="button" onclick="closeModal('editUserModal')"
                         class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
                 </div>
-                <input type="hidden" name="id" id="editUserId"><input type="hidden" name="role" id="editUserRole">
+                <input type="hidden" name="id" id="editUserId"><input type="hidden" name="role"
+                    id="editUserRole">
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
@@ -378,8 +451,8 @@
             <form id="newsForm" onsubmit="handleNewsSubmit(event)" class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 id="newsModalTitle" class="text-xl font-bold text-gray-800">Post News</h3>
-                    <button type="button" onclick="closeModal('newsModal')" class="text-gray-400 hover:text-gray-600"><i
-                            class="fas fa-times"></i></button>
+                    <button type="button" onclick="closeModal('newsModal')"
+                        class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
                 </div>
                 <input type="hidden" name="id" id="newsId">
                 <div class="space-y-4">
@@ -425,8 +498,8 @@
                             <option value="Away">Away</option>
                         </select>
                     </div>
-                    <input type="text" name="competition" id="fixtureCompetition" placeholder="Competition" required
-                        class="w-full border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="competition" id="fixtureCompetition" placeholder="Competition"
+                        required class="w-full border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
                     <button type="button" onclick="closeModal('fixtureModal')"
@@ -462,9 +535,11 @@
                     </select>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <input type="number" name="price" id="ticketPrice" placeholder="Price" required min="0"
+                        <input type="number" name="price" id="ticketPrice" placeholder="Price" required
+                            min="0"
                             class="w-full border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-blue-500">
-                        <input type="number" name="quantity_available" id="ticketQty" placeholder="Qty" required min="1"
+                        <input type="number" name="quantity_available" id="ticketQty" placeholder="Qty" required
+                            min="1"
                             class="w-full border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
@@ -484,7 +559,8 @@
             <form id="jerseyForm" onsubmit="handleJerseySubmit(event)" class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 id="jerseyModalTitle" class="text-xl font-bold text-gray-800">Add Jersey</h3>
-                    <button type="button" onclick="closeModal('jerseyModal')" class="text-gray-400 hover:text-gray-600">
+                    <button type="button" onclick="closeModal('jerseyModal')"
+                        class="text-gray-400 hover:text-gray-600">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -505,8 +581,8 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Price (KES)</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">KES</span>
-                            <input type="number" name="price" id="jerseyPrice" placeholder="0.00" required min="0"
-                                step="0.01"
+                            <input type="number" name="price" id="jerseyPrice" placeholder="0.00" required
+                                min="0" step="0.01"
                                 class="w-full border rounded-lg p-2.5 pl-12 bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                     </div>
@@ -527,7 +603,11 @@
     <script>
         const API_URL = '/api';
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-        const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken };
+        const headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken
+        };
 
         // --- NAVIGATION ---
         function switchSection(id) {
@@ -552,13 +632,19 @@
             if (id === 'jerseys') loadJerseys();
         }
 
-        function toggleAdminMenu() { document.getElementById('adminMenu').classList.toggle('hidden'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function toggleAdminMenu() {
+            document.getElementById('adminMenu').classList.toggle('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
 
         function showToast(msg, type = 'success') {
             const t = document.getElementById('notification');
             t.innerText = msg;
-            t.className = `fixed bottom-5 right-5 transform transition-all duration-300 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
+            t.className =
+                `fixed bottom-5 right-5 transform transition-all duration-300 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
             t.classList.remove('translate-y-20', 'opacity-0');
             setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 3000);
         }
@@ -567,7 +653,8 @@
         function openAddUserModal(role) {
             document.getElementById('addUserForm').reset();
             document.getElementById('userRoleInput').value = role;
-            document.getElementById('userModalTitle').innerText = role === 'player' ? 'Add New Player' : 'Add Coaching Staff';
+            document.getElementById('userModalTitle').innerText = role === 'player' ? 'Add New Player' :
+                'Add Coaching Staff';
 
             // UPDATED: Dynamic Select Logic
             const label = document.getElementById('userPositionLabel');
@@ -589,22 +676,34 @@
 
         async function handleRegisterUser(e) {
             e.preventDefault();
-            if (e.target.password.value !== document.getElementById('confirmPassword').value) return showToast('Passwords mismatch', 'error');
+            if (e.target.password.value !== document.getElementById('confirmPassword').value) return showToast(
+                'Passwords mismatch', 'error');
             const payload = Object.fromEntries(new FormData(e.target));
-            const res = await fetch(`${API_URL}/register`, { method: 'POST', headers, body: JSON.stringify(payload) });
+            const res = await fetch(`${API_URL}/register`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(payload)
+            });
             const data = await res.json();
-            if (res.ok) { showToast('User added!'); closeModal('userModal'); fetchUsers(payload.role); loadDashboardStats(); }
-            else showToast(data.message || 'Error', 'error');
+            if (res.ok) {
+                showToast('User added!');
+                closeModal('userModal');
+                fetchUsers(payload.role);
+                loadDashboardStats();
+            } else showToast(data.message || 'Error', 'error');
         }
 
         async function fetchUsers(role) {
             const tbody = document.getElementById(role === 'player' ? 'players-table' : 'staff-table');
             tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4">Loading...</td></tr>';
-            const res = await fetch(`${API_URL}/users?role=${role}`, { headers });
+            const res = await fetch(`${API_URL}/users?role=${role}`, {
+                headers
+            });
             const json = await res.json();
             tbody.innerHTML = '';
             if (!json.data || json.data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-gray-500">No records found</td></tr>`;
+                tbody.innerHTML =
+                    `<tr><td colspan="4" class="text-center py-8 text-gray-500">No records found</td></tr>`;
                 return;
             }
             json.data.forEach(u => {
@@ -654,15 +753,33 @@
         async function handleUpdateUser(e) {
             e.preventDefault();
             const fd = new FormData(e.target);
-            const payload = {}; fd.forEach((v, k) => { if (k !== 'password' || v.trim() !== '') payload[k] = v; });
-            const res = await fetch(`${API_URL}/users/${payload.id}`, { method: 'PUT', headers, body: JSON.stringify(payload) });
-            if (res.ok) { showToast('Updated!'); closeModal('editUserModal'); fetchUsers(payload.role); }
+            const payload = {};
+            fd.forEach((v, k) => {
+                if (k !== 'password' || v.trim() !== '') payload[k] = v;
+            });
+            const res = await fetch(`${API_URL}/users/${payload.id}`, {
+                method: 'PUT',
+                headers,
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                showToast('Updated!');
+                closeModal('editUserModal');
+                fetchUsers(payload.role);
+            }
         }
 
         async function deleteUser(id, role) {
             if (!confirm('Are you sure?')) return;
-            const res = await fetch(`${API_URL}/users/${id}`, { method: 'DELETE', headers });
-            if (res.ok) { showToast('Deleted'); fetchUsers(role); loadDashboardStats(); }
+            const res = await fetch(`${API_URL}/users/${id}`, {
+                method: 'DELETE',
+                headers
+            });
+            if (res.ok) {
+                showToast('Deleted');
+                fetchUsers(role);
+                loadDashboardStats();
+            }
         }
 
         // --- NEWS, FIXTURES, TICKETS (Unchanged) ---
@@ -678,20 +795,22 @@
             }
             document.getElementById('newsModal').classList.remove('hidden');
         }
+async function loadNews() {
+    const res = await fetch(`${API_URL}/news`);
+    const json = await res.json();
+    const grid = document.getElementById('news-grid');
+    const newsData = json.data || json;
 
-        async function loadNews() {
-            const res = await fetch(`${API_URL}/news`);
-            const json = await res.json();
-            const grid = document.getElementById('news-grid');
-            grid.innerHTML = '';
-            const newsData = json.data || json;
-            newsData.forEach(item => {
-                if (item.image_path) {
-                    // Card format with image
-                    grid.innerHTML += `
+    // Separate items by type
+    const imageItems = newsData.filter(item => item.image_path);
+    const textItems = newsData.filter(item => !item.image_path);
+
+    grid.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            ${imageItems.map(item => `
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
-                    <div class="h-48 bg-gray-200 relative">
-                        <img src="/storage/${item.image_path}" class="w-full h-full object-cover">
+                    <div class="aspect-video bg-gray-200 relative overflow-hidden">
+                        <img src="/storage/${item.image_path}" class="w-full h-full object-cover" onload="this.parentElement.style.aspectRatio = this.naturalWidth/this.naturalHeight">
                     </div>
                     <div class="p-5">
                         <h3 class="font-bold text-lg text-gray-800 mb-2">${item.title}</h3>
@@ -704,10 +823,11 @@
                             </div>
                         </div>
                     </div>
-                </div>`;
-                } else {
-                    // Plain text format without image
-                    grid.innerHTML += `
+                </div>
+            `).join('')}
+        </div>
+        <div class="flex flex-col gap-4 mt-6">
+            ${textItems.map(item => `
                 <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition">
                     <h3 class="font-bold text-xl text-gray-800 mb-3">${item.title}</h3>
                     <p class="text-gray-700 text-base leading-relaxed mb-4">${item.content}</p>
@@ -718,10 +838,13 @@
                             <button onclick="deleteItem('news', ${item.id})" class="text-red-500 hover:text-red-700 text-sm font-medium">Delete</button>
                         </div>
                     </div>
-                </div>`;
-                }
-            });
-        }
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+
 
         async function handleNewsSubmit(e) {
             e.preventDefault();
@@ -730,8 +853,15 @@
             let url = id ? `${API_URL}/news/${id}` : `${API_URL}/news`;
             let method = 'POST';
             if (id) formData.append('_method', 'PUT');
-            const res = await fetch(url, { method: method, body: formData });
-            if (res.ok) { showToast('News saved!'); closeModal('newsModal'); loadNews(); }
+            const res = await fetch(url, {
+                method: method,
+                body: formData
+            });
+            if (res.ok) {
+                showToast('News saved!');
+                closeModal('newsModal');
+                loadNews();
+            }
         }
 
         function openFixtureModal(item = null) {
@@ -778,15 +908,24 @@
             const id = document.getElementById('fixtureId').value;
             const url = id ? `${API_URL}/fixtures/${id}` : `${API_URL}/fixtures`;
             const method = id ? 'PUT' : 'POST';
-            const res = await fetch(url, { method: method, headers, body: JSON.stringify(payload) });
-            if (res.ok) { showToast('Fixture saved!'); closeModal('fixtureModal'); loadFixtures(); }
+            const res = await fetch(url, {
+                method: method,
+                headers,
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                showToast('Fixture saved!');
+                closeModal('fixtureModal');
+                loadFixtures();
+            }
         }
 
         async function openTicketModal(item = null) {
             const fixtures = await loadFixtures();
             const select = document.getElementById('ticketFixtureSelect');
             select.innerHTML = '<option value="">Select Fixture...</option>';
-            fixtures.forEach(f => select.innerHTML += `<option value="${f.id}">${f.opponent} (${new Date(f.match_date).toLocaleDateString()})</option>`);
+            fixtures.forEach(f => select.innerHTML +=
+                `<option value="${f.id}">${f.opponent} (${new Date(f.match_date).toLocaleDateString()})</option>`);
             document.getElementById('ticketForm').reset();
             document.getElementById('ticketId').value = '';
             document.getElementById('ticketModalTitle').innerText = 'Add Ticket Type';
@@ -827,8 +966,16 @@
             const id = document.getElementById('ticketId').value;
             const url = id ? `${API_URL}/tickets/${id}` : `${API_URL}/tickets`;
             const method = id ? 'PUT' : 'POST';
-            const res = await fetch(url, { method: method, headers, body: JSON.stringify(payload) });
-            if (res.ok) { showToast('Ticket saved!'); closeModal('ticketModal'); loadTickets(); }
+            const res = await fetch(url, {
+                method: method,
+                headers,
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                showToast('Ticket saved!');
+                closeModal('ticketModal');
+                loadTickets();
+            }
         }
 
         // --- JERSEYS LOGIC ---
@@ -864,7 +1011,8 @@
                 grid.innerHTML = '';
 
                 if (!json.data || json.data.length === 0) {
-                    grid.innerHTML = '<p class="text-gray-400 col-span-full text-center py-8">No jerseys added yet.</p>';
+                    grid.innerHTML =
+                    '<p class="text-gray-400 col-span-full text-center py-8">No jerseys added yet.</p>';
                     return;
                 }
 
@@ -932,30 +1080,122 @@
 
         async function deleteItem(endpoint, id) {
             if (!confirm('Are you sure?')) return;
-            const res = await fetch(`${API_URL}/${endpoint}/${id}`, { method: 'DELETE', headers });
+            const res = await fetch(`${API_URL}/${endpoint}/${id}`, {
+                method: 'DELETE',
+                headers
+            });
             if (res.ok) {
                 showToast('Deleted!');
                 if (endpoint === 'news') loadNews();
                 if (endpoint === 'fixtures') loadFixtures();
                 if (endpoint === 'tickets') loadTickets();
+                if (endpoint === 'jerseys') loadJerseys();
+
             }
         }
 
+        // Global variable to store chart instance so we can destroy it before re-drawing
+        let salesChartInstance = null;
+
+        // --- UPDATED DASHBOARD LOADER ---
         async function loadDashboardStats() {
+            // 1. Load User Counts (Existing)
             try {
-                const res = await fetch(`${API_URL}/user-counts`, { headers });
+                const res = await fetch(`${API_URL}/user-counts`, {
+                    headers
+                });
                 const json = await res.json();
                 if (json.success) {
                     document.getElementById('dash-players').innerText = json.data.players;
                     document.getElementById('dash-coaches').innerText = json.data.coaches;
                     document.getElementById('dash-fans').innerText = json.data.fans;
                 }
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                console.error("Error loading user counts", e);
+            }
+
+            // 2. Load Sales Stats (NEW)
+            try {
+                const res = await fetch(`${API_URL}/sales-stats`, {
+                    headers
+                });
+                const json = await res.json();
+
+                if (json.success) {
+                    const data = json.data;
+
+                    // Format numbers to Currency
+                    const formatCurrency = (amount) => 'KES ' + parseFloat(amount).toLocaleString(undefined, {
+                        minimumFractionDigits: 2
+                    });
+
+                    // Update Text Cards
+                    document.getElementById('dash-total-revenue').innerText = formatCurrency(data.total_revenue);
+                    document.getElementById('dash-jersey-revenue').innerText = formatCurrency(data.jersey_revenue);
+                    document.getElementById('dash-ticket-revenue').innerText = formatCurrency(data.ticket_revenue);
+
+                    // Render Chart
+                    renderSalesChart(data.jersey_revenue, data.ticket_revenue);
+                }
+            } catch (e) {
+                console.error("Error loading sales stats", e);
+            }
+        }
+
+        // --- NEW CHART FUNCTION ---
+        function renderSalesChart(jerseySales, ticketSales) {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+
+            // Destroy existing chart if it exists to prevent overlap/glitches
+            if (salesChartInstance) {
+                salesChartInstance.destroy();
+            }
+
+            // Determine colors
+            const jerseyColor = '#f97316'; // Orange-500
+            const ticketColor = '#0d9488'; // Teal-600
+
+            salesChartInstance = new Chart(ctx, {
+                type: 'doughnut', // 'doughnut' looks modern, 'bar' is also good
+                data: {
+                    labels: ['Jerseys', 'Tickets'],
+                    datasets: [{
+                        label: 'Revenue (KES)',
+                        data: [jerseySales, ticketSales],
+                        backgroundColor: [jerseyColor, ticketColor],
+                        hoverOffset: 4,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                font: {
+                                    family: 'Inter'
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%', // Makes the doughnut thinner
+                }
+            });
         }
 
         async function logout() {
-            try { await fetch(`${API_URL}/logout`, { method: 'POST', headers }); window.location.href = '/'; }
-            catch (e) { window.location.href = '/'; }
+            try {
+                await fetch(`${API_URL}/logout`, {
+                    method: 'POST',
+                    headers
+                });
+                window.location.href = '/';
+            } catch (e) {
+                window.location.href = '/';
+            }
         }
 
         document.addEventListener('DOMContentLoaded', () => loadDashboardStats());

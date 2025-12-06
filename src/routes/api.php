@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Admin\RegisterController;
 use App\Http\Controllers\Api\Admin\TicketController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Admin\JerseyController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -27,6 +28,9 @@ Route::apiResource('news', NewsController::class);
 Route::apiResource('fixtures', FixtureController::class);
 Route::apiResource('tickets', TicketController::class);
 Route::apiResource('jerseys', JerseyController::class);
+Route::apiResource('orders', OrderController::class);
+Route::get('/sales-stats', [OrderController::class, 'salesStats']);
+
 
 Route::get('/user-counts', [RegisterController::class, 'getUserCounts']);
 Route::post('/register', [RegisterController::class, 'Register']);
