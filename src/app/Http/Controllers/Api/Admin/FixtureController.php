@@ -28,6 +28,27 @@ class FixtureController extends Controller
         }
     }
 
+    public function update(Request $request, $id) {
+        try {
+            $fixture = Fixture::findOrFail($id);
+
+            $request->validate([
+                'opponent' => 'sometimes|string',
+                'match_date' => 'sometimes|date',
+                'venue' => 'sometimes|in:Home,Away',
+                'competition' => 'sometimes|string',
+                'home_score' => 'nullable|integer|min:0',
+                'away_score' => 'nullable|integer|min:0',
+                'status' => 'sometimes|in:scheduled,live,fulltime'
+            ]);
+
+            $fixture->update($request->all());
+            return $this->sendResponse($fixture, 'Fixture updated successfully');
+        } catch (\Exception $e) {
+            return $this->sendError('Failed to update fixture: ' . $e->getMessage());
+        }
+    }
+
     public function destroy($id) {
         try {
             Fixture::destroy($id);

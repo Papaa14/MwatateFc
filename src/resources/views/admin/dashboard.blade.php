@@ -158,7 +158,7 @@
                 </div>
             </div>
 
-            <!-- NEW: Financial Analytics -->
+            <!-- Financial Analytics -->
             <h2 class="text-xl font-bold text-gray-800 mb-4">Financial Analytics</h2>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
@@ -197,7 +197,7 @@
                     </div>
                 </div>
 
-                <!-- 2. Chart Section (Takes up 2 columns) -->
+                <!-- 2. Chart Section -->
                 <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="font-bold text-gray-700">Revenue Distribution</h3>
@@ -213,7 +213,7 @@
             </div>
         </section>
 
-        <!-- PLAYERS SECTION (Unchanged) -->
+        <!-- PLAYERS SECTION -->
         <section id="players-section" class="section-content hidden animate-fadeIn">
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
@@ -239,7 +239,7 @@
             </div>
         </section>
 
-        <!-- STAFF SECTION (Unchanged) -->
+        <!-- STAFF SECTION -->
         <section id="staff-section" class="section-content hidden animate-fadeIn">
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
@@ -265,7 +265,7 @@
             </div>
         </section>
 
-        <!-- NEWS SECTION (Unchanged) -->
+        <!-- NEWS SECTION -->
         <section id="news-section" class="section-content hidden animate-fadeIn">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">Team News</h2>
@@ -279,7 +279,7 @@
             </div>
         </section>
 
-        <!-- FIXTURES SECTION (Unchanged) -->
+        <!-- FIXTURES SECTION -->
         <section id="fixtures-section" class="section-content hidden animate-fadeIn">
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
@@ -296,7 +296,7 @@
                                 <th class="px-6 py-3">Date</th>
                                 <th class="px-6 py-3">Opponent</th>
                                 <th class="px-6 py-3">Venue</th>
-                                <th class="px-6 py-3">Competition</th>
+                                <th class="px-6 py-3">Competition & Status</th>
                                 <th class="px-6 py-3 text-right">Actions</th>
                             </tr>
                         </thead>
@@ -341,7 +341,7 @@
 
     <!-- --- MODALS --- -->
 
-    <!-- 1. USER MODAL (Players/Staff) - UPDATED -->
+    <!-- 1. USER MODAL (Players/Staff) -->
     <div id="userModal"
         class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
@@ -366,10 +366,8 @@
                     <div>
                         <label id="userPositionLabel"
                             class="block text-sm font-medium text-gray-700 mb-1">Position</label>
-                        <!-- UPDATED: Changed from input to select, options populated by JS -->
                         <select name="position" id="userPositionInput" required
                             class="w-full border rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
-                            <!-- Options injected dynamically based on role -->
                         </select>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
@@ -396,7 +394,7 @@
         </div>
     </div>
 
-    <!-- 2. EDIT USER MODAL - UPDATED -->
+    <!-- 2. EDIT USER MODAL -->
     <div id="editUserModal"
         class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
@@ -422,10 +420,8 @@
                     <div>
                         <label id="editPositionLabel"
                             class="block text-sm font-medium text-gray-700 mb-1">Position</label>
-                        <!-- UPDATED: Changed from input to select -->
                         <select name="position" id="editPosition" required
                             class="w-full border rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
-                            <!-- Options injected dynamically -->
                         </select>
                     </div>
                     <div>
@@ -444,7 +440,7 @@
         </div>
     </div>
 
-    <!-- 3. NEWS MODAL (Unchanged) -->
+    <!-- 3. NEWS MODAL -->
     <div id="newsModal"
         class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg">
@@ -475,7 +471,7 @@
         </div>
     </div>
 
-    <!-- 4. FIXTURE MODAL (Unchanged) -->
+    <!-- 4. FIXTURE MODAL (UPDATED WITH STATUS/SCORES) -->
     <div id="fixtureModal"
         class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg">
@@ -500,6 +496,30 @@
                     </div>
                     <input type="text" name="competition" id="fixtureCompetition" placeholder="Competition"
                         required class="w-full border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-blue-500">
+
+                    <!-- NEW: Status and Scores Section -->
+                    <div class="border-t pt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Match Status</label>
+                        <select name="status" id="fixtureStatus" onchange="toggleScoreFields()"
+                            class="w-full border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                            <option value="scheduled">Scheduled</option>
+                            <option value="live">Live</option>
+                            <option value="fulltime">Full Time</option>
+                        </select>
+                    </div>
+
+                    <div id="scoreFields" class="hidden grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Home Score</label>
+                            <input type="number" name="home_score" id="fixtureHomeScore" min="0"
+                                class="w-full border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Away Score</label>
+                            <input type="number" name="away_score" id="fixtureAwayScore" min="0"
+                                class="w-full border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
                     <button type="button" onclick="closeModal('fixtureModal')"
@@ -511,7 +531,7 @@
         </div>
     </div>
 
-    <!-- 5. TICKET MODAL (Unchanged) -->
+    <!-- 5. TICKET MODAL -->
     <div id="ticketModal"
         class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg">
@@ -782,7 +802,7 @@
             }
         }
 
-        // --- NEWS, FIXTURES, TICKETS (Unchanged) ---
+        // --- NEWS LOGIC ---
         function openNewsModal(item = null) {
             document.getElementById('newsForm').reset();
             document.getElementById('newsId').value = '';
@@ -795,56 +815,55 @@
             }
             document.getElementById('newsModal').classList.remove('hidden');
         }
-async function loadNews() {
-    const res = await fetch(`${API_URL}/news`);
-    const json = await res.json();
-    const grid = document.getElementById('news-grid');
-    const newsData = json.data || json;
 
-    // Separate items by type
-    const imageItems = newsData.filter(item => item.image_path);
-    const textItems = newsData.filter(item => !item.image_path);
+        async function loadNews() {
+            const res = await fetch(`${API_URL}/news`);
+            const json = await res.json();
+            const grid = document.getElementById('news-grid');
+            const newsData = json.data || json;
 
-    grid.innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            ${imageItems.map(item => `
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
-                    <div class="aspect-video bg-gray-200 relative overflow-hidden">
-                        <img src="/storage/${item.image_path}" class="w-full h-full object-cover" onload="this.parentElement.style.aspectRatio = this.naturalWidth/this.naturalHeight">
-                    </div>
-                    <div class="p-5">
-                        <h3 class="font-bold text-lg text-gray-800 mb-2">${item.title}</h3>
-                        <p class="text-gray-600 text-sm line-clamp-3 mb-4">${item.content}</p>
-                        <div class="flex justify-between items-center border-t pt-4">
-                            <span class="text-xs text-gray-400">${new Date(item.created_at).toLocaleDateString()}</span>
-                            <div class="space-x-2">
-                                <button onclick='openNewsModal(${JSON.stringify(item)})' class="text-blue-600 hover:text-blue-800"><i class="fas fa-edit"></i></button>
-                                <button onclick="deleteItem('news', ${item.id})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+            // Separate items by type
+            const imageItems = newsData.filter(item => item.image_path);
+            const textItems = newsData.filter(item => !item.image_path);
+
+            grid.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    ${imageItems.map(item => `
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
+                            <div class="aspect-video bg-gray-200 relative overflow-hidden">
+                                <img src="/storage/${item.image_path}" class="w-full h-full object-cover" onload="this.parentElement.style.aspectRatio = this.naturalWidth/this.naturalHeight">
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-bold text-lg text-gray-800 mb-2">${item.title}</h3>
+                                <p class="text-gray-600 text-sm line-clamp-3 mb-4">${item.content}</p>
+                                <div class="flex justify-between items-center border-t pt-4">
+                                    <span class="text-xs text-gray-400">${new Date(item.created_at).toLocaleDateString()}</span>
+                                    <div class="space-x-2">
+                                        <button onclick='openNewsModal(${JSON.stringify(item)})' class="text-blue-600 hover:text-blue-800"><i class="fas fa-edit"></i></button>
+                                        <button onclick="deleteItem('news', ${item.id})" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    `).join('')}
                 </div>
-            `).join('')}
-        </div>
-        <div class="flex flex-col gap-4 mt-6">
-            ${textItems.map(item => `
-                <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition">
-                    <h3 class="font-bold text-xl text-gray-800 mb-3">${item.title}</h3>
-                    <p class="text-gray-700 text-base leading-relaxed mb-4">${item.content}</p>
-                    <div class="flex justify-between items-center border-t pt-4">
-                        <span class="text-sm text-gray-500">${new Date(item.created_at).toLocaleDateString()}</span>
-                        <div class="space-x-3">
-                            <button onclick='openNewsModal(${JSON.stringify(item)})' class="text-blue-600 hover:text-blue-800 text-sm font-medium">Edit</button>
-                            <button onclick="deleteItem('news', ${item.id})" class="text-red-500 hover:text-red-700 text-sm font-medium">Delete</button>
+                <div class="flex flex-col gap-4 mt-6">
+                    ${textItems.map(item => `
+                        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition">
+                            <h3 class="font-bold text-xl text-gray-800 mb-3">${item.title}</h3>
+                            <p class="text-gray-700 text-base leading-relaxed mb-4">${item.content}</p>
+                            <div class="flex justify-between items-center border-t pt-4">
+                                <span class="text-sm text-gray-500">${new Date(item.created_at).toLocaleDateString()}</span>
+                                <div class="space-x-3">
+                                    <button onclick='openNewsModal(${JSON.stringify(item)})' class="text-blue-600 hover:text-blue-800 text-sm font-medium">Edit</button>
+                                    <button onclick="deleteItem('news', ${item.id})" class="text-red-500 hover:text-red-700 text-sm font-medium">Delete</button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    `).join('')}
                 </div>
-            `).join('')}
-        </div>
-    `;
-}
-
-
+            `;
+        }
 
         async function handleNewsSubmit(e) {
             e.preventDefault();
@@ -864,19 +883,53 @@ async function loadNews() {
             }
         }
 
+        // --- FIXTURES LOGIC (UPDATED WITH STATUS & SCORES) ---
+
+        // Helper to show/hide score inputs
+        function toggleScoreFields() {
+            const status = document.getElementById('fixtureStatus').value;
+            const scoreFields = document.getElementById('scoreFields');
+
+            if (status === 'live' || status === 'fulltime') {
+                scoreFields.classList.remove('hidden');
+            } else {
+                scoreFields.classList.add('hidden');
+                // Clear scores when hiding to avoid accidental submissions
+                document.getElementById('fixtureHomeScore').value = '';
+                document.getElementById('fixtureAwayScore').value = '';
+            }
+        }
+
         function openFixtureModal(item = null) {
             document.getElementById('fixtureForm').reset();
             document.getElementById('fixtureId').value = '';
             document.getElementById('fixtureModalTitle').innerText = 'Add Fixture';
+
+            // Reset score fields visibility default (hidden)
+            document.getElementById('scoreFields').classList.add('hidden');
+
             if (item) {
                 document.getElementById('fixtureId').value = item.id;
                 document.getElementById('fixtureOpponent').value = item.opponent;
+
                 const d = new Date(item.match_date);
                 d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
                 document.getElementById('fixtureDate').value = d.toISOString().slice(0, 16);
+
                 document.getElementById('fixtureVenue').value = item.venue;
                 document.getElementById('fixtureCompetition').value = item.competition;
+
+                // Set Status
+                document.getElementById('fixtureStatus').value = item.status || 'scheduled';
+
+                // Set Scores
+                document.getElementById('fixtureHomeScore').value = item.home_score || '';
+                document.getElementById('fixtureAwayScore').value = item.away_score || '';
+
                 document.getElementById('fixtureModalTitle').innerText = 'Edit Fixture';
+
+                // Trigger toggle to show fields if needed based on the loaded status
+                toggleScoreFields();
             }
             document.getElementById('fixtureModal').classList.remove('hidden');
         }
@@ -886,13 +939,30 @@ async function loadNews() {
             const json = await res.json();
             const tbody = document.getElementById('fixtures-table');
             tbody.innerHTML = '';
+
             json.data.forEach(item => {
+                // Determine Badge Color
+                const statusBadge = item.status === 'fulltime' ? 'bg-green-100 text-green-800' :
+                                   item.status === 'live' ? 'bg-red-100 text-red-800' :
+                                   'bg-gray-100 text-gray-800';
+
+                // Determine Score Display
+                const scoreDisplay = (item.status === 'live' || item.status === 'fulltime') &&
+                                    item.home_score !== null && item.away_score !== null ?
+                                    `<br><span class="text-sm font-bold mt-1 inline-block">Score: ${item.home_score} - ${item.away_score}</span>` : '';
+
                 tbody.innerHTML += `
                     <tr class="border-b hover:bg-gray-50">
                         <td class="px-6 py-4 font-medium">${new Date(item.match_date).toLocaleString()}</td>
-                        <td class="px-6 py-4 font-bold">${item.opponent}</td>
+                        <td class="px-6 py-4 font-bold">
+                            ${item.opponent}
+                            ${scoreDisplay}
+                        </td>
                         <td class="px-6 py-4"><span class="${item.venue === 'Home' ? 'text-green-600 bg-green-100' : 'text-orange-600 bg-orange-100'} px-2 py-1 rounded text-xs font-bold uppercase">${item.venue}</span></td>
-                        <td class="px-6 py-4">${item.competition}</td>
+                        <td class="px-6 py-4">
+                            <div>${item.competition}</div>
+                            <span class="${statusBadge} px-2 py-0.5 rounded text-[10px] font-bold uppercase mt-1 inline-block">${item.status || 'scheduled'}</span>
+                        </td>
                         <td class="px-6 py-4 text-right space-x-2">
                             <button onclick='openFixtureModal(${JSON.stringify(item)})' class="text-blue-600 hover:underline text-sm">Edit</button>
                             <button onclick="deleteItem('fixtures', ${item.id})" class="text-red-600 hover:underline text-sm">Delete</button>
@@ -920,6 +990,7 @@ async function loadNews() {
             }
         }
 
+        // --- TICKETS LOGIC ---
         async function openTicketModal(item = null) {
             const fixtures = await loadFixtures();
             const select = document.getElementById('ticketFixtureSelect');

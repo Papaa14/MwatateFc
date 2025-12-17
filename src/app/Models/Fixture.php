@@ -14,6 +14,9 @@ class Fixture extends Model
         'match_date',
         'venue',        // 'Home' or 'Away'
         'competition',  // e.g., 'League', 'Cup'
+        'home_score',
+        'away_score',
+        'status'
     ];
 
     // Cast match_date to a Carbon instance automatically

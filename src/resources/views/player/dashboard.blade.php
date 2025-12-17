@@ -40,30 +40,30 @@
             font-family: 'Inter', sans-serif;
             background-color: #f8fafc;
         }
-        
+
         /* Background images */
         .dashboard-bg {
-            background-image: linear-gradient(rgba(255,255,255,0.95), rgba(255,255,255,0.95)), 
+            background-image: linear-gradient(rgba(255,255,255,0.95), rgba(255,255,255,0.95)),
                             url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
         }
-        
+
         .performance-bg {
-            background-image: linear-gradient(rgba(255,255,255,0.95), rgba(255,255,255,0.95)), 
+            background-image: linear-gradient(rgba(255,255,255,0.95), rgba(255,255,255,0.95)),
                             url('https://images.unsplash.com/photo-1543357486-c2505d3d0385?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
             background-size: cover;
             background-position: center;
         }
-        
+
         .training-bg {
-            background-image: linear-gradient(rgba(255,255,255,0.95), rgba(255,255,255,0.95)), 
+            background-image: linear-gradient(rgba(255,255,255,0.95), rgba(255,255,255,0.95)),
                             url('https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80');
             background-size: cover;
             background-position: center;
         }
-        
+
         /* Button animations */
         .btn {
             transition: all 0.2s ease-in-out;
@@ -105,7 +105,7 @@
                 opacity: 0;
             }
         }
-        
+
         /* Active navigation button */
         .nav-btn.active {
             background-color: #2563eb;
@@ -116,7 +116,7 @@
             background-color: #f1f5f9;
             color: #1e40af;
         }
-        
+
         /* Content transition */
         .content-section {
             display: none;
@@ -327,7 +327,7 @@
                                     <i class="fas fa-chevron-right ml-1 text-sm"></i>
                                 </button>
                             </div>
-                            
+
                             <!-- Recent Messages -->
                             <div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6">
                                 <div class="flex justify-between items-center mb-4">
@@ -361,7 +361,7 @@
                 <section id="performance-content" class="content-section performance-bg">
                     <div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6">
                         <h2 class="text-2xl font-bold text-gray-800 mb-6">My Performance Metrics</h2>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <!-- Performance Charts -->
                             <div class="bg-gray-50/80 backdrop-blur-sm p-6 rounded-lg">
@@ -374,7 +374,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Stats Overview -->
                             <div class="bg-gray-50/80 backdrop-blur-sm p-6 rounded-lg">
                                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Season Statistics</h3>
@@ -407,42 +407,18 @@
                 </section>
 
                 <!-- Training Plan Content -->
-                <section id="training-content" class="content-section training-bg">
-                    <div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6">
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-2xl font-bold text-gray-800">Training Plan</h2>
-                            <button id="download-schedule-btn" class="nav-btn active btn px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                Download Schedule
-                            </button>
-                        </div>
-                        
-                        <!-- Weekly Schedule -->
-                        <h3 class="text-xl font-semibold text-gray-800 mb-4">This Week's Schedule</h3>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Day</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Session Type</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Focus Area</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coach</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Monday</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">09:00 - 11:00</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Technical</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Finishing</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Coach Miller</td>
-                                    </tr>
-                                    <!-- More rows would go here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
+               <!-- Training Plan Content -->
+<section id="training-content" class="content-section training-bg">
+    <div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">My Training Plans</h2>
+
+        <!-- Training Plans from Coach -->
+        <div class="space-y-4" id="training-plans-container">
+            <!-- Plans will be loaded here -->
+        </div>
+    </div>
+</section>
+
 
                 <!-- Messages Content -->
                 <section id="messages-content" class="content-section">
@@ -453,7 +429,7 @@
                                 New Message
                             </button>
                         </div>
-                        
+
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                             <!-- Inbox List -->
                             <div class="lg:col-span-1 bg-gray-50/80 backdrop-blur-sm rounded-lg p-4">
@@ -461,7 +437,7 @@
                                     <input type="text" placeholder="Search messages..." class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                                     <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                                 </div>
-                                
+
                                 <div class="space-y-2 overflow-y-auto max-h-96">
                                     <!-- Message Thread -->
                                     <div class="p-3 bg-white rounded-lg border border-gray-200 cursor-pointer hover:border-blue-300">
@@ -477,7 +453,7 @@
                                     <!-- More message threads would go here -->
                                 </div>
                             </div>
-                            
+
                             <!-- Message Content -->
                             <div class="lg:col-span-2 bg-white rounded-lg border border-gray-200 p-6">
                                 <div class="border-b border-gray-200 pb-4 mb-4">
@@ -497,14 +473,14 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="mb-6">
                                     <h3 class="text-lg font-semibold text-gray-800 mb-2">Video analysis for last match</h3>
                                     <p class="text-sm text-gray-700 mb-4">Hi John,</p>
                                     <p class="text-sm text-gray-700 mb-4">I've reviewed the footage from our last match against Vihiga United. You'll find the video analysis in your video library. Pay special attention to your positioning in the 32nd and 67th minutes - these are key moments we can improve on.</p>
                                     <p class="text-sm text-gray-700">Let me know if you have any questions.</p>
                                 </div>
-                                
+
                                 <div class="border-t border-gray-200 pt-4">
                                     <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" rows="3" placeholder="Write your reply..."></textarea>
                                     <div class="flex justify-end mt-2 space-x-2">
@@ -530,7 +506,7 @@
                                 Upload Video
                             </button>
                         </div>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             <!-- Video Card -->
                             <div class="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200">
@@ -570,7 +546,7 @@
                                 </button>
                             </div>
                         </div>
-                        
+
                     <!-- Add Event Modal -->
                     <div x-show="showEventModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" @click.away="showEventModal = false">
                         <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
@@ -642,7 +618,7 @@
                             </div>
                         </div>
                     </div>
-                        
+
                         <!-- Upcoming Events -->
                         <h3 class="text-xl font-semibold text-gray-800 mb-4">Upcoming Events</h3>
                         <div class="space-y-3">
@@ -670,7 +646,7 @@
             // Initialize Alpine.js data
             window.Alpine = window.Alpine || {};
             window.Alpine.data = window.Alpine.data || {};
-            
+
             window.Alpine.data.dashboard = function() {
                 return {
                     showEventModal: false,
@@ -710,7 +686,7 @@
             const contentSections = document.querySelectorAll('.content-section');
             const pageTitle = document.getElementById('page-title');
             const pageSubtitle = document.getElementById('page-subtitle');
-            
+
             // Page titles and subtitles for each section
             const pageTitles = {
                 'dashboard': 'Dashboard',
@@ -720,7 +696,7 @@
                 'videos': 'Video Library',
                 'calendar': 'My Calendar'
             };
-            
+
             const pageSubtitles = {
                 'dashboard': 'Welcome back, John! Here\'s your overview.',
                 'performance': 'Track your progress and statistics.',
@@ -729,44 +705,44 @@
                 'videos': 'Access training and match videos.',
                 'calendar': 'Manage your schedule and events.'
             };
-            
+
             // Add click event listeners to navigation buttons
             navButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     const sectionId = this.getAttribute('data-section');
-                    
+
                     // Update active button
                     navButtons.forEach(btn => {
                         btn.classList.remove('active', 'text-white', 'bg-blue-600');
                         btn.classList.add('text-gray-700', 'bg-gray-50');
                     });
-                    
+
                     this.classList.add('active', 'text-white', 'bg-blue-600');
                     this.classList.remove('text-gray-700', 'bg-gray-50');
-                    
+
                     // Show corresponding content section
                     contentSections.forEach(section => {
                         section.classList.remove('active');
                     });
-                    
+
                     document.getElementById(`${sectionId}-content`).classList.add('active');
-                    
+
                     // Update page title and subtitle
                     pageTitle.textContent = pageTitles[sectionId];
                     pageSubtitle.textContent = pageSubtitles[sectionId];
-                    
+
                     // Update body background based on section
                     document.body.className = 'antialiased ' + sectionId + '-bg';
                 });
             });
-            
+
             // Button click handlers with active state and animations
             const buttons = [
                 'view-all-btn', 'view-details-btn', 'submit-wellness-btn',
                 'download-schedule-btn', 'new-message-btn', 'send-message-btn',
                 'upload-video-btn', 'watch-video-btn', 'add-event-btn'
             ];
-            
+
             const buttonToSection = {
                 'view-all-btn': 'calendar',
                 'view-details-btn': 'performance',
@@ -778,30 +754,30 @@
                 'watch-video-btn': 'videos',
                 'add-event-btn': 'calendar'
             };
-            
+
             buttons.forEach(btnId => {
                 const btn = document.getElementById(btnId);
                 if (btn) {
                     btn.addEventListener('click', function(e) {
                         e.preventDefault();
-                        
+
                         // Add active state feedback
                         this.classList.add('active');
-                        
+
                         // Ripple effect
                         const ripple = document.createElement('span');
                         ripple.classList.add('ripple');
                         this.appendChild(ripple);
-                        
+
                         // Get click position
                         const rect = this.getBoundingClientRect();
                         const x = e.clientX - rect.left;
                         const y = e.clientY - rect.top;
-                        
+
                         // Position ripple
                         ripple.style.left = `${x}px`;
                         ripple.style.top = `${y}px`;
-                        
+
                         // Remove ripple and active state after animation
                         setTimeout(() => {
                             ripple.remove();
@@ -850,7 +826,7 @@
                                 showNotification('Opening event creator...', 'info');
                                 break;
                         }
-                        
+
                         // Button specific actions with enhanced feedback
                         switch(btnId) {
                             case 'view-all-btn':
@@ -890,7 +866,75 @@
                     });
                 }
             });
-            
+            // Add this function to your player dashboard
+async function loadTrainingPlans() {
+    try {
+        const res = await fetch(`${API_URL}/my-training-plans`, {
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': csrfToken
+            }
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            const container = document.getElementById('training-plans-container');
+
+            if (!data.data || data.data.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8">No training plans assigned yet.</p>';
+                return;
+            }
+
+            container.innerHTML = '';
+            data.data.forEach(plan => {
+                container.innerHTML += `
+                    <div class="bg-white border rounded-lg p-6 hover:shadow-md transition">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800">${plan.subject}</h3>
+                                <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded mt-1">${plan.type}</span>
+                            </div>
+                            <span class="text-sm text-gray-500">${formatDate(plan.created_at)}</span>
+                        </div>
+
+                        <p class="text-gray-700 mb-4">${plan.description}</p>
+
+                        ${plan.video_url ? `
+                            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                <div class="flex items-center mb-2">
+                                    <i class="fas fa-video text-blue-600 mr-2"></i>
+                                    <span class="font-medium text-gray-800">Reference Video</span>
+                                </div>
+                                <a href="${plan.video_url}" target="_blank" class="text-blue-600 hover:text-blue-800 text-sm">
+                                    Watch Training Video <i class="fas fa-external-link-alt ml-1"></i>
+                                </a>
+                            </div>
+                        ` : ''}
+
+                        <div class="flex items-center justify-between text-sm text-gray-500">
+                            <span>From: Coach ${plan.coach_name || 'Staff'}</span>
+                            <button class="text-blue-600 hover:text-blue-800 font-medium">
+                                Mark as Completed
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    } catch (e) {
+        console.error('Error loading training plans:', e);
+    }
+}
+
+// Call this in your DOMContentLoaded event
+document.addEventListener('DOMContentLoaded', () => {
+    // ... existing code ...
+    loadTrainingPlans();
+});
+
+
             // Notification function
             function showNotification(message, type = 'info') {
                 const notification = document.createElement('div');
@@ -899,12 +943,12 @@
                 }`;
                 notification.textContent = message;
                 document.body.appendChild(notification);
-                
+
                 // Animate in
                 setTimeout(() => {
                     notification.classList.remove('translate-y-full', 'opacity-0');
                 }, 100);
-                
+
                 // Remove after delay
                 setTimeout(() => {
                     notification.classList.add('translate-y-full', 'opacity-0');
@@ -913,7 +957,7 @@
                     }, 300);
                 }, 3000);
             }
-            
+
             // Initialize wellness check form
             const wellnessForm = document.querySelector('form');
             if (wellnessForm) {

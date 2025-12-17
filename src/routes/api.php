@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Admin\TrainingSessionController;
 use App\Http\Controllers\Api\Admin\VideoAnalysisController;
 use App\Http\Controllers\Api\Admin\TeamMessageController;
+use App\Http\Controllers\Api\Coach\TrainingController;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -37,6 +38,7 @@ Route::put('/admin/update/{id}', [RegisterController::class, 'updateUser']);
 Route::delete('/admin/delete/{id}', [RegisterController::class, 'deleteUser']);
 Route::apiResource('news', NewsController::class);
 Route::apiResource('fixtures', FixtureController::class);
+Route::put('/admin/fixtures/{id}', [FixtureController::class, 'update']);
 Route::apiResource('tickets', TicketController::class);
 Route::apiResource('jerseys', JerseyController::class);
 Route::apiResource('orders', OrderController::class);
@@ -50,3 +52,7 @@ Route::get('/user-counts', [RegisterController::class, 'getUserCounts']);
 Route::post('/register', [RegisterController::class, 'Register']);
 Route::delete('/users/{id}', [RegisterController::class, 'deleteUser']);
 Route::get('/users', [RegisterController::class, 'getUsers']);
+
+// Add these routes to your api.php file
+Route::apiResource('training-plans', TrainingController::class);
+Route::get('/my-training-plans', [TrainingController::class, 'getPlayerPlans']);
