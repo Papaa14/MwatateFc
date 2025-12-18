@@ -22,6 +22,9 @@ class TrainingController extends Controller
 
     public function store(Request $request)
     {
+        if (!auth()->check()) {
+            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        }
         $validated = $request->validate([
             'subject' => 'required|string|max:255',
             'type' => 'required|string',
@@ -31,8 +34,10 @@ class TrainingController extends Controller
             'assigned_players.*' => 'integer|exists:users,id'
         ]);
 
+        $validated['coach_id'] = auth()->id();
+
         $planId = DB::table('training_plans')->insertGetId([
-            'coach_id' => Auth::id(),
+            'coach_id' => $validated['coach_id'],
             'subject' => $validated['subject'],
             'type' => $validated['type'],
             'description' => $validated['description'],
