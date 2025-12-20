@@ -31,9 +31,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
+});
 
-
-    Route::post('/admin/register', [RegisterController::class, 'Register']);
+   Route::post('/admin/register', [RegisterController::class, 'Register']);
     Route::put('/admin/update/{id}', [RegisterController::class, 'updateUser']);
     Route::delete('/admin/delete/{id}', [RegisterController::class, 'deleteUser']);
     Route::apiResource('news', NewsController::class);
@@ -56,5 +56,3 @@ Route::middleware('auth:sanctum')->group(function () {
     // Add these routes to your api.php file
     Route::apiResource('training-plans', TrainingController::class);
     Route::get('/my-training-plans', [TrainingController::class, 'getPlayerPlans']);
-
-});
