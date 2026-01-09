@@ -13,9 +13,10 @@ return new class extends Migration {
         Schema::create('team_messages', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('sender_id')->nullable(); // Coach ID
-            $table->string('recipient_group'); // 'all', 'squad', 'reserves'
-            $table->string('subject');
+            $table->unsignedBigInteger('receiver_id')->nullable();
+            $table->string('recipient_group')->nullable(); // 'all', 'squad', 'reserves'
             $table->text('content');
+            $table->integer('is_read')->nullable();
             $table->timestamps();
         });
     }

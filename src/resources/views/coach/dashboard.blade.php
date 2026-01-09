@@ -4,11 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coach Dashboard - Mwatate FC Management</title>
+    <title>Coach Dashboard - Mwatate FC</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <style>
         body {
@@ -16,22 +15,10 @@
             background-color: #f3f4f6;
         }
 
-        .section-bg {
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+        [x-cloak] {
+            display: none !important;
         }
 
-        .bg-overlay {
-            background-color: rgba(255, 255, 255, 0.9);
-        }
-
-        .player-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Custom Scrollbar for Chat */
         .chat-scroll::-webkit-scrollbar {
             width: 6px;
         }
@@ -41,707 +28,762 @@
         }
 
         .chat-scroll::-webkit-scrollbar-thumb {
-            background: #d1d5db;
+            background: #cbd5e1;
             border-radius: 3px;
-        }
-
-        .chat-scroll::-webkit-scrollbar-thumb:hover {
-            background: #9ca3af;
         }
     </style>
 </head>
 
-<body x-data="coachDashboard" class="bg-gray-50">
-    <div class="flex min-h-screen">
-        <!-- Sidebar -->
-        <aside class="w-64 flex-shrink-0 bg-white shadow-md">
-            <div class="flex flex-col h-full">
-                <!-- Logo -->
-                <div
-                    class="h-16 flex items-center justify-center border-b bg-gradient-to-r from-green-600 to-green-800">
-                    <div class="flex items-center space-x-2">
-                        <div class="inline-flex items-center justify-center w-10 h-10 bg-white rounded-full">
-                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-2.757 0-5-3.228-5-9S5.243 3 8 3s5 4.772 5 9">
-                                </path>
-                            </svg>
-                        </div>
-                        <span class="text-xl font-bold text-white">Mwatate FC</span>
-                    </div>
-                </div>
+<body x-data="coachDashboard" x-cloak class="bg-gray-50 h-screen overflow-hidden flex">
 
-                <!-- Navigation Links -->
-                <nav class="flex-1 px-4 py-4 space-y-1 bg-gradient-to-b from-green-700 to-green-900">
-                    <a href="#dashboard" @click="currentRoute = 'dashboard'"
-                        :class="currentRoute === 'dashboard' ? 'bg-green-600 text-white' : 'text-green-100 hover:bg-green-700'"
-                        class="flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
-                            </path>
-                        </svg> Dashboard
-                    </a>
-                    <a href="#players" @click="currentRoute = 'players'"
-                        :class="currentRoute === 'players' ? 'bg-green-600 text-white' : 'text-green-100 hover:bg-green-700'"
-                        class="flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21a6 6 0 00-9-5.197m0 0A10.99 10.99 0 002.04 15m9.92-1.296A10.99 10.99 0 0021.96 15">
-                            </path>
-                        </svg> Players
-                    </a>
-                    <a href="#training" @click="currentRoute = 'training'"
-                        :class="currentRoute === 'training' ? 'bg-green-600 text-white' : 'text-green-100 hover:bg-green-700'"
-                        class="flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
-                            </path>
-                        </svg> Training Planner
-                    </a>
-                    <a href="#analytics" @click="currentRoute = 'analytics'"
-                        :class="currentRoute === 'analytics' ? 'bg-green-600 text-white' : 'text-green-100 hover:bg-green-700'"
-                        class="flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z">
-                            </path>
-                        </svg> Video Analytics
-                    </a>
-                    <a href="#calendar" @click="currentRoute = 'calendar'"
-                        :class="currentRoute === 'calendar' ? 'bg-green-600 text-white' : 'text-green-100 hover:bg-green-700'"
-                        class="flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                            </path>
-                        </svg> Calendar
-                    </a>
-                    <a href="#communication" @click="currentRoute = 'communication'"
-                        :class="currentRoute === 'communication' ? 'bg-green-600 text-white' : 'text-green-100 hover:bg-green-700'"
-                        class="flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
-                            </path>
-                        </svg> Communication
-                    </a>
-                    <a href="#stats" @click="currentRoute = 'stats'"
-                        :class="currentRoute === 'stats' ? 'bg-green-600 text-white' : 'text-green-100 hover:bg-green-700'"
-                        class="flex items-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
-                            </path>
-                        </svg> Team Stats
-                    </a>
-
-                    <!-- User Profile Footer -->
-                    <div class="mt-auto border-t border-green-600 p-4" x-data="{ showDropdown: false }">
-                        <div class="relative">
-                            <button @click="showDropdown = !showDropdown"
-                                class="flex items-center w-full px-3 py-2 text-sm text-green-100 hover:bg-green-700 rounded-lg transition-all duration-200">
-                                <img class="w-8 h-8 rounded-full mr-3"
-                                    :src="`https://ui-avatars.com/api/?name=${coach.name || 'Coach'}&background=random`"
-                                    alt="Coach Avatar">
-                                <div class="flex-1 text-left">
-                                    <p class="font-medium" x-text="coach.name || 'Coach'"></p>
-                                    <p class="text-xs text-green-200 truncate" x-text="coach.email || 'Loading...'"></p>
-                                </div>
-                                <svg class="w-4 h-4 ml-2" :class="showDropdown ? 'rotate-180' : ''" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7"></path>
-                                </svg>
-                            </button>
-                            <div x-show="showDropdown" @click.away="showDropdown = false"
-                                class="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-lg shadow-lg border border-gray-200 py-1">
-                                <button @click="logout(); showDropdown = false"
-                                    class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-all duration-200">
-                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
-                                        </path>
-                                    </svg> Logout
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </nav>
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-white shadow-xl flex flex-col z-20">
+        <div class="h-16 flex items-center justify-center border-b border-gray-100 bg-green-700">
+            <div class="flex items-center gap-2 text-white">
+                <i class="fas fa-futbol text-xl"></i>
+                <span class="text-lg font-bold">Mwatate FC</span>
             </div>
-        </aside>
+        </div>
 
-        <!-- Main Content -->
-        <main class="flex-1 overflow-auto">
+        <nav class="flex-1 py-4 space-y-1 overflow-y-auto">
+            <template x-for="item in navItems">
+                <a href="#" @click.prevent="currentRoute = item.id"
+                    :class="currentRoute === item.id ? 'bg-green-50 text-green-700 border-r-4 border-green-600' : 'text-gray-600 hover:bg-gray-50'"
+                    class="flex items-center px-6 py-3 text-sm font-medium transition-colors">
+                    <i :class="item.icon" class="w-5 mr-3"></i>
+                    <span x-text="item.label"></span>
+                </a>
+            </template>
+        </nav>
 
-            <!-- Dashboard Section -->
-            <div x-show="currentRoute === 'dashboard'" class="section-bg"
-                style="background-image: url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80')">
-                <div class="bg-overlay min-h-screen p-6 lg:p-8">
-                    <header class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-                        <div>
-                            <h2 class="text-2xl font-bold text-gray-800">Welcome back, <span
-                                    x-text="coach.name || 'Coach'"></span>!</h2>
-                            <p class="text-sm text-gray-500">Here's what's happening with your team today.</p>
-                        </div>
-                        <div class="flex items-center space-x-2 mt-4 md:mt-0">
-                            <button @click="currentRoute = 'training'"
-                                class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">Create
-                                Training Session</button>
-                            <button @click="currentRoute = 'communication'"
-                                class="px-4 py-2 text-sm font-semibold text-gray-700 bg-white rounded-lg shadow-sm border hover:bg-gray-50 focus:outline-none transition-all duration-200">Send
-                                Team Message</button>
-                        </div>
-                    </header>
-                    <!-- Dashboard Cards -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <div class="lg:col-span-2 space-y-8">
-                            <div class="p-6 bg-white rounded-lg shadow-sm border border-gray-200">
-                                <h3 class="text-lg font-semibold text-gray-800 border-b pb-4">Upcoming Events</h3>
-                                <div class="mt-4 space-y-4">
-                                    <template x-if="trainings.length === 0">
-                                        <p class="text-gray-500 text-sm">No upcoming events scheduled.</p>
-                                    </template>
-                                    <template x-for="(session, index) in trainings.slice(0, 3)" :key="session.id">
-                                        <div class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all duration-200 cursor-pointer"
-                                            @click="currentRoute = 'training'">
-                                            <div class="p-3 bg-blue-100 rounded-full"><svg class="w-6 h-6 text-blue-500"
-                                                    fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                                    stroke-width="1.5">
-                                                    <path d="M8.25 4.5l7.5 7.5-7.5 7.5" stroke-linecap="round"
-                                                        stroke-linejoin="round" />
-                                                </svg></div>
-                                            <div class="ml-4 flex-1">
-                                                <p class="font-semibold text-gray-800" x-text="session.type"></p>
-                                                <p class="text-sm text-gray-500"><span
-                                                        x-text="formatDate(session.date)"></span> at <span
-                                                        x-text="formatTime(session.time)"></span> - <span
-                                                        x-text="session.location"></span></p>
-                                            </div>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="space-y-8">
-                            <div class="p-6 bg-white rounded-lg shadow-sm border border-gray-200">
-                                <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Form</h3>
-                                <div class="flex items-center justify-between space-x-2">
-                                    <div class="flex flex-col items-center">
-                                        <div
-                                            class="flex items-center justify-center w-10 h-10 font-bold text-white bg-green-500 rounded-full">
-                                            W</div><span class="text-xs mt-1 text-gray-500">3-1</span>
-                                    </div>
-                                    <div class="flex flex-col items-center">
-                                        <div
-                                            class="flex items-center justify-center w-10 h-10 font-bold text-white bg-green-500 rounded-full">
-                                            W</div><span class="text-xs mt-1 text-gray-500">2-0</span>
-                                    </div>
-                                    <div class="flex flex-col items-center">
-                                        <div
-                                            class="flex items-center justify-center w-10 h-10 font-bold text-white bg-red-500 rounded-full">
-                                            L</div><span class="text-xs mt-1 text-gray-500">0-1</span>
-                                    </div>
-                                    <div class="flex flex-col items-center">
-                                        <div
-                                            class="flex items-center justify-center w-10 h-10 font-bold text-white bg-gray-400 rounded-full">
-                                            D</div><span class="text-xs mt-1 text-gray-500">1-1</span>
-                                    </div>
-                                    <div class="flex flex-col items-center">
-                                        <div
-                                            class="flex items-center justify-center w-10 h-10 font-bold text-white bg-green-500 rounded-full">
-                                            W</div><span class="text-xs mt-1 text-gray-500">2-1</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="p-4 border-t border-gray-100">
+            <button @click="logout"
+                class="flex items-center w-full px-4 py-2 text-sm text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">
+                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 overflow-y-auto relative scroll-smooth">
+
+        <!-- HEADER -->
+        <header class="bg-white border-b border-gray-200 sticky top-0 z-10 px-8 py-4 flex justify-between items-center">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800" x-text="pageTitle"></h2>
+                <p class="text-sm text-gray-500">Manage your team effectively.</p>
             </div>
-
-            <!-- Players Section -->
-            <div x-show="currentRoute === 'players'" class="section-bg"
-                style="background-image: url('https://images.unsplash.com/photo-1579952363873-27f3bade9f55?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')">
-                <div class="bg-overlay min-h-screen p-6 lg:p-8">
-                    <header class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-                        <div>
-                            <h2 class="text-2xl font-bold text-gray-800">Player Management</h2>
-                            <p class="text-sm text-gray-500">View and manage your squad players</p>
-                        </div>
-                        <div></div>
-                    </header>
-
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                        <div class="flex items-center justify-between mb-6">
-                            <div class="relative w-full max-w-md">
-                                <input type="text" placeholder="Search players..."
-                                    class="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
-                                <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                </svg>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <!-- Dynamic Player Cards -->
-                            <template x-for="player in players" :key="player.id">
-                                <div
-                                    class="border rounded-lg overflow-hidden hover:shadow-md transition-all duration-200 player-card">
-                                    <div class="bg-gradient-to-r from-green-600 to-green-800 p-4 flex items-center">
-                                        <div
-                                            class="w-16 h-16 bg-white rounded-full flex items-center justify-center overflow-hidden">
-                                            <img :src="`https://ui-avatars.com/api/?name=${player.name}&background=random`"
-                                                class="w-full h-full object-cover">
-                                        </div>
-                                        <div class="ml-4">
-                                            <h3 class="text-lg font-bold text-white" x-text="player.name"></h3>
-                                            <p class="text-sm text-green-100">Mwatate FC</p>
-                                        </div>
-                                    </div>
-                                    <div class="p-4">
-                                        <div class="flex justify-between text-sm mb-3">
-                                            <span class="text-gray-500">Email</span>
-                                            <span class="font-medium truncate max-w-[150px]"
-                                                x-text="player.email"></span>
-                                        </div>
-                                        <!-- UPDATED: Position Replaces Jersey -->
-                                        <div class="flex justify-between text-sm mb-3">
-                                            <span class="text-gray-500">Position</span>
-                                            <span class="font-medium" x-text="player.position || 'N/A'"></span>
-                                        </div>
-                                        <div class="flex justify-between text-sm">
-                                            <span class="text-gray-500">Status</span>
-                                            <span class="px-2 py-0.5 rounded-full text-xs font-medium"
-                                                :class="player.status === 'injured' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'"
-                                                x-text="player.status || 'Active'"></span>
-                                        </div>
-                                        <div class="mt-4 flex space-x-2">
-                                            <!-- UPDATED: View Profile calls edit modal -->
-                                            <button @click="openEditPlayer(player)"
-                                                class="flex-1 py-1.5 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition-all duration-200">
-                                                View Profile
-                                            </button>
-                                            <!-- UPDATED: Send Message pre-fills ID -->
-                                            <button @click="openDirectMessage(player)"
-                                                class="flex-1 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-all duration-200">
-                                                Send Message
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right hidden md:block">
+                    <p class="text-sm font-bold text-gray-800" x-text="coach.name || 'Head Coach'"></p>
+                    <p class="text-xs text-green-600">Online</p>
                 </div>
+                <img :src="`https://ui-avatars.com/api/?name=${coach.name || 'Coach'}&background=15803d&color=fff`"
+                    class="w-10 h-10 rounded-full border-2 border-green-100">
             </div>
+        </header>
 
-            <!-- Communication Section (UPDATED DESIGN) -->
-            <div x-show="currentRoute === 'communication'" class="section-bg"
-                style="background-image: url('https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1469&q=80')">
-                <div class="bg-overlay min-h-screen p-6 lg:p-8">
-                    <header class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-                        <div>
-                            <h2 class="text-2xl font-bold text-gray-800">Team Communication</h2>
-                            <p class="text-sm text-gray-500">Chat with your players and staff</p>
-                        </div>
-                    </header>
+        <div class="p-8 max-w-7xl mx-auto min-h-full">
 
-                    <!-- Main White Card Container -->
+            <!-- 1. DASHBOARD OVERVIEW -->
+            <div x-show="currentRoute === 'dashboard'" class="space-y-6">
+                <!-- Stats Row -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div
-                        class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col h-[calc(100vh-200px)]">
-                        <!-- Chat Area (Scrollable) -->
-                        <div class="flex-1 overflow-y-auto pr-2 chat-scroll space-y-4">
-                            <template x-if="messages.length === 0">
-                                <div class="flex flex-col items-center justify-center h-full text-gray-400">
-                                    <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
-                                        </path>
-                                    </svg>
-                                    <p>No messages yet. Start the conversation!</p>
-                                </div>
-                            </template>
-                            <template x-for="msg in messages" :key="msg.id">
-                                <div class="flex items-start space-x-4 border-b border-gray-100 pb-4 last:border-0">
-                                    <div class="flex-shrink-0">
-                                        <div
-                                            class="w-10 h-10 rounded-full bg-yellow-200 flex items-center justify-center text-yellow-800 font-bold text-sm">
-                                            <span
-                                                x-text="(msg.sender_id == coach.id || msg.sender_id == null) ? (coach.name || 'Coach').substring(0,2).toUpperCase() : (players.find(p => p.id == msg.sender_id)?.name || 'U').substring(0,2).toUpperCase()"></span>
-                                        </div>
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <div class="flex items-center justify-between mb-1">
-                                            <h4 class="text-sm font-bold text-gray-900"
-                                                x-text="(msg.sender_id == coach.id || msg.sender_id == null) ? (coach.name || 'Coach') : (players.find(p => p.id == msg.sender_id)?.name || 'Unknown User')">
-                                            </h4>
-                                            <span class="text-xs text-gray-400"
-                                                x-text="formatDate(msg.created_at)"></span>
-                                        </div>
-                                        <div class="mb-1">
-                                            <span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full"
-                                                x-text="msg.subject || 'General'"></span>
-                                        </div>
-                                        <p class="text-sm text-gray-700" x-text="msg.content"></p>
-                                    </div>
-                                </div>
-                            </template>
-
-
+                        class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Total Players</p>
+                            <h3 class="text-3xl font-bold text-gray-800" x-text="players.length">0</h3>
                         </div>
+                        <div class="p-3 bg-blue-50 text-blue-600 rounded-lg"><i class="fas fa-users text-xl"></i></div>
+                    </div>
+                    <div
+                        class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Coaching Staff</p>
+                            <h3 class="text-3xl font-bold text-gray-800" x-text="stats.totalCoaches">0</h3>
+                        </div>
+                        <div class="p-3 bg-green-50 text-green-600 rounded-lg"><i
+                                class="fas fa-clipboard-user text-xl"></i></div>
+                    </div>
+                    <!-- Recent Form -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <p class="text-sm text-gray-500 font-medium mb-2">Recent Form</p>
+                        <div class="flex gap-2">
+                            <template x-for="result in ['W', 'W', 'D', 'L', 'W']">
+                                <span
+                                    class="w-8 h-8 flex items-center justify-center rounded-full text-xs font-bold text-white"
+                                    :class="{
+                                          'bg-green-500': result === 'W',
+                                          'bg-gray-400': result === 'D',
+                                          'bg-red-500': result === 'L'
+                                      }" x-text="result"></span>
+                            </template>
+                        </div>
+                    </div>
+                </div>
 
-                        <!-- Footer Input Area -->
-                        <div class="mt-4 pt-4 border-t border-gray-200">
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div class="md:col-span-1">
-                                    <select x-model="newMessage.recipient"
-                                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        <option value="">Select Recipient...</option>
-                                        <option value="all">All Players</option>
-                                        <option value="squad">First Squad</option>
-                                        <option value="reserves">Reserves</option>
-                                        <optgroup label="Individual Players">
-                                            <template x-for="p in players" :key="p.id">
-                                                <option :value="p.id" x-text="p.name"></option>
-                                            </template>
-                                        </optgroup>
-                                    </select>
+                <!-- Upcoming Fixtures Table -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                        <h3 class="font-bold text-gray-800">Upcoming Fixtures</h3>
+                        <button @click="currentRoute = 'calendar'" class="text-sm text-green-600 hover:underline">View
+                            Calendar</button>
+                    </div>
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-gray-50 text-gray-500">
+                            <tr>
+                                <th class="px-6 py-3">Date</th>
+                                <th class="px-6 py-3">Opponent</th>
+                                <th class="px-6 py-3">Venue</th>
+                                <th class="px-6 py-3">Competition</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <template x-for="match in fixtures.slice(0, 5)" :key="match.id">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 font-medium" x-text="formatDate(match.match_date)"></td>
+                                    <td class="px-6 py-4 font-bold text-gray-800" x-text="match.opponent"></td>
+                                    <td class="px-6 py-4">
+                                        <span class="px-2 py-1 rounded text-xs font-bold uppercase"
+                                            :class="match.venue === 'Home' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'"
+                                            x-text="match.venue"></span>
+                                    </td>
+                                    <td class="px-6 py-4 text-gray-500" x-text="match.competition"></td>
+                                </tr>
+                            </template>
+                            <tr x-show="fixtures.length === 0">
+                                <td colspan="4" class="px-6 py-8 text-center text-gray-500">No upcoming fixtures found.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 2. PLAYERS LIST -->
+            <div x-show="currentRoute === 'players'">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <template x-for="player in players" :key="player.id">
+                        <div
+                            class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-md transition group">
+                            <div class="bg-gradient-to-r from-green-700 to-green-600 p-4 flex items-center gap-4">
+                                <img :src="`https://ui-avatars.com/api/?name=${player.name}&background=fff&color=15803d`"
+                                    class="w-12 h-12 rounded-full">
+                                <div>
+                                    <h3 class="font-bold text-white text-lg" x-text="player.name"></h3>
+                                    <p class="text-green-100 text-sm" x-text="player.position || 'Player'"></p>
                                 </div>
-                                <div class="md:col-span-3">
-                                    <input type="text" x-model="newMessage.subject" placeholder="Subject / Topic"
-                                        class="w-full mb-2 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <div class="flex gap-2">
-                                        <input type="text" x-model="newMessage.content"
-                                            placeholder="Type your message here..."
-                                            class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                        <button @click="sendMessage()"
-                                            class="bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-800 transition-colors flex items-center">
-                                            Send <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 5l7 7-7 7"></path>
-                                            </svg>
-                                        </button>
-
-                                    </div>
+                            </div>
+                            <div class="p-4">
+                                <div class="flex justify-between text-sm mb-2">
+                                    <span class="text-gray-500">Email:</span>
+                                    <span class="text-gray-800" x-text="player.email"></span>
+                                </div>
+                                <div class="mt-4 flex gap-2">
+                                    <button @click="startChat(player)"
+                                        class="flex-1 bg-green-50 text-green-700 py-2 rounded-lg text-sm font-medium hover:bg-green-100 transition">
+                                        <i class="fas fa-comment-alt mr-1"></i> Message
+                                    </button>
                                 </div>
                             </div>
                         </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- 3. TRAINING PLANNER (CRUD) -->
+            <div x-show="currentRoute === 'training'">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold text-gray-800">Training Schedule</h3>
+                    <button @click="openTrainingModal()"
+                        class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 shadow">
+                        <i class="fas fa-plus mr-2"></i> Add Session
+                    </button>
+                </div>
+
+                <div class="space-y-4">
+                    <template x-for="session in trainings" :key="session.id">
+                        <div
+                            class="bg-white p-5 rounded-xl border border-gray-200 flex flex-col md:flex-row md:items-center justify-between hover:shadow-sm transition">
+                            <div class="flex items-start gap-4 mb-4 md:mb-0">
+                                <div
+                                    class="bg-blue-50 text-blue-600 w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-dumbbell text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-800" x-text="session.type"></h4>
+                                    <p class="text-sm text-gray-500 mt-1"
+                                        x-text="session.description || 'No description'"></p>
+                                    <div class="flex gap-4 mt-2 text-xs font-medium text-gray-500">
+                                        <span class="flex items-center"><i class="far fa-calendar mr-1"></i> <span
+                                                x-text="formatDate(session.date)"></span></span>
+                                        <span class="flex items-center"><i class="far fa-clock mr-1"></i> <span
+                                                x-text="session.time"></span></span>
+                                        <span class="flex items-center"><i class="fas fa-map-marker-alt mr-1"></i> <span
+                                                x-text="session.location"></span></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button @click="openTrainingModal(session)"
+                                    class="text-gray-400 hover:text-blue-600 p-2"><i class="fas fa-edit"></i></button>
+                                <button @click="deleteItem('training-sessions', session.id)"
+                                    class="text-gray-400 hover:text-red-600 p-2"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- 4. COMMUNICATION (WhatsApp Style) -->
+            <div x-show="currentRoute === 'communication'"
+                class="h-[calc(100vh-140px)] bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex">
+
+                <!-- Left Sidebar: Chat List -->
+                <div class="w-1/3 border-r border-gray-200 flex flex-col bg-gray-50">
+                    <div class="p-4 border-b border-gray-200">
+                        <input type="text" placeholder="Search players..." x-model="chatSearch"
+                            class="w-full bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    <div class="flex-1 overflow-y-auto">
+                        <!-- Group Chat Option -->
+                        <div @click="activeChat = 'all'"
+                            :class="activeChat === 'all' ? 'bg-white border-l-4 border-green-500 shadow-sm' : 'hover:bg-gray-100 border-l-4 border-transparent'"
+                            class="p-4 cursor-pointer transition border-b border-gray-100">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-700 font-bold">
+                                    <i class="fas fa-users"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-gray-800 text-sm">Team Announcement</h4>
+                                    <p class="text-xs text-gray-500 truncate">Broadcast to everyone</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Player List -->
+                        <template x-for="player in filteredPlayers" :key="player.id">
+                            <div @click="activeChat = player"
+                                :class="(activeChat && activeChat.id === player.id) ? 'bg-white border-l-4 border-green-500 shadow-sm' : 'hover:bg-gray-100 border-l-4 border-transparent'"
+                                class="p-4 cursor-pointer transition border-b border-gray-100">
+                                <div class="flex items-center gap-3">
+                                    <img :src="`https://ui-avatars.com/api/?name=${player.name}&background=random`"
+                                        class="w-10 h-10 rounded-full">
+                                    <div>
+                                        <h4 class="font-bold text-gray-800 text-sm" x-text="player.name"></h4>
+                                        <p class="text-xs text-gray-500 truncate" x-text="player.position"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Right Pane: Conversation -->
+                <div class="flex-1 flex flex-col bg-[#e5ddd5] relative">
+                    <!-- Chat Background Pattern Overlay -->
+                    <div class="absolute inset-0 opacity-10"
+                        style="background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');">
+                    </div>
+
+                    <!-- Chat Header -->
+                    <div class="bg-white p-3 border-b border-gray-200 flex items-center gap-3 z-10 shadow-sm">
+                        <template x-if="activeChat && activeChat !== 'all'">
+                            <div class="flex items-center gap-3">
+                                <img :src="`https://ui-avatars.com/api/?name=${activeChat.name}&background=random`"
+                                    class="w-10 h-10 rounded-full">
+                                <div>
+                                    <h4 class="font-bold text-gray-800" x-text="activeChat.name"></h4>
+                                    <p class="text-xs text-green-600">Online</p>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="activeChat === 'all'">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-green-600 text-white flex items-center justify-center">
+                                    <i class="fas fa-bullhorn"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-gray-800">Team Broadcast</h4>
+                                    <p class="text-xs text-gray-500">All players will receive this.</p>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="!activeChat">
+                            <div class="text-gray-500 text-sm">Select a chat to start messaging</div>
+                        </template>
+                    </div>
+
+                    <!-- Messages Area -->
+                    <div class="flex-1 overflow-y-auto p-4 space-y-3 z-10 chat-scroll" id="chatContainer">
+                        <template x-for="msg in currentChatMessages" :key="msg.id">
+                            <div class="flex" :class="msg.sender_id == coach.id ? 'justify-end' : 'justify-start'">
+                                <div class="max-w-[70%] rounded-lg px-4 py-2 shadow-sm text-sm relative"
+                                    :class="msg.sender_id == coach.id ? 'bg-[#dcf8c6] text-gray-800 rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none'">
+                                    <p x-text="msg.content"></p>
+                                    <div class="text-[10px] text-right mt-1 opacity-60"
+                                        x-text="new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})">
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="!activeChat">
+                            <div class="h-full flex items-center justify-center flex-col text-gray-400">
+                                <i class="fas fa-comments text-4xl mb-2"></i>
+                                <p>Select a player to chat</p>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Input Area -->
+                    <div class="bg-white p-3 z-10" x-show="activeChat">
+                        <form @submit.prevent="sendMessage" class="flex gap-2">
+                            <input type="text" x-model="newMessageInput" placeholder="Type a message..."
+                                class="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:border-green-500 text-sm">
+                            <button type="submit"
+                                class="bg-green-600 text-white w-10 h-10 rounded-full hover:bg-green-700 shadow flex items-center justify-center">
+                                <i class="fas fa-paper-plane text-sm"></i>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
 
-            <!-- Other Sections (Placeholders) -->
-            <div x-show="currentRoute === 'training'" class="section-bg"
-                style="background-image: url('https://images.unsplash.com/photo-1543357480-c60d400e7ef6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')">
-                <div class="bg-overlay min-h-screen p-6 lg:p-8">
-                    <h2 class="text-2xl font-bold">Training Planner</h2>
+            <!-- 5. VIDEO ANALYTICS (CRUD) -->
+            <div x-show="currentRoute === 'analytics'">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold text-gray-800">Video Library</h3>
+                    <button @click="openVideoModal()"
+                        class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 shadow">
+                        <i class="fas fa-cloud-upload-alt mr-2"></i> Upload Video
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <template x-for="video in videos" :key="video.id">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden group">
+                            <div class="bg-black h-48 flex items-center justify-center relative">
+                                <video controls class="w-full h-full object-cover">
+                                    <source :src="'/storage/' + video.video_path" type="video/mp4">
+                                </video>
+                            </div>
+                            <div class="p-4">
+                                <h4 class="font-bold text-gray-800 truncate" x-text="video.title"></h4>
+                                <p class="text-sm text-gray-500 line-clamp-2 mt-1"
+                                    x-text="video.description || 'No description'"></p>
+                                <div class="mt-4 flex justify-end gap-2 border-t border-gray-100 pt-3">
+                                    <button @click="openVideoModal(video)"
+                                        class="text-sm text-blue-600 hover:underline">Edit Info</button>
+                                    <button @click="deleteItem('video-analysis', video.id)"
+                                        class="text-sm text-red-600 hover:underline">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
                 </div>
             </div>
-            <div x-show="currentRoute === 'analytics'" class="section-bg"
-                style="background-image: url('https://images.unsplash.com/photo-1552667466-07770ae110d0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')">
-                <div class="bg-overlay min-h-screen p-6 lg:p-8">
-                    <h2 class="text-2xl font-bold">Video Analytics</h2>
+
+            <!-- 6. CALENDAR (Visual) -->
+            <div x-show="currentRoute === 'calendar'">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-gray-800" x-text="calendarMonth"></h2>
+                        <div class="flex gap-2">
+                            <button @click="changeMonth(-1)" class="p-2 hover:bg-gray-100 rounded"><i
+                                    class="fas fa-chevron-left"></i></button>
+                            <button @click="changeMonth(1)" class="p-2 hover:bg-gray-100 rounded"><i
+                                    class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Calendar Grid -->
+                    <div class="grid grid-cols-7 gap-2 mb-2 text-center text-sm font-bold text-gray-400 uppercase">
+                        <div>Sun</div>
+                        <div>Mon</div>
+                        <div>Tue</div>
+                        <div>Wed</div>
+                        <div>Thu</div>
+                        <div>Fri</div>
+                        <div>Sat</div>
+                    </div>
+                    <div class="grid grid-cols-7 gap-2">
+                        <!-- Blanks -->
+                        <template x-for="blank in blanks" :key="blank">
+                            <div class="h-24 bg-gray-50/50 rounded-lg"></div>
+                        </template>
+                        <!-- Days -->
+                        <template x-for="day in days" :key="day.date">
+                            <div
+                                class="h-24 border border-gray-100 rounded-lg p-2 relative hover:border-green-300 transition bg-white group">
+                                <span class="text-sm font-medium text-gray-700" x-text="day.dayNumber"></span>
+                                <!-- Event Marker -->
+                                <template x-if="day.fixture">
+                                    <div class="mt-1 p-1 bg-orange-100 text-orange-800 text-xs rounded truncate font-bold"
+                                        :title="'vs ' + day.fixture.opponent">
+                                        <i class="fas fa-tshirt mr-1"></i><span x-text="day.fixture.opponent"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
                 </div>
             </div>
-            <div x-show="currentRoute === 'calendar'" class="section-bg"
-                style="background-image: url('https://images.unsplash.com/photo-1517649763962-0c623066013b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80')">
-                <div class="bg-overlay min-h-screen p-6 lg:p-8">
-                    <h2 class="text-2xl font-bold">Calendar</h2>
-                </div>
-            </div>
-            <div x-show="currentRoute === 'stats'" class="section-bg"
-                style="background-image: url('https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1605&q=80')">
-                <div class="bg-overlay min-h-screen p-6 lg:p-8">
-                    <h2 class="text-2xl font-bold">Team Stats</h2>
-                </div>
-            </div>
-        </main>
-    </div>
+
+        </div>
+    </main>
 
     <!-- MODALS -->
 
-    <!-- Edit Player Modal (NEW: Name/Position Only) -->
-    <div x-show="showEditPlayerModal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4" @click.away="showEditPlayerModal = false">
-            <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-xl font-bold text-gray-800">Edit Player Details</h3>
-                    <button @click="showEditPlayerModal = false" class="text-gray-400 hover:text-gray-500"><i
-                            class="fas fa-times"></i></button>
-                </div>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                        <input type="text" x-model="editingPlayer.name"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Position</label>
-                        <select x-model="editingPlayer.position"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="Goalkeeper">Goalkeeper</option>
-                            <option value="Defender">Defender</option>
-                            <option value="Midfielder">Midfielder</option>
-                            <option value="Forward">Forward</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="mt-6 flex justify-end space-x-3">
-                    <button @click="showEditPlayerModal = false"
-                        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">Cancel</button>
-                    <button @click="updatePlayer()"
-                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">Update</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Message Modal (For direct send from card) -->
-    <div x-show="showMessageModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4" @click.away="showMessageModal = false">
-            <div class="p-6">
-                <h3 class="text-xl font-bold mb-4">New Message</h3>
-                <div class="space-y-4">
-                    <!-- Read-only input for recipient name to confirm selection -->
-                    <div class="text-sm text-gray-500 mb-1">Recipient: <span class="font-bold text-gray-800"
-                            x-text="players.find(p => p.id === newMessage.recipient)?.name || 'Unknown'"></span></div>
-                    <input type="text" x-model="newMessage.subject" placeholder="Subject"
-                        class="w-full border rounded p-2">
-                    <textarea x-model="newMessage.content" placeholder="Message content..."
-                        class="w-full border rounded p-2" rows="4"></textarea>
-                </div>
-                <div class="mt-6 flex justify-end space-x-3">
-                    <button @click="showMessageModal = false" class="px-4 py-2 border rounded">Cancel</button>
-                    <button @click="sendMessage()" class="px-4 py-2 bg-blue-600 text-white rounded">Send</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Training Modal -->
-    <div x-show="showTrainingModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4" @click.away="showTrainingModal = false">
-            <div class="p-6">
-                <h3 class="text-xl font-bold mb-4">New Session</h3>
-                <div class="space-y-4">
-                    <input type="date" x-model="newTraining.date" class="w-full border rounded p-2">
-                    <input type="time" x-model="newTraining.time" class="w-full border rounded p-2">
-                    <input type="text" x-model="newTraining.location" placeholder="Location"
-                        class="w-full border rounded p-2">
-                    <select x-model="newTraining.type" class="w-full border rounded p-2">
-                        <option>Technical</option>
-                        <option>Tactical</option>
-                    </select>
-                    <textarea x-model="newTraining.description" placeholder="Description"
-                        class="w-full border rounded p-2"></textarea>
+    <div x-show="modals.training"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" x-transition>
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <h3 class="text-xl font-bold mb-4" x-text="trainingForm.id ? 'Edit Session' : 'New Session'"></h3>
+            <form @submit.prevent="saveTraining" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="date" x-model="trainingForm.date" required class="border p-2 rounded w-full">
+                    <input type="time" x-model="trainingForm.time" required class="border p-2 rounded w-full">
                 </div>
-                <div class="mt-6 flex justify-end space-x-3">
-                    <button @click="showTrainingModal = false" class="px-4 py-2 border rounded">Cancel</button>
-                    <button @click="createTrainingSession()"
-                        class="px-4 py-2 bg-blue-600 text-white rounded">Create</button>
+                <input type="text" x-model="trainingForm.location" placeholder="Location" required
+                    class="border p-2 rounded w-full">
+                <select x-model="trainingForm.type" class="border p-2 rounded w-full">
+                    <option>Technical</option>
+                    <option>Tactical</option>
+                    <option>Fitness</option>
+                    <option>Recovery</option>
+                </select>
+                <textarea x-model="trainingForm.description" placeholder="Drill details..." rows="3"
+                    class="border p-2 rounded w-full"></textarea>
+                <div class="flex justify-end gap-2 mt-4">
+                    <button type="button" @click="modals.training = false"
+                        class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancel</button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Save</button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
+    <!-- Video Modal -->
+    <div x-show="modals.video" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+        x-transition>
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+            <h3 class="text-xl font-bold mb-4" x-text="videoForm.id ? 'Edit Video Details' : 'Upload Video'"></h3>
+            <form @submit.prevent="saveVideo" class="space-y-4">
+                <input type="text" x-model="videoForm.title" placeholder="Video Title" required
+                    class="border p-2 rounded w-full">
+                <textarea x-model="videoForm.description" placeholder="Analysis notes..." rows="3"
+                    class="border p-2 rounded w-full"></textarea>
+
+                <div x-show="!videoForm.id">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Video File</label>
+                    <input type="file" @change="videoFile = $event.target.files[0]" accept="video/*"
+                        class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+                </div>
+
+                <div class="flex justify-end gap-2 mt-4">
+                    <button type="button" @click="modals.video = false"
+                        class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">Cancel</button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- LOGIC -->
     <script>
         const API_URL = '/api';
         const getHeaders = () => ({
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': 'Bearer ' + localStorage.getItem('api_token')
+            'Authorization': 'Bearer ' + localStorage.getItem('api_token'),
+            'Accept': 'application/json'
         });
 
         document.addEventListener('alpine:init', () => {
             Alpine.data('coachDashboard', () => ({
                 currentRoute: 'dashboard',
-                showTrainingModal: false,
-                showMessageModal: false,
-                showEditPlayerModal: false,
+                coach: { id: null, name: '' },
 
-                // Data
-                coach: { name: '', email: '' },
+                // Data Stores
                 players: [],
+                fixtures: [],
                 trainings: [],
+                videos: [],
                 messages: [],
 
-                // Forms
-                newTraining: { date: '', time: '', location: '', type: '', description: '' },
-                newMessage: { recipient: '', subject: '', content: '' },
-                editingPlayer: { id: null, name: '', position: '' },
+                // Communication State
+                chatSearch: '',
+                activeChat: null, // 'all' or player object
+                newMessageInput: '',
+
+                // Stats
+                stats: { totalCoaches: 0 },
+
+                // Calendar State
+                currDate: new Date(),
+
+                // Modals & Forms
+                modals: { training: false, video: false },
+                trainingForm: { id: null, date: '', time: '', location: '', type: 'Technical', description: '' },
+                videoForm: { id: null, title: '', description: '' },
+                videoFile: null,
+
+                navItems: [
+                    { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-chart-pie' },
+                    { id: 'players', label: 'Players', icon: 'fas fa-users' },
+                    { id: 'communication', label: 'Chat', icon: 'fas fa-comments' },
+                    { id: 'training', label: 'Training', icon: 'fas fa-clipboard-list' },
+                    { id: 'analytics', label: 'Video Analysis', icon: 'fas fa-video' },
+                    { id: 'calendar', label: 'Calendar', icon: 'far fa-calendar-alt' }
+                ],
+
+                get pageTitle() {
+                    return this.navItems.find(n => n.id === this.currentRoute)?.label || 'Dashboard';
+                },
 
                 init() {
-                    const hash = window.location.hash.substring(1) || 'dashboard';
-                    this.currentRoute = hash;
-
-                    this.fetchCoach();
-                    this.fetchPlayers();
-                    this.fetchTrainings();
-                    this.fetchMessages();
-
-                    window.addEventListener('hashchange', () => {
-                        this.currentRoute = window.location.hash.substring(1);
-                    });
+                    this.fetchUser();
+                    this.fetchData();
+                    // Auto-refresh chat
+                    setInterval(() => { if (this.currentRoute === 'communication') this.fetchMessages() }, 5000);
                 },
 
-                // Utilities
-                formatDate(dateString) {
-                    if (!dateString) return '';
-                    const options = { month: 'short', day: 'numeric', year: 'numeric' };
-                    return new Date(dateString).toLocaleDateString(undefined, options);
-                },
-                formatTime(timeString) {
-                    if (!timeString) return '';
-                    const [hours, minutes] = timeString.split(':');
-                    return `${hours}:${minutes}`;
-                },
-
-                // Open Direct Message from Player Card
-                openDirectMessage(player) {
-                    this.newMessage.recipient = player.id; // Sends specific ID
-                    this.newMessage.subject = `Message for ${player.name}`;
-                    this.showMessageModal = true;
-                },
-
-                // Open Edit Player Modal
-                openEditPlayer(player) {
-                    this.editingPlayer = { ...player };
-                    this.showEditPlayerModal = true;
-                },
-
-                // Update Player
-                async updatePlayer() {
-                    try {
-                        const payload = {
-                            name: this.editingPlayer.name,
-                            position: this.editingPlayer.position
-                        };
-                        const res = await fetch(`${API_URL}/admin/update/${this.editingPlayer.id}`, {
-                            method: 'PUT',
-                            headers: getHeaders(),
-                            body: JSON.stringify(payload)
-                        });
-
-                        if (res.ok) {
-                            alert('Player updated successfully!');
-                            this.showEditPlayerModal = false;
-                            this.fetchPlayers();
-                        } else {
-                            const err = await res.json();
-                            alert('Failed to update: ' + (err.message || 'Unknown error'));
-                        }
-                    } catch (e) {
-                        console.error(e);
-                        alert('Network error updating player');
-                    }
-                },
-
-                // Fetch Coach Info
-                async fetchCoach() {
+                async fetchUser() {
                     try {
                         const res = await fetch(`${API_URL}/user`, { headers: getHeaders() });
                         const data = await res.json();
-                        if (data.success || data.user) {
-                            this.coach = data.user || data;
-                        }
-                    } catch (e) { console.error('Error fetching coach:', e); }
-                },
-
-                // Players
-                async fetchPlayers() {
-                    try {
-                        const res = await fetch(`${API_URL}/users?role=player`, { headers: getHeaders() });
-                        const data = await res.json();
-                        this.players = data.data || [];
+                        this.coach = data.user || data;
                     } catch (e) { console.error(e); }
                 },
 
-                // Trainings
-                async fetchTrainings() {
+                async fetchData() {
+                    // Fetch Users (Players & Coaches)
+                    try {
+                        const res = await fetch(`${API_URL}/users`, { headers: getHeaders() });
+                        const json = await res.json();
+                        // Filter logic based on request
+                        this.players = json.data.filter(u => u.role === 'player');
+                        this.stats.totalCoaches = json.data.filter(u => u.role === 'coach').length;
+                    } catch (e) { }
+
+                    // Fetch Fixtures
+                    try {
+                        const res = await fetch(`${API_URL}/fixtures`, { headers: getHeaders() });
+                        const json = await res.json();
+                        this.fixtures = json.data || [];
+                    } catch (e) { }
+
+                    // Fetch Trainings
                     try {
                         const res = await fetch(`${API_URL}/training-sessions`, { headers: getHeaders() });
-                        const data = await res.json();
-                        this.trainings = data.data || [];
-                    } catch (e) { console.error(e); }
-                },
+                        const json = await res.json();
+                        this.trainings = json.data || [];
+                    } catch (e) { }
 
-                async createTrainingSession() {
+                    // Fetch Videos
                     try {
-                        const res = await fetch(`${API_URL}/training-sessions`, {
-                            method: 'POST',
-                            headers: getHeaders(),
-                            body: JSON.stringify(this.newTraining)
-                        });
-                        if (res.ok) {
-                            alert('Session created!');
-                            this.showTrainingModal = false;
-                            this.fetchTrainings();
-                        }
-                    } catch (e) { console.error(e); }
+                        const res = await fetch(`${API_URL}/videos`, { headers: getHeaders() });
+                        const json = await res.json();
+                        this.videos = json.data || [];
+                    } catch (e) { }
+
+                    this.fetchMessages();
                 },
 
-                // Messages
+                // --- CALENDAR LOGIC ---
+                get calendarMonth() {
+                    return this.currDate.toLocaleDateString('default', { month: 'long', year: 'numeric' });
+                },
+                get blanks() {
+                    const firstDay = new Date(this.currDate.getFullYear(), this.currDate.getMonth(), 1).getDay();
+                    return Array(firstDay).fill(null);
+                },
+                get days() {
+                    const daysInMonth = new Date(this.currDate.getFullYear(), this.currDate.getMonth() + 1, 0).getDate();
+                    const days = [];
+                    for (let i = 1; i <= daysInMonth; i++) {
+                        const dateStr = `${this.currDate.getFullYear()}-${String(this.currDate.getMonth() + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                        // Map Fixture
+                        const fixture = this.fixtures.find(f => f.match_date.startsWith(dateStr));
+                        days.push({ dayNumber: i, date: dateStr, fixture: fixture });
+                    }
+                    return days;
+                },
+                changeMonth(val) {
+                    this.currDate = new Date(this.currDate.getFullYear(), this.currDate.getMonth() + val, 1);
+                },
+
+                // --- COMMUNICATION LOGIC ---
                 async fetchMessages() {
                     try {
-                        const res = await fetch(`${API_URL}/messages`, { headers: getHeaders() });
-                        const data = await res.json();
-                        this.messages = data.data || [];
-                    } catch (e) { console.error(e); }
+                        const res = await fetch(`${API_URL}/chat/messages`, { headers: getHeaders() });
+                        const json = await res.json();
+                        this.messages = json.data || [];
+                        this.scrollChat();
+                    } catch (e) { }
+                },
+
+                get filteredPlayers() {
+                    if (!this.chatSearch) return this.players;
+                    return this.players.filter(p => p.name.toLowerCase().includes(this.chatSearch.toLowerCase()));
+                },
+
+                get currentChatMessages() {
+                    if (!this.activeChat) return [];
+                    if (this.activeChat === 'all') {
+                        // Filter broadcasts (where recipient_group is set)
+                        return this.messages.filter(m => m.recipient_group === 'all' || m.recipient_group === 'squad');
+                    }
+                    // Filter Individual conversation
+                    const pid = this.activeChat.id;
+                    const cid = this.coach.id;
+                    return this.messages.filter(m =>
+                        (m.sender_id == pid && m.receiver_id == cid) ||
+                        (m.sender_id == cid && m.receiver_id == pid)
+                    ).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+                },
+
+                startChat(player) {
+                    this.currentRoute = 'communication';
+                    this.activeChat = player;
+                    setTimeout(() => this.scrollChat(), 100);
                 },
 
                 async sendMessage() {
+                    if (!this.newMessageInput.trim()) return;
+
+                    const payload = { content: this.newMessageInput, subject: 'Chat' };
+
+                    if (this.activeChat === 'all') {
+                        payload.recipient_group = 'all';
+                    } else {
+                        payload.receiver_id = this.activeChat.id;
+                    }
+
                     try {
-                        // Validate required fields
-                        if (!this.newMessage.recipient || !this.newMessage.content) {
-                            alert('Please select a recipient and enter a message');
-                            return;
-                        }
-
-                        const payload = {
-                            sender_id: this.coach.id,
-                            recipient_group: this.newMessage.recipient,
-                            subject: this.newMessage.subject || 'General',
-                            content: this.newMessage.content
-                        };
-
-                        const res = await fetch(`${API_URL}/messages`, {
+                        const res = await fetch(`${API_URL}/chat/send`, {
                             method: 'POST',
-                            headers: getHeaders(),
+                            headers: { ...getHeaders(), 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload)
                         });
-
                         if (res.ok) {
-                            alert('Message sent successfully!');
-                            // Clear form
-                            this.newMessage = { recipient: '', subject: '', content: '' };
-                            // Refresh messages
+                            this.newMessageInput = '';
                             this.fetchMessages();
-                        } else {
-                            const err = await res.json();
-                            alert('Failed to send message: ' + (err.message || 'Unknown error'));
                         }
-                    } catch (e) {
-                        console.error(e);
-                        alert('Network error occurred');
-                    }
+                    } catch (e) { alert('Failed to send'); }
                 },
 
+                scrollChat() {
+                    const el = document.getElementById('chatContainer');
+                    if (el) el.scrollTop = el.scrollHeight;
+                },
 
-                async logout() {
-                    try {
-                        await fetch(`${API_URL}/logout`, { method: 'POST', headers: getHeaders() });
-                        localStorage.removeItem('api_token');
-                        window.location.href = '/';
-                    } catch (e) {
-                        localStorage.removeItem('api_token');
-                        window.location.href = '/';
+                // --- CRUD TRAINING ---
+                openTrainingModal(session = null) {
+                    if (session) {
+                        this.trainingForm = { ...session };
+                    } else {
+                        this.trainingForm = { id: null, date: '', time: '', location: '', type: 'Technical', description: '' };
                     }
+                    this.modals.training = true;
+                },
+
+                async saveTraining() {
+                    const url = this.trainingForm.id
+                        ? `${API_URL}/training-sessions/${this.trainingForm.id}` // Hypothetical update route
+                        : `${API_URL}/training-sessions`;
+
+                    // Since specific Update controller wasn't provided, assuming POST for create.
+                    // If backend supports PUT, logic would change here. Assuming Create Only for prompt compliance or standard Laravel resource.
+                    const method = this.trainingForm.id ? 'PUT' : 'POST';
+
+                    try {
+                        const res = await fetch(url, {
+                            method: method,
+                            headers: { ...getHeaders(), 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.trainingForm)
+                        });
+                        if (res.ok) {
+                            this.modals.training = false;
+                            this.fetchData();
+                        }
+                    } catch (e) { alert('Error saving session'); }
+                },
+
+                // --- CRUD VIDEO ---
+                openVideoModal(video = null) {
+                    if (video) {
+                        this.videoForm = { id: video.id, title: video.title, description: video.description };
+                        this.videoFile = null; // Can't edit file easily via simple API
+                    } else {
+                        this.videoForm = { id: null, title: '', description: '' };
+                        this.videoFile = null;
+                    }
+                    this.modals.video = true;
+                },
+
+                async saveVideo() {
+                    // If creating, we need FormData for file. If editing, JSON is fine for title/desc.
+                    if (!this.videoForm.id && !this.videoFile) {
+                        alert("Select a file"); return;
+                    }
+
+                    const formData = new FormData();
+                    formData.append('title', this.videoForm.title);
+                    formData.append('description', this.videoForm.description || '');
+                    if (this.videoFile) formData.append('video', this.videoFile);
+
+                    // Note: Handling PUT with FormData in Laravel usually involves _method='PUT'
+                    let url = `${API_URL}/videos`;
+                    let headers = { 'Authorization': 'Bearer ' + localStorage.getItem('api_token'), 'Accept': 'application/json' };
+
+                    if (this.videoForm.id) {
+                        // Editing title/desc
+                        // NOTE: Provided controller only showed STORE. Assuming simple create for now based on prompt constraints.
+                        // But for completeness, just showing Alert as Update endpoint wasn't provided in code block.
+                        alert("Update endpoint implementation required on backend");
+                        return;
+                    }
+
+                    try {
+                        const res = await fetch(url, {
+                            method: 'POST',
+                            headers: headers, // Do NOT set Content-Type for FormData
+                            body: formData
+                        });
+                        if (res.ok) {
+                            this.modals.video = false;
+                            this.fetchData();
+                        }
+                    } catch (e) { alert('Error uploading'); }
+                },
+
+                async deleteItem(type, id) {
+                    if (!confirm('Delete this item?')) return;
+                    // Assuming standard RESTful delete routes exist or mapped to destroy
+                    // Note: Provided controllers showed destroy for Fixture, but generic for others.
+                    // mapping: type = 'fixtures', 'trainings', etc.
+                    // The provided code had specific controllers but didn't show the route definitions for DELETE on training/video.
+                    // Implies: /api/trainings/{id}
+                    try {
+                        // Mapping simple plural names to likely API routes based on context
+                        let endpoint = type;
+                        if (type === 'training-sessions') endpoint = 'training-sessions'; // based on TrainingSessionController index route provided earlier as /trainings
+                        if (type === 'video-analysis') endpoint = 'videos';
+
+                        const res = await fetch(`${API_URL}/${endpoint}/${id}`, {
+                            method: 'DELETE',
+                            headers: getHeaders()
+                        });
+                        if (res.ok) this.fetchData();
+                    } catch (e) { alert('Delete failed'); }
+                },
+
+                formatDate(str) { return new Date(str).toLocaleDateString(); },
+
+                logout() {
+                    localStorage.removeItem('api_token');
+                    window.location.href = '/login';
                 }
             }));
         });

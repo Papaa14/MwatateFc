@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Admin\TrainingSessionController;
 use App\Http\Controllers\Api\Admin\VideoAnalysisController;
 use App\Http\Controllers\Api\Admin\TeamMessageController;
+use App\Http\Controllers\Api\Player\PlayerDashboardController;
+use App\Http\Controllers\Api\ChatController;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -49,4 +51,13 @@ Route::apiResource('messages', TeamMessageController::class);
 Route::get('/user-counts', [RegisterController::class, 'getUserCounts']);
 Route::post('/register', [RegisterController::class, 'Register']);
 Route::delete('/users/{id}', [RegisterController::class, 'deleteUser']);
+Route::put('/users/{id}', [RegisterController::class, 'updateUser']);
 Route::get('/users', [RegisterController::class, 'getUsers']);
+
+// Player Dashboard Routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/player/dashboard-stats', [PlayerDashboardController::class, 'stats']);
+    Route::get('/trainings', [PlayerDashboardController::class, 'trainings']);
+    Route::get('/chat/messages', [ChatController::class, 'index']);
+    Route::post('/chat/send', [ChatController::class, 'store']);
+});
