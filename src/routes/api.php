@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Admin\TicketController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Admin\JerseyController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Admin\TrainingSessionController;
@@ -61,3 +62,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chat/messages', [ChatController::class, 'index']);
     Route::post('/chat/send', [ChatController::class, 'store']);
 });
+
+
+Route::post('/payments/pay', [PaymentController::class, 'pay']);
+Route::get('/payments/status/{reference}', [PaymentController::class, 'verifyStatus']);
+Route::post('/payments/callback', [PaymentController::class, 'handleCallback']);

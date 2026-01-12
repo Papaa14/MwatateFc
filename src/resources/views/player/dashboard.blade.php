@@ -1,551 +1,598 @@
 <!DOCTYPE html>
 <html lang="en" class="antialiased">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player Dashboard - Mwatate FC</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
         [x-cloak] { display: none !important; }
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-
-        /* Custom Scrollbar for Chat */
         .chat-scroll::-webkit-scrollbar { width: 6px; }
         .chat-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
-        .chat-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        .chat-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-        .dashboard-bg { background-color: #f3f4f6; }
+        .chat-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .chat-bg { background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); opacity: 0.1; }
     </style>
 </head>
 
-<body class="dashboard-bg" x-data="playerApp()" x-init="initApp()">
-    <div class="flex h-screen overflow-hidden">
+<body x-data="playerDashboard" x-cloak class="bg-gray-50 h-screen overflow-hidden flex">
 
-        <!-- Sidebar Navigation -->
-        <aside class="w-64 flex-shrink-0 bg-white shadow-xl border-r border-gray-200 z-20 flex flex-col">
-            <!-- Logo -->
-            <div class="h-20 flex items-center justify-center border-b border-gray-100">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white">
-                        <i class="fas fa-futbol text-xl"></i>
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-white shadow-xl flex flex-col z-20">
+        <div class="h-16 flex items-center justify-center border-b border-gray-100 bg-blue-700">
+            <div class="flex items-center gap-2 text-white">
+                <i class="fas fa-futbol text-xl"></i>
+                <span class="text-lg font-bold">Mwatate FC</span>
+            </div>
+        </div>
+
+        <nav class="flex-1 py-4 space-y-1 overflow-y-auto">
+            <template x-for="item in navItems">
+                <a href="#" @click.prevent="currentRoute = item.id"
+                   :class="currentRoute === item.id ? 'bg-blue-50 text-blue-700 border-r-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'"
+                   class="flex items-center px-6 py-3 text-sm font-medium transition-colors">
+                    <i :class="item.icon" class="w-5 mr-3"></i>
+                    <span x-text="item.label"></span>
+                </a>
+            </template>
+        </nav>
+
+        <div class="p-4 border-t border-gray-100">
+            <button @click="logout" class="flex items-center w-full px-4 py-2 text-sm text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition">
+                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 overflow-y-auto relative scroll-smooth">
+
+        <!-- HEADER -->
+        <header class="bg-white border-b border-gray-200 sticky top-0 z-10 px-8 py-4 flex justify-between items-center">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800" x-text="pageTitle"></h2>
+                <p class="text-sm text-gray-500">Player Portal</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right hidden md:block">
+                    <p class="text-sm font-bold text-gray-800" x-text="user.name || 'Player'"></p>
+                    <p class="text-xs text-green-600">Online</p>
+                </div>
+                <img :src="`https://ui-avatars.com/api/?name=${user.name || 'Player'}&background=1d4ed8&color=fff`" class="w-10 h-10 rounded-full border-2 border-blue-100">
+            </div>
+        </header>
+
+        <div class="p-8 max-w-7xl mx-auto min-h-full">
+
+            <!-- 1. DASHBOARD OVERVIEW -->
+            <div x-show="currentRoute === 'dashboard'" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Next Match Card -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-trophy text-6xl text-blue-600"></i></div>
+                        <h3 class="text-gray-500 text-sm font-medium uppercase">Next Match</h3>
+                        <template x-if="nextMatch">
+                            <div class="mt-4">
+                                <p class="text-2xl font-bold text-gray-800" x-text="'vs ' + nextMatch.opponent"></p>
+                                <p class="text-blue-600 font-medium mt-1">
+                                    <i class="far fa-calendar mr-1"></i> <span x-text="formatDate(nextMatch.match_date)"></span>
+                                    <span class="mx-2">•</span>
+                                    <i class="fas fa-map-marker-alt mr-1"></i> <span x-text="nextMatch.venue"></span>
+                                </p>
+                            </div>
+                        </template>
+                        <template x-if="!nextMatch">
+                            <p class="mt-4 text-gray-500 italic">No upcoming matches scheduled.</p>
+                        </template>
                     </div>
-                    <span class="text-xl font-bold text-gray-800">Mwatate FC</span>
+
+                    <!-- Next Training Card -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fas fa-running text-6xl text-green-600"></i></div>
+                        <h3 class="text-gray-500 text-sm font-medium uppercase">Next Training</h3>
+                        <template x-if="nextTraining">
+                            <div class="mt-4">
+                                <p class="text-2xl font-bold text-gray-800" x-text="nextTraining.type"></p>
+                                <p class="text-green-600 font-medium mt-1">
+                                    <i class="far fa-clock mr-1"></i> <span x-text="nextTraining.time"></span>
+                                    <span class="mx-2">•</span>
+                                    <span x-text="nextTraining.location"></span>
+                                </p>
+                                <p class="text-xs text-gray-500 mt-2" x-text="formatDate(nextTraining.date)"></p>
+                            </div>
+                        </template>
+                        <template x-if="!nextTraining">
+                            <p class="mt-4 text-gray-500 italic">No training sessions scheduled.</p>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Recent Form -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-gray-800 mb-4">Team Form</h3>
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center font-bold shadow-sm">W</span>
+                        <span class="w-10 h-10 rounded-full bg-gray-400 text-white flex items-center justify-center font-bold shadow-sm">D</span>
+                        <span class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center font-bold shadow-sm">W</span>
+                        <span class="w-10 h-10 rounded-full bg-red-500 text-white flex items-center justify-center font-bold shadow-sm">L</span>
+                        <span class="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center font-bold shadow-sm">W</span>
+                        <span class="text-gray-500 text-sm ml-2">Last 5 Matches</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Nav Links -->
-            <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-                <template x-for="item in navItems" :key="item.id">
-                    <button @click="currentSection = item.id"
-                        :class="currentSection === item.id ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-50 hover:text-blue-600'"
-                        class="w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200">
-                        <i :class="item.icon" class="mr-3 w-5 text-center"></i>
-                        <span x-text="item.label"></span>
-                    </button>
-                </template>
-            </nav>
-
-            <!-- User & Logout -->
-            <div class="border-t border-gray-200 p-4">
-                <div class="flex items-center p-3 bg-gray-50 rounded-xl mb-3">
-                    <img class="w-10 h-10 rounded-full object-cover" src="https://ui-avatars.com/api/?name=John+Doe&background=0D8ABC&color=fff" alt="Player">
-                    <div class="ml-3 overflow-hidden">
-                        <p class="text-sm font-bold text-gray-900 truncate">John Okoro</p>
-                        <p class="text-xs text-green-600 font-medium">● Online</p>
+            <!-- 2. TRAINING PLAN -->
+            <div x-show="currentRoute === 'training'">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100">
+                        <h3 class="font-bold text-gray-800 text-lg">Training Schedule</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-gray-50 text-gray-500 uppercase font-bold text-xs">
+                                <tr>
+                                    <th class="px-6 py-4">Date</th>
+                                    <th class="px-6 py-4">Time</th>
+                                    <th class="px-6 py-4">Focus</th>
+                                    <th class="px-6 py-4">Location</th>
+                                    <th class="px-6 py-4">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <template x-for="session in trainings" :key="session.id">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 font-medium" x-text="formatDate(session.date)"></td>
+                                        <td class="px-6 py-4" x-text="session.time"></td>
+                                        <td class="px-6 py-4">
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold" x-text="session.type"></span>
+                                        </td>
+                                        <td class="px-6 py-4 text-gray-600" x-text="session.location"></td>
+                                        <td class="px-6 py-4 text-gray-500 max-w-xs truncate" x-text="session.description || '-'"></td>
+                                    </tr>
+                                </template>
+                                <tr x-show="trainings.length === 0">
+                                    <td colspan="5" class="px-6 py-8 text-center text-gray-500">No training sessions found.</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <button @click="logout()" class="w-full flex items-center justify-center px-4 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors">
-                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                </button>
             </div>
-        </aside>
 
-        <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto relative scroll-smooth">
-            <!-- Header -->
-            <header class="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-gray-200 px-8 py-4 flex justify-between items-center">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-800" x-text="pageTitle"></h2>
-                    <p class="text-sm text-gray-500">Welcome back to your player portal.</p>
-                </div>
-                <button class="relative p-2 text-gray-400 hover:text-blue-600 transition">
-                    <i class="fas fa-bell text-xl"></i>
-                    <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
-                </button>
-            </header>
-
-            <div class="p-8 max-w-7xl mx-auto">
-
-                <!-- 1. DASHBOARD SECTION -->
-                <section x-show="currentSection === 'dashboard'" x-transition.opacity class="space-y-8">
-                    <!-- Stats Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <!-- Next Match -->
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group">
-                            <div class="absolute right-0 top-0 h-full w-1 bg-blue-600"></div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Next Match</p>
-                            <h3 class="text-lg font-bold text-gray-800 mb-1" x-text="stats.next_match ? stats.next_match.opponent : 'No Match'"></h3>
-                            <p class="text-sm text-blue-600 font-medium" x-text="stats.next_match ? formatDate(stats.next_match.match_date) : '--'"></p>
-                        </div>
-
-                        <!-- Next Training -->
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
-                            <div class="absolute right-0 top-0 h-full w-1 bg-green-500"></div>
-                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Next Training</p>
-                            <h3 class="text-lg font-bold text-gray-800 mb-1" x-text="stats.next_training ? stats.next_training.type : 'Rest Day'"></h3>
-                            <p class="text-sm text-green-600 font-medium" x-text="stats.next_training ? formatTime(stats.next_training.date) : '--'"></p>
-                        </div>
-
-                        <!-- Goals -->
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Goals Scored</p>
-                                    <h3 class="text-3xl font-bold text-gray-800" x-text="stats.goals">0</h3>
-                                </div>
-                                <div class="p-3 bg-blue-50 text-blue-600 rounded-lg">
-                                    <i class="fas fa-futbol"></i>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Assists -->
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Assists</p>
-                                    <h3 class="text-3xl font-bold text-gray-800" x-text="stats.assists">0</h3>
-                                </div>
-                                <div class="p-3 bg-purple-50 text-purple-600 rounded-lg">
-                                    <i class="fas fa-shoe-prints"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Recent Activity / Placeholder -->
-                    <div class="bg-gradient-to-r from-blue-900 to-blue-700 rounded-2xl p-8 text-white shadow-lg">
-                        <h3 class="text-2xl font-bold mb-2">Ready for the next game?</h3>
-                        <p class="text-blue-100 mb-6 max-w-2xl">Check out the latest video analysis uploaded by the coach to improve your positioning.</p>
-                        <button @click="currentSection = 'videos'" class="bg-white text-blue-800 px-6 py-2.5 rounded-lg font-semibold hover:bg-blue-50 transition shadow-lg">
-                            Go to Video Library
+            <!-- 3. MESSAGES (WhatsApp Style) -->
+            <div x-show="currentRoute === 'messages'" class="h-[calc(100vh-140px)] bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex">
+                <!-- Sidebar -->
+                <div class="w-1/3 border-r border-gray-200 flex flex-col bg-gray-50">
+                    <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+                        <h3 class="font-bold text-gray-700">Chats</h3>
+                        <button @click="showNewChatModal = true" class="text-blue-600 hover:bg-blue-100 p-2 rounded-full transition" title="New Message">
+                            <i class="fas fa-edit"></i>
                         </button>
                     </div>
-                </section>
-
-                <!-- 2. TRAINING SECTION -->
-                <section x-show="currentSection === 'training'" x-cloak x-transition.opacity>
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-                            <h3 class="text-lg font-bold text-gray-800">Upcoming Sessions</h3>
-                            <span class="text-sm text-gray-500">This Week</span>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-sm text-left">
-                                <thead class="bg-gray-50 text-xs text-gray-500 uppercase font-bold">
-                                    <tr>
-                                        <th class="px-6 py-4">Date & Time</th>
-                                        <th class="px-6 py-4">Session Type</th>
-                                        <th class="px-6 py-4">Location</th>
-                                        <th class="px-6 py-4 text-center">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    <template x-for="session in trainings" :key="session.id">
-                                        <tr class="hover:bg-gray-50 transition">
-                                            <td class="px-6 py-4 font-medium text-gray-900">
-                                                <div class="flex flex-col">
-                                                    <span x-text="new Date(session.date).toLocaleDateString(undefined, {weekday: 'short', month: 'short', day: 'numeric'})"></span>
-                                                    <span class="text-xs text-gray-500" x-text="session.time"></span>
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold" x-text="session.type"></span>
-                                            </td>
-                                            <td class="px-6 py-4 text-gray-600" x-text="session.location"></td>
-                                            <td class="px-6 py-4 text-center">
-                                                <i class="fas fa-check-circle text-gray-300"></i>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                    <template x-if="trainings.length === 0">
-                                        <tr><td colspan="4" class="px-6 py-8 text-center text-gray-500">No training sessions scheduled.</td></tr>
-                                    </template>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 3. MESSAGES SECTION (CHAT) -->
-                <section x-show="currentSection === 'messages'" x-cloak x-transition.opacity class="h-[calc(100vh-180px)]">
-                    <div class="flex h-full bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-
-                        <!-- Chat Sidebar -->
-                        <div class="w-80 border-r border-gray-100 bg-gray-50 flex flex-col">
-                            <div class="p-4 border-b border-gray-200">
-                                <h3 class="font-bold text-gray-800">Coaches</h3>
-                            </div>
-                            <div class="flex-1 overflow-y-auto p-2 space-y-2">
-                                <!-- Hardcoded Coach for Demo, in real app loop through contacts -->
-                                <button @click="activeChat = 'coach'"
-                                    :class="activeChat === 'coach' ? 'bg-white shadow-sm ring-1 ring-black/5' : 'hover:bg-gray-100'"
-                                    class="w-full flex items-center p-3 rounded-lg transition-all">
+                    <div class="flex-1 overflow-y-auto">
+                         <!-- Chat Threads List -->
+                        <template x-for="thread in chatThreads" :key="thread.user.id">
+                            <div @click="activeChat = thread.user; scrollToBottom()"
+                                 :class="(activeChat && activeChat.id === thread.user.id) ? 'bg-white border-l-4 border-blue-500' : 'hover:bg-gray-100 border-l-4 border-transparent'"
+                                 class="p-4 cursor-pointer border-b border-gray-100 transition">
+                                <div class="flex items-center gap-3">
                                     <div class="relative">
-                                        <img src="https://ui-avatars.com/api/?name=Head+Coach&background=1e40af&color=fff" class="w-10 h-10 rounded-full">
+                                        <img :src="`https://ui-avatars.com/api/?name=${thread.user.name}&background=random`" class="w-10 h-10 rounded-full">
                                         <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
                                     </div>
-                                    <div class="ml-3 text-left">
-                                        <p class="text-sm font-bold text-gray-900">Head Coach</p>
-                                        <p class="text-xs text-gray-500 truncate">Tactical analysis...</p>
-                                    </div>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Chat Area -->
-                        <div class="flex-1 flex flex-col bg-white">
-                            <!-- Chat Header -->
-                            <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-white">
-                                <div class="flex items-center">
-                                    <img src="https://ui-avatars.com/api/?name=Head+Coach&background=1e40af&color=fff" class="w-10 h-10 rounded-full">
-                                    <div class="ml-3">
-                                        <p class="text-sm font-bold text-gray-900">Head Coach</p>
-                                        <p class="text-xs text-green-600">Online</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Messages List -->
-                            <div class="flex-1 overflow-y-auto p-6 space-y-4 chat-scroll bg-gray-50/50" id="messageContainer">
-                                <template x-for="msg in messages" :key="msg.id">
-                                    <div :class="msg.sender_id === currentUserId ? 'flex justify-end' : 'flex justify-start'">
-                                        <div :class="msg.sender_id === currentUserId ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none'"
-                                            class="max-w-md px-4 py-3 rounded-2xl shadow-sm">
-                                            <p class="text-sm" x-text="msg.content"></p>
-                                            <p :class="msg.sender_id === currentUserId ? 'text-blue-200' : 'text-gray-400'"
-                                               class="text-[10px] mt-1 text-right" x-text="formatTime(msg.created_at)"></p>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex justify-between items-baseline">
+                                            <h4 class="font-bold text-gray-800 text-sm truncate" x-text="thread.user.name"></h4>
+                                            <span class="text-xs text-gray-400" x-text="formatTimeShort(thread.lastMessage.created_at)"></span>
                                         </div>
-                                    </div>
-                                </template>
-                            </div>
-
-                            <!-- Input Area -->
-                            <div class="p-4 bg-white border-t border-gray-100">
-                                <form @submit.prevent="sendMessage" class="flex items-center space-x-3">
-                                    <input type="text" x-model="newMessage" placeholder="Type your message..."
-                                        class="flex-1 bg-gray-100 text-gray-900 placeholder-gray-500 border-0 rounded-full px-5 py-3 focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
-                                    <button type="submit"
-                                        class="bg-blue-600 text-white rounded-full w-12 h-12 flex items-center justify-center hover:bg-blue-700 transition shadow-lg transform hover:scale-105">
-                                        <i class="fas fa-paper-plane"></i>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 4. VIDEO LIBRARY SECTION -->
-                <section x-show="currentSection === 'videos'" x-cloak x-transition.opacity>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <template x-for="video in videos" :key="video.id">
-                            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition group">
-                                <div class="aspect-video bg-gray-900 relative">
-                                    <!-- Simple Video Tag -->
-                                    <video controls class="w-full h-full object-cover">
-                                        <source :src="'/storage/' + video.video_path" type="video/mp4">
-                                        Your browser does not support the video tag.
-                                    </video>
-                                </div>
-                                <div class="p-4">
-                                    <div class="flex items-start justify-between">
-                                        <div>
-                                            <h3 class="font-bold text-gray-800 line-clamp-1" x-text="video.title"></h3>
-                                            <p class="text-sm text-gray-500 mt-1 line-clamp-2" x-text="video.description || 'No description provided.'"></p>
-                                        </div>
-                                    </div>
-                                    <div class="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
-                                        <span class="text-xs text-gray-400" x-text="new Date(video.created_at).toLocaleDateString()"></span>
-                                        <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">Analysis</span>
+                                        <p class="text-xs text-gray-500 truncate" x-text="thread.lastMessage.content"></p>
                                     </div>
                                 </div>
                             </div>
                         </template>
-                        <template x-if="videos.length === 0">
-                            <div class="col-span-full text-center py-12 bg-white rounded-xl border border-gray-200 border-dashed">
-                                <i class="fas fa-video text-gray-300 text-4xl mb-3"></i>
-                                <p class="text-gray-500">No videos available in the library yet.</p>
+                        <div x-show="chatThreads.length === 0" class="p-6 text-center text-gray-400 text-sm">
+                            No conversations yet.<br>Click the edit icon to start one.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Area -->
+                <div class="flex-1 flex flex-col relative bg-[#e5ddd5]">
+                    <div class="absolute inset-0 chat-bg"></div>
+
+                    <!-- Chat Header -->
+                    <div class="bg-white p-3 border-b border-gray-200 flex items-center gap-3 z-10 shadow-sm h-16">
+                        <template x-if="activeChat">
+                            <div class="flex items-center gap-3">
+                                <img :src="`https://ui-avatars.com/api/?name=${activeChat.name}&background=random`" class="w-10 h-10 rounded-full">
+                                <div>
+                                    <h4 class="font-bold text-gray-800" x-text="activeChat.name"></h4>
+                                    <p class="text-xs text-green-600 capitalize" x-text="activeChat.role"></p>
+                                </div>
+                            </div>
+                        </template>
+                        <template x-if="!activeChat">
+                            <div class="text-gray-500 text-sm">Select a conversation</div>
+                        </template>
+                    </div>
+
+                    <!-- Messages -->
+                    <div class="flex-1 overflow-y-auto p-4 space-y-2 z-10 chat-scroll" id="chatContainer">
+                        <template x-for="msg in currentChatMessages" :key="msg.id">
+                            <div class="flex" :class="msg.sender_id == user.id ? 'justify-end' : 'justify-start'">
+                                <div class="max-w-[70%] rounded-lg px-3 py-2 shadow-sm text-sm relative"
+                                     :class="msg.sender_id == user.id ? 'bg-[#dcf8c6] text-gray-800 rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none'">
+                                    <p x-text="msg.content"></p>
+                                    <div class="text-[10px] text-right mt-1 opacity-60"
+                                         x-text="formatTime(msg.created_at)"></div>
+                                </div>
                             </div>
                         </template>
                     </div>
-                </section>
 
-                <!-- 5. CALENDAR SECTION -->
-                <section x-show="currentSection === 'calendar'" x-cloak x-transition.opacity>
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                        <!-- Calendar Header -->
-                        <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-lg font-bold text-gray-800" x-text="calendarMonthYear"></h2>
-                            <div class="space-x-2">
-                                <button @click="changeMonth(-1)" class="p-2 hover:bg-gray-100 rounded-lg text-gray-600"><i class="fas fa-chevron-left"></i></button>
-                                <button @click="changeMonth(1)" class="p-2 hover:bg-gray-100 rounded-lg text-gray-600"><i class="fas fa-chevron-right"></i></button>
-                            </div>
-                        </div>
-
-                        <!-- Days Header -->
-                        <div class="grid grid-cols-7 gap-4 mb-4 text-center">
-                            <template x-for="day in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']">
-                                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider" x-text="day"></div>
-                            </template>
-                        </div>
-
-                        <!-- Calendar Grid -->
-                        <div class="grid grid-cols-7 gap-4">
-                            <!-- Empty cells for start of month -->
-                            <template x-for="blank in calendarBlanks">
-                                <div class="h-24 bg-gray-50/50 rounded-xl"></div>
-                            </template>
-
-                            <!-- Actual Days -->
-                            <template x-for="day in calendarDays" :key="day.date">
-                                <div class="h-24 border border-gray-100 rounded-xl p-2 relative hover:border-blue-300 transition bg-white"
-                                     :class="isToday(day.date) ? 'ring-2 ring-blue-500 ring-offset-2' : ''">
-                                    <span class="text-sm font-medium text-gray-700" x-text="day.number"></span>
-
-                                    <!-- Events in that day -->
-                                    <div class="mt-1 space-y-1 overflow-y-auto max-h-[60px] scrollbar-hide">
-                                        <template x-for="event in day.events">
-                                            <div class="text-[10px] px-1.5 py-0.5 rounded truncate font-medium"
-                                                 :class="event.type === 'match' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'"
-                                                 :title="event.title">
-                                                <span x-text="event.title"></span>
-                                            </div>
-                                        </template>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
+                    <!-- Input -->
+                    <div class="bg-white p-3 z-10" x-show="activeChat">
+                        <form @submit.prevent="sendMessage" class="flex gap-2">
+                            <input type="text" x-model="newMessageInput" placeholder="Type a message..."
+                                   class="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:border-blue-500 text-sm">
+                            <button type="submit" class="bg-blue-600 text-white w-10 h-10 rounded-full hover:bg-blue-700 shadow flex items-center justify-center">
+                                <i class="fas fa-paper-plane text-sm"></i>
+                            </button>
+                        </form>
                     </div>
-                </section>
-
+                </div>
             </div>
-        </main>
+
+            <!-- 4. VIDEO LIBRARY -->
+            <div x-show="currentRoute === 'videos'">
+                <h3 class="font-bold text-gray-800 text-lg mb-6">Match Analysis & Training Clips</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <template x-for="video in videos" :key="video.id">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden group hover:shadow-md transition">
+                            <div class="bg-black h-48 flex items-center justify-center relative">
+                                <video controls class="w-full h-full object-cover">
+                                    <source :src="'/storage/' + video.video_path" type="video/mp4">
+                                </video>
+                            </div>
+                            <div class="p-4">
+                                <h4 class="font-bold text-gray-800 truncate" x-text="video.title"></h4>
+                                <p class="text-sm text-gray-500 line-clamp-2 mt-1" x-text="video.description || 'No description provided'"></p>
+                                <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center">
+                                    <span class="text-xs text-gray-400" x-text="formatDate(video.created_at)"></span>
+                                    <button class="text-blue-600 text-sm font-medium hover:underline">Watch</button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <div x-show="videos.length === 0" class="col-span-full text-center py-10 text-gray-500">
+                        No videos available in the library.
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. CALENDAR -->
+            <div x-show="currentRoute === 'calendar'">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-gray-800" x-text="calendarMonth"></h2>
+                        <div class="flex gap-2">
+                             <button @click="changeMonth(-1)" class="p-2 hover:bg-gray-100 rounded text-gray-600"><i class="fas fa-chevron-left"></i></button>
+                             <button @click="changeMonth(1)" class="p-2 hover:bg-gray-100 rounded text-gray-600"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Calendar Grid -->
+                    <div class="grid grid-cols-7 gap-2 mb-2 text-center text-sm font-bold text-gray-400 uppercase">
+                        <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+                    </div>
+                    <div class="grid grid-cols-7 gap-2">
+                         <!-- Blanks -->
+                         <template x-for="blank in blanks" :key="blank">
+                             <div class="h-28 bg-gray-50/50 rounded-lg"></div>
+                         </template>
+                         <!-- Days -->
+                         <template x-for="day in days" :key="day.date">
+                             <div class="h-28 border border-gray-100 rounded-lg p-2 relative hover:border-blue-300 transition bg-white overflow-hidden group"
+                                  :class="isToday(day.date) ? 'ring-2 ring-blue-500 ring-offset-1' : ''">
+                                 <span class="text-sm font-medium text-gray-700" x-text="day.dayNumber"></span>
+
+                                 <div class="mt-1 space-y-1 overflow-y-auto max-h-[80px]">
+                                     <!-- Fixture Marker -->
+                                     <template x-if="day.fixture">
+                                         <div class="p-1 bg-orange-100 text-orange-800 text-[10px] rounded font-bold truncate border-l-2 border-orange-500">
+                                             <span x-text="'vs ' + day.fixture.opponent"></span>
+                                         </div>
+                                     </template>
+                                     <!-- Training Marker -->
+                                     <template x-if="day.training">
+                                         <div class="p-1 bg-blue-100 text-blue-800 text-[10px] rounded font-medium truncate border-l-2 border-blue-500">
+                                             <span x-text="day.training.type + ' (' + day.training.time + ')'"></span>
+                                         </div>
+                                     </template>
+                                 </div>
+                             </div>
+                         </template>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- NEW CHAT MODAL -->
+    <div x-show="showNewChatModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" x-transition>
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800">Start Conversation</h3>
+                <button @click="showNewChatModal = false" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+            </div>
+            <input type="text" x-model="userSearch" placeholder="Search team members..." class="border p-2 rounded mb-4 w-full">
+
+            <div class="overflow-y-auto flex-1 space-y-2">
+                <template x-for="u in filteredUsers" :key="u.id">
+                    <div @click="startChat(u)" class="flex items-center gap-3 p-3 hover:bg-blue-50 rounded-lg cursor-pointer transition">
+                        <img :src="`https://ui-avatars.com/api/?name=${u.name}&background=random`" class="w-10 h-10 rounded-full">
+                        <div>
+                            <p class="font-bold text-gray-800" x-text="u.name"></p>
+                            <p class="text-xs text-gray-500 capitalize" x-text="u.role"></p>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
     </div>
 
-    <!-- API Logic -->
+    <!-- LOGIC -->
     <script>
-        const API_URL = '/api'; // Ensure this matches your Laravel API prefix
-        const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const API_URL = '/api';
+        const getHeaders = () => ({
+            'Authorization': 'Bearer ' + localStorage.getItem('api_token'),
+            'Accept': 'application/json'
+        });
 
-        function playerApp() {
-            return {
-                currentSection: 'dashboard',
-                activeChat: 'coach',
-                currentUserId: 1, // This should be dynamic from auth, usually injected via blade or an API call
-                newMessage: '',
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('playerDashboard', () => ({
+                currentRoute: 'dashboard',
+                user: { id: null, name: '' },
 
-                // Data Stores
-                stats: { goals: 0, assists: 0, next_match: null, next_training: null },
+                // Data
+                fixtures: [],
                 trainings: [],
                 videos: [],
-                fixtures: [],
                 messages: [],
+                allUsers: [], // For new chat modal
 
-                // Calendar Logic
-                currentDate: new Date(),
+                // Chat State
+                activeChat: null,
+                newMessageInput: '',
+                showNewChatModal: false,
+                userSearch: '',
+
+                // Calendar State
+                currDate: new Date(),
 
                 navItems: [
                     { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-chart-pie' },
                     { id: 'training', label: 'Training Plan', icon: 'fas fa-clipboard-list' },
                     { id: 'messages', label: 'Messages', icon: 'fas fa-comments' },
                     { id: 'videos', label: 'Video Library', icon: 'fas fa-film' },
-                    { id: 'calendar', label: 'Calendar', icon: 'fas fa-calendar-alt' }
+                    { id: 'calendar', label: 'Calendar', icon: 'far fa-calendar-alt' }
                 ],
 
                 get pageTitle() {
-                    return this.navItems.find(i => i.id === this.currentSection).label;
+                    return this.navItems.find(n => n.id === this.currentRoute)?.label || 'Dashboard';
                 },
 
-                // Initialization
-                async initApp() {
-                    await this.fetchDashboardStats();
-                    await this.fetchTraining();
-                    await this.fetchVideos();
-                    await this.fetchFixtures(); // Needed for calendar
-                    await this.fetchMessages();
+                // Dashboard Computed
+                get nextMatch() {
+                    const now = new Date();
+                    return this.fixtures
+                        .filter(f => new Date(f.match_date) >= now)
+                        .sort((a,b) => new Date(a.match_date) - new Date(b.match_date))[0] || null;
+                },
+                get nextTraining() {
+                    const now = new Date();
+                    // Assumes training.date is YYYY-MM-DD and time is HH:mm
+                    return this.trainings
+                        .filter(t => new Date(t.date + ' ' + t.time) >= now)
+                        .sort((a,b) => new Date(a.date) - new Date(b.date))[0] || null;
+                },
 
-                    // Simple polling for chat (every 5 seconds)
+                init() {
+                    this.fetchUser();
+                    this.fetchData();
+                    // Poll chat
                     setInterval(() => {
-                        if(this.currentSection === 'messages') this.fetchMessages();
+                        if(this.currentRoute === 'messages') this.fetchMessages();
                     }, 5000);
                 },
 
-                // --- API CALLS ---
-
-                async fetchDashboardStats() {
+                async fetchUser() {
                     try {
-                        const res = await fetch(`${API_URL}/player/dashboard-stats`, { headers: { 'Accept': 'application/json' }});
+                        const res = await fetch(`${API_URL}/user`, { headers: getHeaders() });
                         const data = await res.json();
-                        this.stats = data.data;
-                    } catch(e) { console.error('Stats error', e); }
+                        this.user = data.user || data;
+                    } catch(e) { console.error(e); }
                 },
 
-                async fetchTraining() {
+                async fetchData() {
+                    // Fixtures
                     try {
-                        const res = await fetch(`${API_URL}/trainings`, { headers: { 'Accept': 'application/json' }});
-                        const data = await res.json();
-                        this.trainings = data.data;
-                    } catch(e) { console.error('Training error', e); }
-                },
+                        const res = await fetch(`${API_URL}/fixtures`, { headers: getHeaders() });
+                        const json = await res.json();
+                        this.fixtures = json.data || [];
+                    } catch(e) {}
 
-                async fetchVideos() {
+                    // Training Sessions
                     try {
-                        const res = await fetch(`${API_URL}/videos`, { headers: { 'Accept': 'application/json' }});
-                        const data = await res.json();
-                        this.videos = data.data;
-                    } catch(e) { console.error('Video error', e); }
-                },
+                        const res = await fetch(`${API_URL}/training-sessions`, { headers: getHeaders() });
+                        const json = await res.json();
+                        this.trainings = json.data || [];
+                    } catch(e) {}
 
-                async fetchFixtures() {
+                    // Videos
                     try {
-                        const res = await fetch(`${API_URL}/fixtures`, { headers: { 'Accept': 'application/json' }});
-                        const data = await res.json();
-                        this.fixtures = data.data;
-                    } catch(e) { console.error('Fixture error', e); }
-                },
+                        const res = await fetch(`${API_URL}/videos`, { headers: getHeaders() });
+                        const json = await res.json();
+                        this.videos = json.data || [];
+                    } catch(e) {}
 
-                async fetchMessages() {
+                    // Users (for chat modal)
                     try {
-                        const res = await fetch(`${API_URL}/chat/messages`, { headers: { 'Accept': 'application/json' }});
-                        const data = await res.json();
-                        this.messages = data.data;
-                        this.scrollToBottom();
-                    } catch(e) { console.error('Message error', e); }
+                        const res = await fetch(`${API_URL}/users`, { headers: getHeaders() });
+                        const json = await res.json();
+                        this.allUsers = json.data.filter(u => u.id !== this.user.id);
+                    } catch(e) {}
+
+                    this.fetchMessages();
                 },
 
-                async sendMessage() {
-                    if (!this.newMessage.trim()) return;
-
-                    try {
-                        const payload = { content: this.newMessage, receiver_id: 2 }; // Assuming Coach ID is 2 for demo
-                        const res = await fetch(`${API_URL}/chat/send`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json',
-                                'X-CSRF-TOKEN': CSRF_TOKEN
-                            },
-                            body: JSON.stringify(payload)
-                        });
-
-                        if (res.ok) {
-                            this.newMessage = '';
-                            this.fetchMessages(); // Refresh chat
-                        }
-                    } catch(e) { console.error('Send error', e); }
+                // --- CALENDAR ---
+                get calendarMonth() {
+                    return this.currDate.toLocaleDateString('default', { month: 'long', year: 'numeric' });
                 },
-
-                async logout() {
-                    if(!confirm('Are you sure you want to log out?')) return;
-                    try {
-                        await fetch(`${API_URL}/logout`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': CSRF_TOKEN
-                            }
-                        });
-                        window.location.href = '/'; // Redirect
-                    } catch(e) {
-                        window.location.href = '/';
-                    }
+                get blanks() {
+                    const firstDay = new Date(this.currDate.getFullYear(), this.currDate.getMonth(), 1).getDay();
+                    return Array(firstDay).fill(null);
                 },
-
-                // --- CALENDAR HELPERS ---
-
-                get calendarMonthYear() {
-                    return this.currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-                },
-
-                get calendarBlanks() {
-                    const firstDayOfMonth = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1).getDay();
-                    return Array(firstDayOfMonth).fill(null);
-                },
-
-                get calendarDays() {
-                    const daysInMonth = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0).getDate();
+                get days() {
+                    const daysInMonth = new Date(this.currDate.getFullYear(), this.currDate.getMonth() + 1, 0).getDate();
                     const days = [];
+                    for(let i=1; i<=daysInMonth; i++) {
+                        const dateStr = `${this.currDate.getFullYear()}-${String(this.currDate.getMonth()+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
 
-                    for (let i = 1; i <= daysInMonth; i++) {
-                        const dateStr = `${this.currentDate.getFullYear()}-${String(this.currentDate.getMonth() + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                        const fixture = this.fixtures.find(f => f.match_date.startsWith(dateStr));
+                        const training = this.trainings.find(t => t.date === dateStr);
 
-                        // Find events for this day
-                        const dayEvents = [];
-
-                        // Check Fixtures
-                        this.fixtures.forEach(f => {
-                            if (f.match_date.startsWith(dateStr)) {
-                                dayEvents.push({ title: 'vs ' + f.opponent, type: 'match' });
-                            }
-                        });
-
-                        // Check Trainings
-                        this.trainings.forEach(t => {
-                            if (t.date === dateStr) {
-                                dayEvents.push({ title: t.type, type: 'training' });
-                            }
-                        });
-
-                        days.push({
-                            number: i,
-                            date: dateStr,
-                            events: dayEvents
-                        });
+                        days.push({ dayNumber: i, date: dateStr, fixture, training });
                     }
                     return days;
                 },
-
-                changeMonth(offset) {
-                    this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + offset, 1);
+                changeMonth(val) {
+                    this.currDate = new Date(this.currDate.getFullYear(), this.currDate.getMonth() + val, 1);
                 },
-
                 isToday(dateStr) {
-                    const today = new Date();
-                    const check = new Date(dateStr);
-                    return today.toDateString() === check.toDateString();
+                    return new Date().toDateString() === new Date(dateStr).toDateString();
                 },
 
-                // --- UTILS ---
+                // --- CHAT LOGIC ---
+                async fetchMessages() {
+                    try {
+                        const res = await fetch(`${API_URL}/chat/messages`, { headers: getHeaders() });
+                        const json = await res.json();
+                        this.messages = json.data || [];
+                        // Scroll if already open
+                        if(this.activeChat) {
+                             // Only scroll if near bottom or if needed, for simplicity we check if div exists
+                             // Ideally handled by watcher
+                        }
+                    } catch(e) {}
+                },
+
+                // Computed: Group messages by other user to form "Threads"
+                get chatThreads() {
+                    const threads = {};
+                    this.messages.forEach(msg => {
+                        // Determine the "other" person
+                        const otherId = msg.sender_id === this.user.id ? msg.receiver_id : msg.sender_id;
+                        // Skip if group message for now unless handled specifically
+                        if(!otherId) return;
+
+                        if(!threads[otherId]) {
+                            // Find user details from allUsers or infer from message
+                            const u = this.allUsers.find(user => user.id === otherId) ||
+                                     (msg.sender_id === otherId ? msg.sender : msg.receiver);
+
+                            if(u) {
+                                threads[otherId] = {
+                                    user: u,
+                                    lastMessage: msg
+                                };
+                            }
+                        } else {
+                            // Update last message if this one is newer
+                            if(new Date(msg.created_at) > new Date(threads[otherId].lastMessage.created_at)) {
+                                threads[otherId].lastMessage = msg;
+                            }
+                        }
+                    });
+                    // Convert to array and sort by date desc
+                    return Object.values(threads).sort((a,b) =>
+                        new Date(b.lastMessage.created_at) - new Date(a.lastMessage.created_at)
+                    );
+                },
+
+                // Computed: Messages for active chat
+                get currentChatMessages() {
+                    if(!this.activeChat) return [];
+                    const partnerId = this.activeChat.id;
+                    return this.messages.filter(m =>
+                        (m.sender_id == this.user.id && m.receiver_id == partnerId) ||
+                        (m.sender_id == partnerId && m.receiver_id == this.user.id)
+                    ).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+                },
+
+                get filteredUsers() {
+                    return this.allUsers.filter(u => u.name.toLowerCase().includes(this.userSearch.toLowerCase()));
+                },
+
+                startChat(user) {
+                    this.activeChat = user;
+                    this.showNewChatModal = false;
+                    this.currentRoute = 'messages';
+                    this.scrollToBottom();
+                },
+
+                async sendMessage() {
+                    if(!this.newMessageInput.trim() || !this.activeChat) return;
+
+                    const payload = {
+                        content: this.newMessageInput,
+                        receiver_id: this.activeChat.id,
+                        subject: 'Direct Message' // Optional based on backend
+                    };
+
+                    try {
+                        const res = await fetch(`${API_URL}/chat/send`, {
+                            method: 'POST',
+                            headers: { ...getHeaders(), 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if(res.ok) {
+                            this.newMessageInput = '';
+                            this.fetchMessages();
+                            setTimeout(() => this.scrollToBottom(), 100);
+                        }
+                    } catch(e) { console.error(e); }
+                },
+
                 scrollToBottom() {
                     this.$nextTick(() => {
-                        const container = document.getElementById('messageContainer');
-                        if (container) container.scrollTop = container.scrollHeight;
+                        const el = document.getElementById('chatContainer');
+                        if(el) el.scrollTop = el.scrollHeight;
                     });
                 },
 
-                formatDate(dateStr) {
-                    if (!dateStr) return '';
-                    return new Date(dateStr).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+                // --- UTILS ---
+                formatDate(str) { return new Date(str).toLocaleDateString(); },
+                formatTime(str) { return new Date(str).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}); },
+                formatTimeShort(str) {
+                    const d = new Date(str);
+                    const now = new Date();
+                    if(d.toDateString() === now.toDateString()) return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    return d.toLocaleDateString([], {month:'short', day:'numeric'});
                 },
 
-                formatTime(dateStr) {
-                    if (!dateStr) return '';
-                    return new Date(dateStr).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+                logout() {
+                    localStorage.removeItem('api_token');
+                    window.location.href = '/';
                 }
-            }
-        }
+            }));
+        });
     </script>
 </body>
 </html>
-    
