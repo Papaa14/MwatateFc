@@ -348,8 +348,8 @@
             <form id="addUserForm" onsubmit="handleRegisterUser(event)" class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 id="userModalTitle" class="text-xl font-bold text-gray-800">Add New User</h3>
-                    <button type="button" onclick="closeModal('userModal')"
-                        class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+                    <button type="button" onclick="closeModal('userModal')" class="text-gray-400 hover:text-gray-600"><i
+                            class="fas fa-times"></i></button>
                 </div>
                 <input type="hidden" name="role" id="userRoleInput">
                 <div class="space-y-4">
@@ -406,8 +406,7 @@
                     <button type="button" onclick="closeModal('editUserModal')"
                         class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
                 </div>
-                <input type="hidden" name="id" id="editUserId"><input type="hidden" name="role"
-                    id="editUserRole">
+                <input type="hidden" name="id" id="editUserId"><input type="hidden" name="role" id="editUserRole">
                 <div class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
@@ -451,8 +450,8 @@
             <form id="newsForm" onsubmit="handleNewsSubmit(event)" class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 id="newsModalTitle" class="text-xl font-bold text-gray-800">Post News</h3>
-                    <button type="button" onclick="closeModal('newsModal')"
-                        class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+                    <button type="button" onclick="closeModal('newsModal')" class="text-gray-400 hover:text-gray-600"><i
+                            class="fas fa-times"></i></button>
                 </div>
                 <input type="hidden" name="id" id="newsId">
                 <div class="space-y-4">
@@ -498,8 +497,8 @@
                             <option value="Away">Away</option>
                         </select>
                     </div>
-                    <input type="text" name="competition" id="fixtureCompetition" placeholder="Competition"
-                        required class="w-full border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                    <input type="text" name="competition" id="fixtureCompetition" placeholder="Competition" required
+                        class="w-full border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
                     <button type="button" onclick="closeModal('fixtureModal')"
@@ -535,11 +534,9 @@
                     </select>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <input type="number" name="price" id="ticketPrice" placeholder="Price" required
-                            min="0"
+                        <input type="number" name="price" id="ticketPrice" placeholder="Price" required min="0"
                             class="w-full border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-blue-500">
-                        <input type="number" name="quantity_available" id="ticketQty" placeholder="Qty" required
-                            min="1"
+                        <input type="number" name="quantity_available" id="ticketQty" placeholder="Qty" required min="1"
                             class="w-full border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
@@ -559,8 +556,7 @@
             <form id="jerseyForm" onsubmit="handleJerseySubmit(event)" class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 id="jerseyModalTitle" class="text-xl font-bold text-gray-800">Add Jersey</h3>
-                    <button type="button" onclick="closeModal('jerseyModal')"
-                        class="text-gray-400 hover:text-gray-600">
+                    <button type="button" onclick="closeModal('jerseyModal')" class="text-gray-400 hover:text-gray-600">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -571,7 +567,7 @@
                     <!-- Image Input -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Jersey Image</label>
-                        <input type="file" name="image" id="jerseyImage" accept="image/*"
+                        <input type="file" name="image" id="jerseyImage"  accept="image/jpeg,image/png,image/jpg,image/gif" required
                             class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         <p class="text-xs text-gray-400 mt-1">Supported: JPG, PNG, JPEG</p>
                     </div>
@@ -581,8 +577,8 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1">Price (KES)</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">KES</span>
-                            <input type="number" name="price" id="jerseyPrice" placeholder="0.00" required
-                                min="0" step="0.01"
+                            <input type="number" name="price" id="jerseyPrice" placeholder="0.00" required min="0"
+                                step="0.01"
                                 class="w-full border rounded-lg p-2.5 pl-12 bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
                         </div>
                     </div>
@@ -795,17 +791,17 @@
             }
             document.getElementById('newsModal').classList.remove('hidden');
         }
-async function loadNews() {
-    const res = await fetch(`${API_URL}/news`);
-    const json = await res.json();
-    const grid = document.getElementById('news-grid');
-    const newsData = json.data || json;
+        async function loadNews() {
+            const res = await fetch(`${API_URL}/news`);
+            const json = await res.json();
+            const grid = document.getElementById('news-grid');
+            const newsData = json.data || json;
 
-    // Separate items by type
-    const imageItems = newsData.filter(item => item.image_path);
-    const textItems = newsData.filter(item => !item.image_path);
+            // Separate items by type
+            const imageItems = newsData.filter(item => item.image_path);
+            const textItems = newsData.filter(item => !item.image_path);
 
-    grid.innerHTML = `
+            grid.innerHTML = `
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             ${imageItems.map(item => `
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
@@ -842,7 +838,7 @@ async function loadNews() {
             `).join('')}
         </div>
     `;
-}
+        }
 
 
 
@@ -1012,7 +1008,7 @@ async function loadNews() {
 
                 if (!json.data || json.data.length === 0) {
                     grid.innerHTML =
-                    '<p class="text-gray-400 col-span-full text-center py-8">No jerseys added yet.</p>';
+                        '<p class="text-gray-400 col-span-full text-center py-8">No jerseys added yet.</p>';
                     return;
                 }
 
@@ -1039,44 +1035,89 @@ async function loadNews() {
         }
 
         // 3. Handle Submit (Create/Update with File Upload)
+        // async function handleJerseySubmit(e) {
+        //     e.preventDefault();
+        //     const formData = new FormData(e.target);
+        //     const id = document.getElementById('jerseyId').value;
+
+        //     let url = `${API_URL}/jerseys`;
+        //     let method = 'POST';
+
+        //     if (id) {
+        //         url = `${API_URL}/jerseys/${id}`;
+        //         // Laravel requires POST with _method field for file uploads on update
+        //         formData.append('_method', 'PUT');
+        //     }
+
+        //     try {
+        //         const res = await fetch(url, {
+        //             method: 'POST', // Always POST when sending FormData with files (even for PUT via _method)
+        //             headers: {
+        //                 // 'X-CSRF-TOKEN': csrfToken
+        //               'Accept': 'application/json'
+        //                 // Let the browser set the Content-Type automatically for FormData (multipart/form-data).
+        //             },
+        //             body: formData
+        //         });
+
+        //         const data = await res.json();
+
+        //         if (res.ok) {
+        //             showToast('Jersey saved successfully!');
+        //             closeModal('jerseyModal');
+        //             loadJerseys();
+        //         } else {
+        //             showToast(data.message || 'Error saving jersey', 'error');
+        //         }
+        //     } catch (error) {
+        //         showToast('Network error', 'error');
+        //     }
+        // }
         async function handleJerseySubmit(e) {
             e.preventDefault();
             const formData = new FormData(e.target);
             const id = document.getElementById('jerseyId').value;
 
             let url = `${API_URL}/jerseys`;
-            let method = 'POST';
 
             if (id) {
                 url = `${API_URL}/jerseys/${id}`;
-                // Laravel requires POST with _method field for file uploads on update
                 formData.append('_method', 'PUT');
             }
 
+            console.log('Submitting to URL:', url);
+            console.log('Form data entries:', Array.from(formData.entries()));
+
             try {
                 const res = await fetch(url, {
-                    method: 'POST', // Always POST when sending FormData with files (even for PUT via _method)
+                    method: 'POST',
                     headers: {
-                        'X-CSRF-TOKEN': csrfToken
-                        // Note: Do NOT set 'Content-Type': 'application/json' here.
-                        // Let the browser set the Content-Type automatically for FormData (multipart/form-data).
+                        'Accept': 'application/json'
                     },
                     body: formData
                 });
 
-                const data = await res.json();
+                console.log('Response status:', res.status);
+                console.log('Response headers:', res.headers);
 
-                if (res.ok) {
-                    showToast('Jersey saved successfully!');
-                    closeModal('jerseyModal');
-                    loadJerseys();
-                } else {
-                    showToast(data.message || 'Error saving jersey', 'error');
+                if (!res.ok) {
+                    const errorText = await res.text();
+                    console.error('Error response:', errorText);
+                    showToast('Error saving jersey', 'error');
+                    return;
                 }
+
+                const data = await res.json();
+                console.log('Success response:', data);
+                showToast('Jersey saved successfully!');
+                closeModal('jerseyModal');
+                loadJerseys();
             } catch (error) {
+                console.error('Network error:', error);
                 showToast('Network error', 'error');
             }
         }
+
 
         async function deleteItem(endpoint, id) {
             if (!confirm('Are you sure?')) return;

@@ -16,9 +16,6 @@ class LipiaService
         $this->baseUrl = env('LIPIA_BASE_URL');
     }
 
-    /**
-     * Initiate STK Push
-     */
     public function initiateStkPush($phone, $amount, $reference, $metadata = [])
     {
         $endpoint = '/payments/stk-push';
@@ -27,27 +24,28 @@ class LipiaService
             'phone_number' => $phone,
             'amount' => $amount,
             'external_reference' => $reference,
-            'callback_url' => env('LIPIA_CALLBACK_URL'),
-            'metadata' => $metadata
+            'callback_url' => env('LIPIA_CALLBACK_URL'), // Must be public (e.g., ngrok)
+           'metadata' => (object)($metadata ?: [])
         ];
+
+        // LOG REQUEST FOR DEBUGGING
+        Log::info("Lipia Request Payload:", $payload);
 
         return $this->sendRequest($endpoint, 'POST', $payload);
     }
 
-    /**
-     * Check Transaction Status
-     */
     public function checkStatus($lipiaReference)
     {
         $endpoint = '/payments/status?reference=' . urlencode($lipiaReference);
         return $this->sendRequest($endpoint, 'GET');
     }
 
-    /**
-     * Raw cURL Helper
-     */
     private function sendRequest($endpoint, $method, $data = null)
     {
+        if (!$this->apiKey || !$this->baseUrl) {
+            throw new Exception("Lipia API Configuration missing in .env file.");
+        }
+
         $url = $this->baseUrl . $endpoint;
         $headers = [
             'Authorization: Bearer ' . $this->apiKey,
@@ -58,7 +56,11 @@ class LipiaService
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30); // Fast timeout
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+
+        // FIX FOR LOCALHOST 500 ERRORS (SSL)
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
 
         if ($method === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
@@ -70,16 +72,20 @@ class LipiaService
         $error = curl_error($ch);
         curl_close($ch);
 
+        // LOG RAW RESPONSE
+        Log::info("Lipia API Response [$httpCode]: " . $response);
+
         if ($error) {
             Log::error("Lipia cURL Error: " . $error);
-            throw new Exception("Connection failed: " . $error);
+            throw new Exception("Connection to Payment Gateway failed: " . $error);
         }
 
         $result = json_decode($response, true);
 
-        if ($httpCode !== 200) {
-            Log::error("Lipia HTTP Error $httpCode", [$result]);
-            throw new Exception($result['message'] ?? 'Unknown Error from Payment Gateway');
+        // Handle Non-200 responses
+        if ($httpCode >= 400) {
+            $msg = $result['message'] ?? 'Unknown Error from Gateway';
+            throw new Exception("Gateway Error ($httpCode): $msg");
         }
 
         if (isset($result['success']) && !$result['success']) {

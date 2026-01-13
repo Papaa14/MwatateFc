@@ -49,6 +49,11 @@ RUN chown -R appuser:appgroup /var/www/html \
 RUN sed -i 's/user = www-data/user = appuser/g' /usr/local/etc/php-fpm.d/www.conf \
     && sed -i 's/group = www-data/group = appgroup/g' /usr/local/etc/php-fpm.d/www.conf
 
+# Configure PHP upload limits
+RUN echo "upload_max_filesize = 10M" > /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "post_max_size = 10M" >> /usr/local/etc/php/conf.d/uploads.ini
+
+
 # Switch to non-root user
 USER appuser
 
