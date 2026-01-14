@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Ticket;
-use App\Models\Jersey; // Ensure you have this model
-use App\Models\Transaction; // Ensure you have this model
+use App\Models\Jersey;
+use App\Models\Transaction;
 use App\Services\LipiaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -33,26 +33,24 @@ class OrderController extends Controller
     // 2. Initiate STK Push Payment
     public function initiatePayment(Request $request)
     {
-        // 1. Validation
         $request->validate([
-           'phone_number' => ['required', 'string', 'regex:/^(254\d{9}|0[17]\d{8})$/'],
+            'phone_number' => 'required|string',
             'item_type' => 'required|in:ticket,jersey',
             'item_id' => 'required|integer',
             'quantity' => 'required|integer|min:1'
         ]);
 
-        $payerPhone = '254' . substr(preg_replace('/[^0-9]/', '', $request->phone_number), -9);
         try {
             DB::beginTransaction();
 
-            // 2. Logic to determine price
+            // Calculate Amount
             $amount = 0;
             $itemName = '';
 
             if ($request->item_type === 'ticket') {
                 $ticket = Ticket::findOrFail($request->item_id);
                 if ($ticket->quantity_available < $request->quantity) {
-                    return response()->json(['message' => 'Sold out or insufficient quantity.'], 400);
+                    return response()->json(['message' => 'Not enough stock.'], 400);
                 }
                 $amount = $ticket->price * $request->quantity;
                 $itemName = $ticket->type . ' Ticket';
@@ -62,12 +60,12 @@ class OrderController extends Controller
                 $itemName = 'Jersey';
             }
 
-            // 3. Create Transaction Record (Status: PENDING)
+            // Create Transaction Record (PENDING)
             $externalRef = 'ORD-' . strtoupper(Str::random(8));
 
             $transaction = Transaction::create([
                 'external_reference' => $externalRef,
-                'phone_number' => $payerPhone,
+                'phone_number' => $request->phone_number,
                 'amount' => $amount,
                 'status' => 'PENDING',
                 'metadata' => json_encode([
@@ -79,66 +77,66 @@ class OrderController extends Controller
                 ])
             ]);
 
-            DB::commit(); // Commit here so we have the ID before calling API
+            DB::commit();
 
-            // 4. Call API Service
-
+            // Initiate Push via Service
             $response = $this->lipiaService->initiateStkPush(
-                $payerPhone,
+                $request->phone_number,
                 $amount,
-                $externalRef,
-
+                $externalRef
             );
 
-
-            // 5. Update with Provider Reference
+            // Update with Lipia Reference
             $transaction->update([
-                'lipia_reference' => $response['data']['TransactionReference'] ?? 'REF-' . time()
+                'lipia_reference' => $response['data']['TransactionReference'] ?? null
             ]);
 
             return response()->json([
-                'status' => 'pending',
-                'message' => 'STK Push sent.',
+                'success' => true,
+                'message' => 'STK Push sent',
                 'lipia_reference' => $transaction->lipia_reference
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("Payment Init Error: " . $e->getMessage());
-            Log::error($e->getTraceAsString());
-
-            // Return 500 but with JSON so frontend can read it
-            return response()->json([
-                'message' => 'Payment failed: ' . $e->getMessage()
-            ], 500);
+            Log::error("Order Init Error: " . $e->getMessage());
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
+    // 3. Poll Status & Create Order on Success
     public function checkStatus($reference)
     {
         try {
             $transaction = Transaction::where('lipia_reference', $reference)->firstOrFail();
 
+            // If local DB says success, return immediately
             if ($transaction->status === 'SUCCESS') {
                 return response()->json(['status' => 'SUCCESS']);
             }
 
+            // Check API Status
             $response = $this->lipiaService->checkStatus($reference);
 
-            // Adjust this key based on your actual Lipia API response structure
-            $lipiaStatus = $response['data']['response']['Status'] ?? 'Pending';
+            // Note: Node.js checks: data.response.Status
+            $apiStatus = strtoupper($response['data']['response']['Status'] ?? 'PENDING');
 
-            if ($lipiaStatus === 'Success' || $lipiaStatus === 'Completed') {
-                if ($transaction->status !== 'SUCCESS') {
-                    DB::transaction(function () use ($transaction) {
-                        $transaction->update(['status' => 'SUCCESS']);
-                        $meta = json_decode($transaction->metadata, true);
+            if ($apiStatus === 'SUCCESS' || $apiStatus === 'COMPLETED') {
 
-                        // Reduce Stock
+                // Use transaction to ensure atomic order creation
+                DB::transaction(function () use ($transaction) {
+                    // Lock for update to prevent double order creation
+                    $trx = Transaction::lockForUpdate()->find($transaction->id);
+
+                    if ($trx->status !== 'SUCCESS') {
+                        $trx->update(['status' => 'SUCCESS']);
+
+                        $meta = json_decode($trx->metadata, true);
+
+                        // Reduce Stock (for Tickets)
                         if ($meta['item_type'] === 'ticket') {
                             $ticket = Ticket::lockForUpdate()->find($meta['item_id']);
-                            if ($ticket)
-                                $ticket->decrement('quantity_available', $meta['quantity']);
+                            if ($ticket) $ticket->decrement('quantity_available', $meta['quantity']);
                         }
 
                         // Create Order
@@ -146,14 +144,17 @@ class OrderController extends Controller
                             'customer_id' => $meta['user_id'],
                             'product' => $meta['item_name'],
                             'quantity' => $meta['quantity'],
-                            'price' => $transaction->amount,
+                            'price' => $trx->amount,
                             'status' => 'Paid',
-                            'transaction_ref' => $transaction->external_reference
+                            'transaction_ref' => $trx->external_reference
                         ]);
-                    });
-                }
+                    }
+                });
+
                 return response()->json(['status' => 'SUCCESS']);
-            } elseif ($lipiaStatus === 'Failed') {
+            }
+
+            if ($apiStatus === 'FAILED' || $apiStatus === 'CANCELLED') {
                 $transaction->update(['status' => 'FAILED']);
                 return response()->json(['status' => 'FAILED']);
             }
@@ -161,17 +162,19 @@ class OrderController extends Controller
             return response()->json(['status' => 'PENDING']);
 
         } catch (\Exception $e) {
+            Log::error("Status Check Error: " . $e->getMessage());
             return response()->json(['status' => 'PENDING']);
         }
     }
-    // 4. Sales Stats (For Admin Dashboard)
+
+    // 4. Admin Sales Stats
     public function salesStats()
     {
         $jerseyRevenue = Order::where('product', 'LIKE', '%Jersey%')
-            ->sum('price * quantity'); // Assuming price stored is total, otherwise price * quantity
+            ->sum(DB::raw('price * quantity'));
 
         $ticketRevenue = Order::where('product', 'LIKE', '%Ticket%')
-            ->sum('price * quantity');
+            ->sum(DB::raw('price   * quantity'));
 
         $totalRevenue = $jerseyRevenue + $ticketRevenue;
         $recentOrders = Order::latest()->take(5)->get();

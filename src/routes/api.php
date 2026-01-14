@@ -62,10 +62,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chat/messages', [ChatController::class, 'index']);
     Route::post('/chat/send', [ChatController::class, 'store']);
     Route::get('/my-orders', [OrderController::class, 'index']);
+     Route::post('/orders/pay', [OrderController::class, 'initiatePayment']);
+    Route::get('/orders/status/{reference}', [OrderController::class, 'checkStatus']);
 
 });
- Route::post('/orders/pay', [OrderController::class, 'initiatePayment']);
-    Route::get('/orders/status/{reference}', [OrderController::class, 'checkStatus']);
+
 
 Route::post('/payments/pay', [PaymentController::class, 'pay']);
 Route::get('/payments/status/{reference}', [PaymentController::class, 'verifyStatus']);

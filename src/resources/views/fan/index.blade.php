@@ -313,9 +313,9 @@
                     <!-- Added Phone Number for M-Pesa -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700">M-Pesa Phone Number</label>
-                        <input type="number" id="inputPhone" placeholder="2547XXXXXXXX" required
-                            class="mt-1 block w-full rounded-md border-gray-300 border p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                        <p class="text-xs text-gray-500 mt-1">Format: 2547...</p>
+                        <input type="text" id="inputPhone" placeholder="07XXXXXXXX or 254XXXXXXXXX" required
+    class="mt-1 block w-full rounded-md border-gray-300 border p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+
                     </div>
 
                     <div class="border-t pt-4 flex justify-between items-center">
