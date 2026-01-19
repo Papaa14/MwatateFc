@@ -8,11 +8,13 @@ use Illuminate\Http\Request;
 
 class TicketController extends Controller
 {
-    public function index() {
+    public function index()
+    {
         return $this->sendResponse(Ticket::with('fixture')->get(), 'Tickets retrieved successfully');
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         try {
             $request->validate([
                 'fixture_id' => 'required|exists:fixtures,id',
@@ -28,7 +30,24 @@ class TicketController extends Controller
         }
     }
 
-    public function destroy($id) {
+    public function update(Request $request, $id)
+    {
+        $ticket = Ticket::findOrFail($id);
+
+        $validated = $request->validate([
+            'type' => 'required|string',
+            'price' => 'required|numeric',
+            'quantity_available' => 'required|integer',
+            'fixture_id' => 'required|exists:fixtures,id'
+        ]);
+
+        $ticket->update($validated);
+
+        return response()->json(['success' => true, 'data' => $ticket]);
+    }
+
+    public function destroy($id)
+    {
         try {
             Ticket::destroy($id);
             return $this->sendResponse(null, 'Ticket deleted successfully');

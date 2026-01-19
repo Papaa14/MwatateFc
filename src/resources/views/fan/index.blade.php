@@ -92,8 +92,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Navbar active link styles */
@@ -114,8 +121,13 @@
         }
 
         @keyframes underline {
-            from { transform: scaleX(0); }
-            to { transform: scaleX(1); }
+            from {
+                transform: scaleX(0);
+            }
+
+            to {
+                transform: scaleX(1);
+            }
         }
 
         /* Centered Toast */
@@ -146,7 +158,8 @@
     </script>
 
     <!-- Toast Notification -->
-    <div id="toast-container" class="bg-gray-800 text-white px-8 py-4 rounded-xl shadow-2xl flex items-center space-x-3">
+    <div id="toast-container"
+        class="bg-gray-800 text-white px-8 py-4 rounded-xl shadow-2xl flex items-center space-x-3">
         <i id="toast-icon" class="fas fa-check-circle text-green-400 text-xl"></i>
         <span id="toast-message" class="font-medium text-lg">Action Successful</span>
     </div>
@@ -156,36 +169,50 @@
         <header class="relative z-10">
             <div class="container mx-auto px-6 py-4 flex justify-between items-center">
                 <div class="flex items-center space-x-2">
-                    <div class="inline-flex items-center justify-center w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full">
+                    <div
+                        class="inline-flex items-center justify-center w-10 h-10 bg-white/20 backdrop-blur-sm rounded-full">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-2.757 0-5-3.228-5-9S5.243 3 8 3s5 4.772 5 9"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-2.757 0-5-3.228-5-9S5.243 3 8 3s5 4.772 5 9">
+                            </path>
                         </svg>
                     </div>
                     <span class="text-white font-bold text-lg tracking-wide">MWATATE FC</span>
                 </div>
                 <!-- Navigation -->
                 <nav class="hidden md:flex space-x-8">
-                    <a href="#home" class="nav-link text-sm font-semibold text-white tracking-wider uppercase hover:text-opacity-80 transition">Home</a>
-                    <a href="#fixtures" class="nav-link text-sm font-semibold text-white tracking-wider uppercase hover:text-opacity-80 transition">Fixtures</a>
-                    <a href="#shop" class="nav-link text-sm font-semibold text-white tracking-wider uppercase hover:text-opacity-80 transition">Shop</a>
-                    <a href="#news" class="nav-link text-sm font-semibold text-white tracking-wider uppercase hover:text-opacity-80 transition">News</a>
-                    <a href="#forum" class="nav-link text-sm font-semibold text-white tracking-wider uppercase hover:text-opacity-80 transition">Forum</a>
+                    <a href="#home"
+                        class="nav-link text-sm font-semibold text-white tracking-wider uppercase hover:text-opacity-80 transition">Home</a>
+                    <a href="#fixtures"
+                        class="nav-link text-sm font-semibold text-white tracking-wider uppercase hover:text-opacity-80 transition">Fixtures</a>
+                    <a href="#shop"
+                        class="nav-link text-sm font-semibold text-white tracking-wider uppercase hover:text-opacity-80 transition">Shop</a>
+                    <a href="#news"
+                        class="nav-link text-sm font-semibold text-white tracking-wider uppercase hover:text-opacity-80 transition">News</a>
+                    <a href="#forum"
+                        class="nav-link text-sm font-semibold text-white tracking-wider uppercase hover:text-opacity-80 transition">Forum</a>
                 </nav>
                 <!-- Profile -->
                 <div class="relative">
                     <button id="profileButton" class="flex items-center space-x-2 focus:outline-none">
-                        <span class="user-name text-white font-medium hidden sm:block">{{ Auth::user()->name ?? 'Guest User' }}</span>
-                        <img class="w-10 h-10 rounded-full ring-2 ring-white/50" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'Guest') }}&background=random" alt="Fan Avatar">
+                        <span
+                            class="user-name text-white font-medium hidden sm:block">{{ Auth::user()->name ?? 'Guest User' }}</span>
+                        <img class="w-10 h-10 rounded-full ring-2 ring-white/50"
+                            src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'Guest') }}&background=random"
+                            alt="Fan Avatar">
                         <i class="fas fa-chevron-down text-white text-xs"></i>
                     </button>
                     <!-- Dropdown Menu -->
-                    <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div id="profileDropdown"
+                        class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                         <div class="p-3 border-b border-gray-100">
                             <p class="user-name font-medium text-gray-800">{{ Auth::user()->name ?? 'Guest User' }}</p>
-                            <p class="user-email text-sm text-gray-500">{{ Auth::user()->email ?? 'guest@example.com' }}</p>
+                            <p class="user-email text-sm text-gray-500">{{ Auth::user()->email ?? 'guest@example.com' }}
+                            </p>
                         </div>
                         <div class="py-1">
-                            <button onclick="logout()" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition text-left">
+                            <button onclick="logout()"
+                                class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition text-left">
                                 <i class="fas fa-sign-out-alt mr-2"></i> Logout
                             </button>
                         </div>
@@ -196,8 +223,11 @@
 
         <!-- Main Content -->
         <main class="container mx-auto px-6 py-8">
-            <div id="home" class="lg:col-span-3 p-6 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30 mb-8">
-                <h1 class="text-3xl font-bold text-white">Welcome back, {{ explode(' ', Auth::user()->name ?? 'Fan')[0] }}!</h1>
+            <div id="home"
+                class="lg:col-span-3 p-6 bg-white/20 backdrop-blur-sm rounded-xl border border-white/30 mb-8">
+                <h1 class="text-3xl font-bold text-white">Welcome back,
+                    {{ explode(' ', Auth::user()->name ?? 'Fan')[0] }}!
+                </h1>
                 <p class="text-white/80 mt-1">Everything you need to support Mwatate FC, all in one place.</p>
             </div>
 
@@ -237,10 +267,16 @@
                 <div class="space-y-8">
                     <!-- Profile -->
                     <div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-6 text-center">
-                        <img class="w-24 h-24 rounded-full mx-auto ring-4 ring-blue-500/50" src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'Guest') }}&background=0D8ABC&color=fff" alt="Fan Avatar">
-                        <h3 class="user-name mt-4 text-xl font-bold text-gray-800">{{ Auth::user()->name ?? 'Guest User' }}</h3>
+                        <img class="w-24 h-24 rounded-full mx-auto ring-4 ring-blue-500/50"
+                            src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'Guest') }}&background=0D8ABC&color=fff"
+                            alt="Fan Avatar">
+                        <h3 class="user-name mt-4 text-xl font-bold text-gray-800">
+                            {{ Auth::user()->name ?? 'Guest User' }}
+                        </h3>
                         <p class="user-email text-sm text-gray-500">{{ Auth::user()->email ?? 'Join us today!' }}</p>
-                        <button onclick="showProfileModal()" class="btn mt-4 w-full px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-full hover:bg-gray-300">Edit Profile</button>
+                        <button onclick="showProfileModal()"
+                            class="btn mt-4 w-full px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-full hover:bg-gray-300">Edit
+                            Profile</button>
                     </div>
 
                     <!-- Order History (Moved/Added here for visibility) -->
@@ -255,11 +291,21 @@
                     <div class="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-6">
                         <h3 class="text-lg font-bold text-gray-800 mb-4">Recent Form</h3>
                         <div class="flex items-center justify-around">
-                            <div class="flex items-center justify-center w-12 h-12 font-bold text-lg text-white bg-green-500 rounded-full border-2 border-white">W</div>
-                            <div class="flex items-center justify-center w-12 h-12 font-bold text-lg text-white bg-green-500 rounded-full border-2 border-white">W</div>
-                            <div class="flex items-center justify-center w-12 h-12 font-bold text-lg text-white bg-red-500 rounded-full border-2 border-white">L</div>
-                            <div class="flex items-center justify-center w-12 h-12 font-bold text-lg text-white bg-gray-400 rounded-full border-2 border-white">D</div>
-                            <div class="flex items-center justify-center w-12 h-12 font-bold text-lg text-white bg-green-500 rounded-full border-2 border-white">W</div>
+                            <div
+                                class="flex items-center justify-center w-12 h-12 font-bold text-lg text-white bg-green-500 rounded-full border-2 border-white">
+                                W</div>
+                            <div
+                                class="flex items-center justify-center w-12 h-12 font-bold text-lg text-white bg-green-500 rounded-full border-2 border-white">
+                                W</div>
+                            <div
+                                class="flex items-center justify-center w-12 h-12 font-bold text-lg text-white bg-red-500 rounded-full border-2 border-white">
+                                L</div>
+                            <div
+                                class="flex items-center justify-center w-12 h-12 font-bold text-lg text-white bg-gray-400 rounded-full border-2 border-white">
+                                D</div>
+                            <div
+                                class="flex items-center justify-center w-12 h-12 font-bold text-lg text-white bg-green-500 rounded-full border-2 border-white">
+                                W</div>
                         </div>
                     </div>
 
@@ -268,8 +314,12 @@
                         <h3 class="text-lg font-bold text-gray-800 mb-2">Fan Forum</h3>
                         <p class="text-sm text-gray-500 mb-4">Share your thoughts on the last match!</p>
                         <form id="forumForm">
-                            <textarea class="w-full h-24 p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="We need to be more clinical in front of goal..."></textarea>
-                            <button type="submit" class="btn mt-3 w-full px-4 py-2 text-sm font-semibold text-white bg-slate-800 rounded-full hover:bg-slate-900">Post View</button>
+                            <textarea
+                                class="w-full h-24 p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                placeholder="We need to be more clinical in front of goal..."></textarea>
+                            <button type="submit"
+                                class="btn mt-3 w-full px-4 py-2 text-sm font-semibold text-white bg-slate-800 rounded-full hover:bg-slate-900">Post
+                                View</button>
                         </form>
                     </div>
                 </div>
@@ -290,7 +340,8 @@
 
                 <div class="bg-blue-50 p-4 rounded-lg mb-4">
                     <h4 class="font-bold text-gray-800" id="orderProductName">Product Name</h4>
-                    <p class="text-blue-600 font-bold mt-1">KES <span id="orderUnitPrice">0.00</span> <span class="text-xs font-normal text-gray-500">per unit</span></p>
+                    <p class="text-blue-600 font-bold mt-1">KES <span id="orderUnitPrice">0.00</span> <span
+                            class="text-xs font-normal text-gray-500">per unit</span></p>
                 </div>
 
                 <form id="orderForm" onsubmit="handlePaymentSubmit(event)" class="space-y-4">
@@ -301,7 +352,8 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Quantity</label>
-                        <select id="inputQuantity" onchange="updateTotal()" class="mt-1 block w-full rounded-md border-gray-300 border p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <select id="inputQuantity" onchange="updateTotal()"
+                            class="mt-1 block w-full rounded-md border-gray-300 border p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
@@ -314,7 +366,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700">M-Pesa Phone Number</label>
                         <input type="text" id="inputPhone" placeholder="07XXXXXXXX or 254XXXXXXXXX" required
-    class="mt-1 block w-full rounded-md border-gray-300 border p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            class="mt-1 block w-full rounded-md border-gray-300 border p-2 shadow-sm focus:border-blue-500 focus:ring-blue-500">
 
                     </div>
 
@@ -324,17 +376,20 @@
                     </div>
 
                     <div class="mt-6 flex justify-end space-x-3">
-                        <button type="button" onclick="hideModal('orderModal')" class="btn px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-full hover:bg-gray-300">
+                        <button type="button" onclick="hideModal('orderModal')"
+                            class="btn px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-full hover:bg-gray-300">
                             Cancel
                         </button>
-                        <button type="submit" id="payButton" class="btn px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-full hover:bg-green-700 shadow-md">
+                        <button type="submit" id="payButton"
+                            class="btn px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-full hover:bg-green-700 shadow-md">
                             Pay with M-Pesa
                         </button>
                     </div>
                 </form>
 
                 <!-- Payment Status Indicator -->
-                <div id="paymentStatus" class="hidden mt-4 text-center p-3 bg-yellow-50 text-yellow-800 rounded text-sm animate-pulse border border-yellow-200">
+                <div id="paymentStatus"
+                    class="hidden mt-4 text-center p-3 bg-yellow-50 text-yellow-800 rounded text-sm animate-pulse border border-yellow-200">
                     <i class="fas fa-circle-notch fa-spin mr-2"></i> Request sent to phone. Enter PIN...
                 </div>
             </div>
@@ -347,11 +402,17 @@
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-bold text-gray-800" id="newsDetailTitle"></h3>
-                    <button onclick="hideModal('newsModal')" class="text-gray-400 hover:text-gray-500"><i class="fas fa-times"></i></button>
+                    <button onclick="hideModal('newsModal')" class="text-gray-400 hover:text-gray-500"><i
+                            class="fas fa-times"></i></button>
                 </div>
-                <div id="newsDetailImageContainer" class="hidden mb-4"><img id="newsDetailImage" src="" class="rounded-lg w-full h-56 object-cover"></div>
-                <div class="prose max-w-none"><p class="text-gray-700 leading-relaxed" id="newsDetailContent"></p></div>
-                <div class="mt-6"><button onclick="hideModal('newsModal')" class="btn w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-full hover:bg-blue-700">Close</button></div>
+                <div id="newsDetailImageContainer" class="hidden mb-4"><img id="newsDetailImage" src=""
+                        class="rounded-lg w-full h-56 object-cover"></div>
+                <div class="prose max-w-none">
+                    <p class="text-gray-700 leading-relaxed" id="newsDetailContent"></p>
+                </div>
+                <div class="mt-6"><button onclick="hideModal('newsModal')"
+                        class="btn w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-full hover:bg-blue-700">Close</button>
+                </div>
             </div>
         </div>
     </div>
@@ -362,7 +423,8 @@
             <div class="p-6">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">Edit Profile</h3>
                 <p class="text-gray-500 text-sm mb-4">Profile editing is disabled in this demo.</p>
-                <button onclick="hideModal('profileModal')" class="btn w-full px-4 py-2 bg-gray-200 rounded-full">Close</button>
+                <button onclick="hideModal('profileModal')"
+                    class="btn w-full px-4 py-2 bg-gray-200 rounded-full">Close</button>
             </div>
         </div>
     </div>
@@ -396,7 +458,7 @@
 
         // --- FETCHING DATA ---
         async function logout() {
-            try { await fetch(`${API_URL}/logout`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken }}); } catch (e) {}
+            try { await fetch(`${API_URL}/logout`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken } }); } catch (e) { }
             window.location.href = '/';
         }
 
@@ -477,10 +539,13 @@
                 if (!json.data || json.data.length === 0) { container.innerHTML = '<p class="text-sm text-gray-400">No purchases yet.</p>'; return; }
                 json.data.forEach(order => {
                     container.innerHTML += `
-                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
-                            <div><p class="font-bold text-gray-800 text-sm">${order.product}</p><p class="text-xs text-gray-500">${new Date(order.created_at).toLocaleDateString()} • Qty: ${order.quantity}</p></div>
-                            <div class="text-right"><p class="font-bold text-green-600 text-sm">KES ${formatCurrency(order.price)}</p><span class="text-[10px] bg-green-100 text-green-800 px-2 py-0.5 rounded-full font-bold">PAID</span></div>
-                        </div>`;
+        <div class="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100">
+            <div><p class="font-bold text-gray-800 text-sm">${order.product}</p><p class="text-xs text-gray-500">${new Date(order.created_at).toLocaleDateString()} • Qty: ${order.quantity}</p></div>
+            <div class="text-right">
+                <p class="font-bold text-green-600 text-sm">KES ${formatCurrency(order.price)}</p>
+                <span class="text-[10px] bg-green-100 text-green-800 px-2 py-0.5 rounded-full font-bold">PAID</span>
+            </div>
+        </div>`;
                 });
             } catch (e) { console.error(e); }
         }
@@ -588,7 +653,7 @@
 
                     if (data.status === 'SUCCESS') {
                         clearInterval(interval);
-                        showToast('Payment Successful! Order Confirmed.', 'success');
+                        showToast('Payment Successful! Order Confirmed and Receipt sent to your email.', 'success');
                         hideModal('orderModal');
                         loadMyOrders(); // Refresh history
                         loadFixtures(); // Update ticket count
@@ -604,6 +669,7 @@
                 } catch (e) { console.error(e); }
             }, 3000);
         }
+
 
         function resetPaymentUI() {
             const btn = document.getElementById('payButton');

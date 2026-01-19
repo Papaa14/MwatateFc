@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
+use App\Mail\MyTestEmail;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Coach\LineupController;
 
 // Authentication Routes
@@ -37,3 +39,10 @@ Route::get('/fan-dashboard', function () {
 Route::get('/coach-dashboard', function () {
     return view('coach.dashboard');
 })->name('coach-dashboard'); // Coach
+
+Route::get('/send-test-email', function () {
+    // Replace with the recipient's email
+    Mail::to('calvinmangi627@gmail.com')->send(new MyTestEmail());
+
+    return "Email Sent Successfully!";
+});

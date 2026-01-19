@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Ticket;
 use App\Models\Jersey;
+use App\Mail\OrderReceipt;
+use Illuminate\Support\Facades\Mail;
 use App\Models\Transaction;
 use App\Services\LipiaService;
 use Illuminate\Http\Request;
@@ -105,67 +107,138 @@ class OrderController extends Controller
     }
 
     // 3. Poll Status & Create Order on Success
-    public function checkStatus($reference)
-    {
-        try {
-            $transaction = Transaction::where('lipia_reference', $reference)->firstOrFail();
+    // public function checkStatus($reference)
+    // {
+    //     try {
+    //         $transaction = Transaction::where('lipia_reference', $reference)->firstOrFail();
 
-            // If local DB says success, return immediately
-            if ($transaction->status === 'SUCCESS') {
-                return response()->json(['status' => 'SUCCESS']);
-            }
+    //         // If local DB says success, return immediately
+    //         if ($transaction->status === 'SUCCESS') {
+    //             return response()->json(['status' => 'SUCCESS']);
+    //         }
 
-            // Check API Status
-            $response = $this->lipiaService->checkStatus($reference);
+    //         // Check API Status
+    //         $response = $this->lipiaService->checkStatus($reference);
 
-            // Note: Node.js checks: data.response.Status
-            $apiStatus = strtoupper($response['data']['response']['Status'] ?? 'PENDING');
+    //         // Note: Node.js checks: data.response.Status
+    //         $apiStatus = strtoupper($response['data']['response']['Status'] ?? 'PENDING');
 
-            if ($apiStatus === 'SUCCESS' || $apiStatus === 'COMPLETED') {
+    //         if ($apiStatus === 'SUCCESS' || $apiStatus === 'COMPLETED') {
 
-                // Use transaction to ensure atomic order creation
-                DB::transaction(function () use ($transaction) {
-                    // Lock for update to prevent double order creation
-                    $trx = Transaction::lockForUpdate()->find($transaction->id);
+    //             // Use transaction to ensure atomic order creation
+    //             DB::transaction(function () use ($transaction) {
+    //                 // Lock for update to prevent double order creation
+    //                 $trx = Transaction::lockForUpdate()->find($transaction->id);
 
-                    if ($trx->status !== 'SUCCESS') {
-                        $trx->update(['status' => 'SUCCESS']);
+    //                 if ($trx->status !== 'SUCCESS') {
+    //                     $trx->update(['status' => 'SUCCESS']);
 
-                        $meta = json_decode($trx->metadata, true);
+    //                     $meta = json_decode($trx->metadata, true);
 
-                        // Reduce Stock (for Tickets)
-                        if ($meta['item_type'] === 'ticket') {
-                            $ticket = Ticket::lockForUpdate()->find($meta['item_id']);
-                            if ($ticket) $ticket->decrement('quantity_available', $meta['quantity']);
-                        }
+    //                     // Reduce Stock (for Tickets)
+    //                     if ($meta['item_type'] === 'ticket') {
+    //                         $ticket = Ticket::lockForUpdate()->find($meta['item_id']);
+    //                         if ($ticket)
+    //                             $ticket->decrement('quantity_available', $meta['quantity']);
+    //                     }
 
-                        // Create Order
-                        Order::create([
-                            'customer_id' => $meta['user_id'],
-                            'product' => $meta['item_name'],
-                            'quantity' => $meta['quantity'],
-                            'price' => $trx->amount,
-                            'status' => 'Paid',
-                            'transaction_ref' => $trx->external_reference
-                        ]);
-                    }
-                });
+    //                     // Create Order and assign it variable to send the order details in the email
+    //                     $order =
+    //                         Order::create([
+    //                             'customer_id' => $meta['user_id'],
+    //                             'product' => $meta['item_name'],
+    //                             'quantity' => $meta['quantity'],
+    //                             'price' => $trx->amount,
+    //                             'status' => 'Paid',
+    //                             'transaction_ref' => $trx->external_reference
+    //                         ]);
+    //                     // Send receipt email
+    //                     $user = \App\Models\User::find($meta['user_id']);
+    //                     Mail::to($user->email)->send(new OrderReceipt($order, $user));
+    //                 }
+    //             });
 
-                return response()->json(['status' => 'SUCCESS']);
-            }
+    //             return response()->json(['status' => 'SUCCESS']);
+    //         }
 
-            if ($apiStatus === 'FAILED' || $apiStatus === 'CANCELLED') {
-                $transaction->update(['status' => 'FAILED']);
-                return response()->json(['status' => 'FAILED']);
-            }
+    //         if ($apiStatus === 'FAILED' || $apiStatus === 'CANCELLED') {
+    //             $transaction->update(['status' => 'FAILED']);
+    //             return response()->json(['status' => 'FAILED']);
+    //         }
 
-            return response()->json(['status' => 'PENDING']);
+    //         return response()->json(['status' => 'PENDING']);
 
-        } catch (\Exception $e) {
-            Log::error("Status Check Error: " . $e->getMessage());
-            return response()->json(['status' => 'PENDING']);
+    //     } catch (\Exception $e) {
+    //         Log::error("Status Check Error: " . $e->getMessage());
+    //         return response()->json(['status' => 'PENDING']);
+    //     }
+    // }
+     public function checkStatus($reference)
+{
+    try {
+        $transaction = Transaction::where('lipia_reference', $reference)->firstOrFail();
+
+        if ($transaction->status === 'SUCCESS') {
+            return response()->json(['status' => 'SUCCESS']);
         }
+
+        $response = $this->lipiaService->checkStatus($reference);
+        $apiStatus = strtoupper($response['data']['response']['Status'] ?? 'PENDING');
+
+        if ($apiStatus === 'SUCCESS' || $apiStatus === 'COMPLETED') {
+
+            $order = null;
+            $user = null;
+
+            DB::transaction(function () use ($transaction, &$order, &$user) {
+                $trx = Transaction::lockForUpdate()->find($transaction->id);
+
+                if ($trx->status !== 'SUCCESS') {
+                    $trx->update(['status' => 'SUCCESS']);
+                    $meta = json_decode($trx->metadata, true);
+
+                    if ($meta['item_type'] === 'ticket') {
+                        $ticket = Ticket::lockForUpdate()->find($meta['item_id']);
+                        if ($ticket) $ticket->decrement('quantity_available', $meta['quantity']);
+                    }
+
+                    $order = Order::create([
+                        'customer_id' => $meta['user_id'],
+                        'product' => $meta['item_name'],
+                        'quantity' => $meta['quantity'],
+                        'price' => $trx->amount,
+                        'status' => 'Paid',
+                        'transaction_ref' => $trx->external_reference
+                    ]);
+
+                    $user = \App\Models\User::find($meta['user_id']);
+                }
+            });
+
+            // Send email AFTER transaction completes
+            if ($order && $user) {
+                try {
+                    Mail::to($user->email)->send(new OrderReceipt($order, $user));
+                } catch (\Exception $e) {
+                    Log::error("Email send failed: " . $e->getMessage());
+                }
+            }
+
+            return response()->json(['status' => 'SUCCESS']);
+        }
+
+        if ($apiStatus === 'FAILED' || $apiStatus === 'CANCELLED') {
+            $transaction->update(['status' => 'FAILED']);
+            return response()->json(['status' => 'FAILED']);
+        }
+
+        return response()->json(['status' => 'PENDING']);
+
+    } catch (\Exception $e) {
+        Log::error("Status Check Error: " . $e->getMessage());
+        return response()->json(['status' => 'PENDING']);
     }
+}
 
     // 4. Admin Sales Stats
     public function salesStats()
