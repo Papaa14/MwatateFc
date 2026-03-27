@@ -685,7 +685,7 @@
                     <h4 class="font-bold text-gray-800 mb-4">Add New Record</h4>
                     <input type="hidden" id="statPlayerId">
                     <input type="hidden" id="statId">
-                    
+
                     <div class="grid grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Season (e.g., 2023/24)</label>
@@ -1365,7 +1365,7 @@
             const res = await fetch(`${API_URL}/player-stats?user_id=${userId}`);
             const json = await res.json();
             const statsList = document.getElementById('playerStatsList');
-            
+
             if (!json.data || json.data.length === 0) {
                 statsList.innerHTML = '<p class="text-gray-500 text-sm">No statistics recorded yet.</p>';
                 return;
@@ -1425,7 +1425,7 @@
             document.getElementById('statYellow').value = stat.yellow_cards;
             document.getElementById('statRed').value = stat.red_cards;
             document.getElementById('statMinutes').value = stat.minutes_played;
-            
+
             // Scroll to form
             document.querySelector('#playerStatForm').scrollIntoView({ behavior: 'smooth' });
         }

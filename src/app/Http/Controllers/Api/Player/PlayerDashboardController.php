@@ -9,7 +9,7 @@ class PlayerDashboardController extends Controller
 {
     public function stats(Request $request) {
         $user = $request->user();
-        
+
         // Fetch real data
         $nextMatch = Fixture::where('match_date', '>=', now())
             ->orderBy('match_date', 'asc')->first();
@@ -19,7 +19,7 @@ class PlayerDashboardController extends Controller
 
         // Fetch player stats from database
         $playerStats = $user->stats()->orderBy('created_at', 'desc')->get();
-        
+
         // Calculate career totals
         $careerStats = [
             'goals' => $playerStats->sum('goals'),

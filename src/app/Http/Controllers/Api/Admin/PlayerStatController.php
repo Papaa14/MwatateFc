@@ -12,7 +12,7 @@ class PlayerStatController extends Controller
     public function index(Request $request)
     {
         $userId = $request->query('user_id');
-        
+
         if ($userId) {
             $stats = PlayerStat::where('user_id', $userId)
                 ->orderBy('season', 'desc')
