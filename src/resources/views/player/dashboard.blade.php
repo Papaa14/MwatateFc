@@ -125,7 +125,85 @@
                 </div>
             </div>
 
-            <!-- 2. TRAINING PLAN -->
+            <!-- 2. STATISTICS -->
+            <div x-show="currentRoute === 'statistics'" class="space-y-6">
+                <!-- Career Stats Summary -->
+                <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg text-white p-6">
+                    <h3 class="font-bold text-white mb-4">Career Statistics</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <p class="text-blue-100 text-sm">Appearances</p>
+                            <p class="text-4xl font-bold" x-text="stats.career_stats?.appearances || 0"></p>
+                        </div>
+                        <div>
+                            <p class="text-blue-100 text-sm">Goals</p>
+                            <p class="text-4xl font-bold" x-text="stats.career_stats?.goals || 0"></p>
+                        </div>
+                        <div>
+                            <p class="text-blue-100 text-sm">Assists</p>
+                            <p class="text-4xl font-bold" x-text="stats.career_stats?.assists || 0"></p>
+                        </div>
+                        <div>
+                            <p class="text-blue-100 text-sm">Minutes</p>
+                            <p class="text-2xl font-bold" x-text="(stats.career_stats?.minutes_played || 0).toLocaleString()"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed History -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="p-6 border-b border-gray-100">
+                        <h3 class="font-bold text-gray-800 text-lg">Playing History</h3>
+                    </div>
+                    <div class="p-6">
+                        <template x-if="stats.history && stats.history.length > 0">
+                            <div class="space-y-4">
+                                <template x-for="record in stats.history" :key="record.id">
+                                    <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div>
+                                                <h4 class="font-bold text-gray-800" x-text="record.club_name"></h4>
+                                                <p class="text-sm text-gray-600" x-text="record.season || 'Season not specified'"></p>
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-2 md:grid-cols-6 gap-3 text-center">
+                                            <div class="bg-gray-50 rounded p-2">
+                                                <p class="text-xs text-gray-600">Apps</p>
+                                                <p class="font-bold text-lg" x-text="record.appearances"></p>
+                                            </div>
+                                            <div class="bg-green-50 rounded p-2">
+                                                <p class="text-xs text-gray-600">Goals</p>
+                                                <p class="font-bold text-lg text-green-600" x-text="record.goals"></p>
+                                            </div>
+                                            <div class="bg-blue-50 rounded p-2">
+                                                <p class="text-xs text-gray-600">Assists</p>
+                                                <p class="font-bold text-lg text-blue-600" x-text="record.assists"></p>
+                                            </div>
+                                            <div class="bg-yellow-50 rounded p-2">
+                                                <p class="text-xs text-gray-600">Yellow</p>
+                                                <p class="font-bold text-lg text-yellow-600" x-text="record.yellow_cards"></p>
+                                            </div>
+                                            <div class="bg-red-50 rounded p-2">
+                                                <p class="text-xs text-gray-600">Red</p>
+                                                <p class="font-bold text-lg text-red-600" x-text="record.red_cards"></p>
+                                            </div>
+                                            <div class="bg-purple-50 rounded p-2">
+                                                <p class="text-xs text-gray-600">Minutes</p>
+                                                <p class="font-bold text-lg text-purple-600" x-text="(record.minutes_played).toLocaleString()"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                        <template x-if="!stats.history || stats.history.length === 0">
+                            <p class="text-center text-gray-500 py-8">No statistics recorded yet. Contact your coach to add records.</p>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. TRAINING PLAN -->
             <div x-show="currentRoute === 'training'">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                     <div class="p-6 border-b border-gray-100">
@@ -364,6 +442,7 @@
                 trainings: [],
                 videos: [],
                 messages: [],
+                stats: [],
                 allUsers: [], // For new chat modal
 
                 // Chat State
@@ -377,6 +456,7 @@
 
                 navItems: [
                     { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-chart-pie' },
+                    { id: 'statistics', label: 'Statistics', icon: 'fas fa-chart-bar' },
                     { id: 'training', label: 'Training Plan', icon: 'fas fa-clipboard-list' },
                     { id: 'messages', label: 'Messages', icon: 'fas fa-comments' },
                     { id: 'videos', label: 'Video Library', icon: 'fas fa-film' },
@@ -439,6 +519,13 @@
                         const res = await fetch(`${API_URL}/videos`, { headers: getHeaders() });
                         const json = await res.json();
                         this.videos = json.data || [];
+                    } catch(e) {}
+
+                    // Player Stats
+                    try {
+                        const res = await fetch(`${API_URL}/player/dashboard-stats`, { headers: getHeaders() });
+                        const json = await res.json();
+                        this.stats = json.data || {};
                     } catch(e) {}
 
                     // Users (for chat modal)

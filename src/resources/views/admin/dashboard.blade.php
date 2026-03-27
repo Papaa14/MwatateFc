@@ -90,6 +90,10 @@
                 class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-blue-600">
                 <i class="fa-solid fa-shirt  w-6"></i> Jerseys
             </button>
+            <button onclick="switchSection('stadiums')" id="nav-stadiums"
+                class="nav-item w-full flex items-center px-4 py-3 text-sm font-medium text-gray-600 rounded-lg hover:bg-gray-50 hover:text-blue-600">
+                <i class="fas fa-building w-6"></i> Stadiums
+            </button>
 
         </nav>
 
@@ -334,6 +338,32 @@
             <!-- Grid for Jersey Cards -->
             <div id="jerseys-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Dynamic Content Injected Here -->
+            </div>
+        </section>
+
+        <!-- STADIUMS SECTION -->
+        <section id="stadiums-section" class="section-content hidden animate-fadeIn">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-gray-800">Stadium Management</h2>
+                    <button onclick="openStadiumModal()"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-medium transition flex items-center">
+                        <i class="fas fa-plus mr-2"></i> Add Stadium
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-500">
+                        <thead class="bg-gray-50 text-xs uppercase text-gray-700">
+                            <tr>
+                                <th class="px-6 py-3">Name</th>
+                                <th class="px-6 py-3">Capacity</th>
+                                <th class="px-6 py-3">Added</th>
+                                <th class="px-6 py-3 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stadiums-table"></tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
@@ -596,6 +626,134 @@
         </div>
     </div>
 
+    <!-- STADIUM MODAL -->
+    <div id="stadiumModal"
+        class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            <form id="stadiumForm" onsubmit="handleStadiumSubmit(event)" class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 id="stadiumModalTitle" class="text-xl font-bold text-gray-800">Add Stadium</h3>
+                    <button type="button" onclick="closeModal('stadiumModal')" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <input type="hidden" name="id" id="stadiumId">
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Stadium Name</label>
+                        <input type="text" name="name" id="stadiumName" placeholder="e.g., Mwatate Stadium" required
+                            class="w-full border rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Capacity</label>
+                        <input type="number" name="capacity" id="stadiumCapacity" placeholder="e.g., 5000" required min="1"
+                            class="w-full border rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('stadiumModal')"
+                        class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg">Cancel</button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 shadow-md">
+                        Save Stadium
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PLAYER STATS MODAL -->
+    <div id="playerStatsModal"
+        class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-screen overflow-y-auto">
+            <div class="p-6 border-b border-gray-100 sticky top-0 bg-white">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-gray-800">Player Statistics & History</h3>
+                    <button type="button" onclick="closeModal('playerStatsModal')" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <p id="statsPlayerName" class="text-sm text-gray-600 mt-1"></p>
+            </div>
+
+            <div class="p-6">
+                <!-- Add New Stat Form -->
+                <form id="playerStatForm" onsubmit="handlePlayerStatSubmit(event)" class="mb-8 pb-8 border-b border-gray-100">
+                    <h4 class="font-bold text-gray-800 mb-4">Add New Record</h4>
+                    <input type="hidden" id="statPlayerId">
+                    <input type="hidden" id="statId">
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Season (e.g., 2023/24)</label>
+                            <input type="text" id="statSeason" placeholder="e.g., 2023/24" required
+                                class="w-full border rounded-lg p-2 bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Club Name</label>
+                            <input type="text" id="statClub" placeholder="e.g., Mwatate FC" required
+                                class="w-full border rounded-lg p-2 bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Appearances</label>
+                            <input type="number" id="statAppearances" min="0" value="0" required
+                                class="w-full border rounded-lg p-2 bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Goals</label>
+                            <input type="number" id="statGoals" min="0" value="0" required
+                                class="w-full border rounded-lg p-2 bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Assists</label>
+                            <input type="number" id="statAssists" min="0" value="0" required
+                                class="w-full border rounded-lg p-2 bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-3 mb-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Yellow Cards</label>
+                            <input type="number" id="statYellow" min="0" value="0" required
+                                class="w-full border rounded-lg p-2 bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Red Cards</label>
+                            <input type="number" id="statRed" min="0" value="0" required
+                                class="w-full border rounded-lg p-2 bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Minutes Played</label>
+                            <input type="number" id="statMinutes" min="0" value="0" required
+                                class="w-full border rounded-lg p-2 bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">
+                            Add Record
+                        </button>
+                        <button type="button" onclick="resetStatForm()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-medium">
+                            Clear
+                        </button>
+                    </div>
+                </form>
+
+                <!-- History List -->
+                <h4 class="font-bold text-gray-800 mb-4">Career History</h4>
+                <div id="playerStatsList" class="space-y-3">
+                    <p class="text-gray-500 text-sm">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_URL = '/api';
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
@@ -626,6 +784,7 @@
             if (id === 'fixtures') loadFixtures();
             if (id === 'tickets') loadTickets();
             if (id === 'jerseys') loadJerseys();
+            if (id === 'stadiums') loadStadiums();
         }
 
         function toggleAdminMenu() {
@@ -703,6 +862,7 @@
                 return;
             }
             json.data.forEach(u => {
+                const statsBtn = role === 'player' ? `<button onclick='openPlayerStatsModal(${JSON.stringify(u)})' class="text-green-600 hover:underline text-sm">Stats</button>` : '';
                 tbody.innerHTML += `
                     <tr class="border-b hover:bg-gray-50">
                         <td class="px-6 py-4 font-medium text-gray-900"><div class="flex items-center"><div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center mr-3 text-xs font-bold">${u.name.charAt(0)}</div>${u.name}</div></td>
@@ -710,6 +870,7 @@
                         <td class="px-6 py-4"><span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">${u.position || 'N/A'}</span></td>
                         <td class="px-6 py-4 text-right space-x-2">
                             <button onclick='openEditUserModal(${JSON.stringify(u)})' class="text-blue-600 hover:underline text-sm">Edit</button>
+                            ${statsBtn}
                             <button onclick="deleteUser(${u.id}, '${role}')" class="text-red-600 hover:underline text-sm">Delete</button>
                         </td>
                     </tr>`;
@@ -1131,7 +1292,193 @@
                 if (endpoint === 'fixtures') loadFixtures();
                 if (endpoint === 'tickets') loadTickets();
                 if (endpoint === 'jerseys') loadJerseys();
+                if (endpoint === 'stadiums') loadStadiums();
+            }
+        }
 
+        // --- STADIUMS LOGIC ---
+        function openStadiumModal(item = null) {
+            document.getElementById('stadiumForm').reset();
+            document.getElementById('stadiumId').value = '';
+            document.getElementById('stadiumModalTitle').innerText = 'Add Stadium';
+            if (item) {
+                document.getElementById('stadiumId').value = item.id;
+                document.getElementById('stadiumName').value = item.name;
+                document.getElementById('stadiumCapacity').value = item.capacity;
+                document.getElementById('stadiumModalTitle').innerText = 'Edit Stadium';
+            }
+            document.getElementById('stadiumModal').classList.remove('hidden');
+        }
+
+        async function loadStadiums() {
+            const res = await fetch(`${API_URL}/stadiums`);
+            const json = await res.json();
+            const tbody = document.getElementById('stadiums-table');
+            tbody.innerHTML = '';
+            if (!json.data || json.data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-gray-500">No stadiums added yet</td></tr>';
+                return;
+            }
+            json.data.forEach(item => {
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-6 py-4 font-medium text-gray-900">${item.name}</td>
+                        <td class="px-6 py-4 text-gray-500">${item.capacity.toLocaleString()} seats</td>
+                        <td class="px-6 py-4 text-gray-500 text-sm">${new Date(item.created_at).toLocaleDateString()}</td>
+                        <td class="px-6 py-4 text-right space-x-2">
+                            <button onclick='openStadiumModal(${JSON.stringify(item)})' class="text-blue-600 hover:underline text-sm">Edit</button>
+                            <button onclick="deleteItem('stadiums', ${item.id})" class="text-red-600 hover:underline text-sm">Delete</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        async function handleStadiumSubmit(e) {
+            e.preventDefault();
+            const payload = Object.fromEntries(new FormData(e.target));
+            const id = document.getElementById('stadiumId').value;
+            const url = id ? `${API_URL}/stadiums/${id}` : `${API_URL}/stadiums`;
+            const method = id ? 'PUT' : 'POST';
+            const res = await fetch(url, {
+                method: method,
+                headers,
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                showToast(id ? 'Stadium updated!' : 'Stadium added!');
+                closeModal('stadiumModal');
+                loadStadiums();
+            } else {
+                showToast('Error saving stadium', 'error');
+            }
+        }
+
+        // --- PLAYER STATS LOGIC ---
+        function openPlayerStatsModal(player) {
+            document.getElementById('statPlayerId').value = player.id;
+            document.getElementById('statsPlayerName').innerText = `Stats for ${player.name}`;
+            loadPlayerStats(player.id);
+            document.getElementById('playerStatsModal').classList.remove('hidden');
+        }
+
+        async function loadPlayerStats(userId) {
+            const res = await fetch(`${API_URL}/player-stats?user_id=${userId}`);
+            const json = await res.json();
+            const statsList = document.getElementById('playerStatsList');
+            
+            if (!json.data || json.data.length === 0) {
+                statsList.innerHTML = '<p class="text-gray-500 text-sm">No statistics recorded yet.</p>';
+                return;
+            }
+
+            statsList.innerHTML = json.data.map(stat => `
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h5 class="font-bold text-gray-800">${stat.club_name}</h5>
+                            <p class="text-sm text-gray-600">${stat.season || 'Season not specified'}</p>
+                        </div>
+                        <div class="space-x-2">
+                            <button onclick='editPlayerStat(${JSON.stringify(stat)})' class="text-blue-600 hover:text-blue-800 text-sm"><i class="fas fa-edit"></i></button>
+                            <button onclick="deletePlayerStat(${stat.id}, ${document.getElementById('statPlayerId').value})" class="text-red-600 hover:text-red-800 text-sm"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                            <p class="text-gray-600">Appearances</p>
+                            <p class="text-lg font-bold text-gray-800">${stat.appearances}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">Goals</p>
+                            <p class="text-lg font-bold text-green-600">${stat.goals}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-600">Assists</p>
+                            <p class="text-lg font-bold text-blue-600">${stat.assists}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-4 gap-3 mt-3 pt-3 border-t border-gray-200 text-xs">
+                        <div>
+                            <p class="text-gray-500">Yellow</p>
+                            <p class="font-bold">${stat.yellow_cards}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Red</p>
+                            <p class="font-bold">${stat.red_cards}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Minutes</p>
+                            <p class="font-bold">${stat.minutes_played}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editPlayerStat(stat) {
+            document.getElementById('statId').value = stat.id;
+            document.getElementById('statSeason').value = stat.season || '';
+            document.getElementById('statClub').value = stat.club_name;
+            document.getElementById('statAppearances').value = stat.appearances;
+            document.getElementById('statGoals').value = stat.goals;
+            document.getElementById('statAssists').value = stat.assists;
+            document.getElementById('statYellow').value = stat.yellow_cards;
+            document.getElementById('statRed').value = stat.red_cards;
+            document.getElementById('statMinutes').value = stat.minutes_played;
+            
+            // Scroll to form
+            document.querySelector('#playerStatForm').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetStatForm() {
+            document.getElementById('playerStatForm').reset();
+            document.getElementById('statId').value = '';
+        }
+
+        async function handlePlayerStatSubmit(e) {
+            e.preventDefault();
+            const playerId = document.getElementById('statPlayerId').value;
+            const statId = document.getElementById('statId').value;
+
+            const payload = {
+                user_id: playerId,
+                season: document.getElementById('statSeason').value,
+                club_name: document.getElementById('statClub').value,
+                appearances: parseInt(document.getElementById('statAppearances').value),
+                goals: parseInt(document.getElementById('statGoals').value),
+                assists: parseInt(document.getElementById('statAssists').value),
+                yellow_cards: parseInt(document.getElementById('statYellow').value),
+                red_cards: parseInt(document.getElementById('statRed').value),
+                minutes_played: parseInt(document.getElementById('statMinutes').value),
+            };
+
+            const url = statId ? `${API_URL}/player-stats/${statId}` : `${API_URL}/player-stats`;
+            const method = statId ? 'PUT' : 'POST';
+
+            const res = await fetch(url, {
+                method: method,
+                headers,
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                showToast(statId ? 'Stat updated!' : 'Stat added!');
+                resetStatForm();
+                loadPlayerStats(playerId);
+            } else {
+                showToast('Error saving stat', 'error');
+            }
+        }
+
+        async function deletePlayerStat(statId, playerId) {
+            if (!confirm('Are you sure?')) return;
+            const res = await fetch(`${API_URL}/player-stats/${statId}`, {
+                method: 'DELETE',
+                headers
+            });
+            if (res.ok) {
+                showToast('Deleted!');
+                loadPlayerStats(playerId);
             }
         }
 

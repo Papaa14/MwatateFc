@@ -49,14 +49,24 @@ class OrderController extends Controller
             $amount = 0;
             $itemName = '';
 
-            if ($request->item_type === 'ticket') {
-                $ticket = Ticket::findOrFail($request->item_id);
-                if ($ticket->quantity_available < $request->quantity) {
-                    return response()->json(['message' => 'Not enough stock.'], 400);
-                }
-                $amount = $ticket->price * $request->quantity;
-                $itemName = $ticket->type . ' Ticket';
-            } else {
+          if ($request->item_type === 'ticket') {
+    $ticket = Ticket::with('fixture')->findOrFail($request->item_id);
+
+    // Check fixture capacity
+    if (!$ticket->fixture->hasAvailableTickets($request->quantity)) {
+        return response()->json([
+            'message' => 'Tickets sold out.',
+            'available' => $ticket->fixture->remainingTickets()
+        ], 400);
+    }
+
+    if ($ticket->quantity_available < $request->quantity) {
+        return response()->json(['message' => 'Not enough stock.'], 400);
+    }
+
+    $amount = $ticket->price * $request->quantity;
+    $itemName = $ticket->type . ' Ticket';
+}else {
                 $jersey = Jersey::findOrFail($request->item_id);
                 $amount = $jersey->price * $request->quantity;
                 $itemName = 'Jersey';
@@ -197,10 +207,15 @@ class OrderController extends Controller
                     $trx->update(['status' => 'SUCCESS']);
                     $meta = json_decode($trx->metadata, true);
 
-                    if ($meta['item_type'] === 'ticket') {
-                        $ticket = Ticket::lockForUpdate()->find($meta['item_id']);
-                        if ($ticket) $ticket->decrement('quantity_available', $meta['quantity']);
-                    }
+                   if ($meta['item_type'] === 'ticket') {
+    $ticket = Ticket::lockForUpdate()->find($meta['item_id']);
+    if ($ticket) {
+        $ticket->decrement('quantity_available', $meta['quantity']);
+        // Increment fixture tickets_sold
+        $ticket->fixture()->lockForUpdate()->first()->increment('tickets_sold', $meta['quantity']);
+    }
+}
+
 
                     $order = Order::create([
                         'customer_id' => $meta['user_id'],

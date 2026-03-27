@@ -45,4 +45,9 @@ class User extends Authenticatable
         'password' => 'hashed',
         'role' => UserRole::class, // <-- Cast role to our Enum
     ];
+
+    public function stats()
+    {
+        return $this->hasMany(PlayerStat::class);
+    }
 }

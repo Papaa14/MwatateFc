@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Admin\RegisterController;
 use App\Http\Controllers\Api\Admin\TicketController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Admin\JerseyController;
+use App\Http\Controllers\Api\Admin\PlayerStatController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use Illuminate\Http\Request;
@@ -47,6 +48,8 @@ Route::get('/sales-stats', [OrderController::class, 'salesStats']);
 Route::apiResource('training-sessions', TrainingSessionController::class);
 Route::apiResource('videos', VideoAnalysisController::class);
 Route::apiResource('messages', TeamMessageController::class);
+ Route::apiResource('stadiums', \App\Http\Controllers\Api\Admin\StadiumController::class);
+Route::apiResource('player-stats', PlayerStatController::class);
 
 
 Route::get('/user-counts', [RegisterController::class, 'getUserCounts']);

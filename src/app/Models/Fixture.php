@@ -12,20 +12,36 @@ class Fixture extends Model
     protected $fillable = [
         'opponent',
         'match_date',
-        'venue',        // 'Home' or 'Away'
-        'competition',  // e.g., 'League', 'Cup'
+        'venue',
+        'competition',
+        'stadium_id',
+        'ticket_capacity',
+        'tickets_sold',
     ];
 
-    // Cast match_date to a Carbon instance automatically
     protected $casts = [
         'match_date' => 'datetime',
     ];
 
-    /**
-     * A fixture can have many ticket types associated with it.
-     */
     public function tickets()
     {
         return $this->hasMany(Ticket::class);
+    }
+
+    public function stadium()
+    {
+        return $this->belongsTo(Stadium::class);
+    }
+
+    public function hasAvailableTickets($quantity = 1)
+    {
+        if (!$this->ticket_capacity) return true;
+        return ($this->tickets_sold + $quantity) <= $this->ticket_capacity;
+    }
+
+    public function remainingTickets()
+    {
+        if (!$this->ticket_capacity) return null;
+        return max(0, $this->ticket_capacity - $this->tickets_sold);
     }
 }
