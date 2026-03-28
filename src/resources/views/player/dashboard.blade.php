@@ -485,10 +485,14 @@
                 init() {
                     this.fetchUser();
                     this.fetchData();
-                    // Poll chat
+                    // Poll chat messages
                     setInterval(() => {
                         if(this.currentRoute === 'messages') this.fetchMessages();
                     }, 5000);
+                    // Poll player stats periodically to reflect admin updates
+                    setInterval(() => {
+                        this.fetchPlayerStats();
+                    }, 30000); // Refresh every 30 seconds
                 },
 
                 async fetchUser() {
@@ -536,6 +540,14 @@
                     } catch(e) {}
 
                     this.fetchMessages();
+                },
+
+                async fetchPlayerStats() {
+                    try {
+                        const res = await fetch(`${API_URL}/player/dashboard-stats`, { headers: getHeaders() });
+                        const json = await res.json();
+                        this.stats = json.data || {};
+                    } catch(e) { console.error('Failed to fetch player stats:', e); }
                 },
 
                 // --- CALENDAR ---
