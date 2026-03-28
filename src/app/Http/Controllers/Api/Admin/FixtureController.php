@@ -11,7 +11,7 @@ class FixtureController extends Controller
 {
     public function index() {
         return $this->sendResponse(
-            Fixture::with('stadium')->orderBy('match_date', 'asc')->get(), 
+            Fixture::with('stadium')->orderBy('match_date', 'asc')->get(),
             'Fixtures retrieved successfully'
         );
     }
@@ -28,7 +28,7 @@ class FixtureController extends Controller
 
             // Get stadium to auto-set ticket capacity
             $stadium = Stadium::findOrFail($request->stadium_id);
-            
+
             $fixtureData = $request->all();
             $fixtureData['ticket_capacity'] = $stadium->capacity;
 
