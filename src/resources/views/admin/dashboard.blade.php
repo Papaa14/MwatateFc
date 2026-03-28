@@ -518,6 +518,10 @@
                 <div class="space-y-4">
                     <input type="text" name="opponent" id="fixtureOpponent" placeholder="Opponent Name" required
                         class="w-full border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                    <select name="stadium_id" id="fixtureStadium" required
+                        class="w-full border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-blue-500">
+                        <option value="">Select Stadium...</option>
+                    </select>
                     <div class="grid grid-cols-2 gap-4">
                         <input type="datetime-local" name="match_date" id="fixtureDate" required
                             class="w-full border rounded-lg p-3 bg-gray-50 focus:ring-2 focus:ring-blue-500">
@@ -1021,13 +1025,17 @@
             }
         }
 
-        function openFixtureModal(item = null) {
+        async function openFixtureModal(item = null) {
+            // Load stadiums first
+            await loadStadiumsForFixture();
+
             document.getElementById('fixtureForm').reset();
             document.getElementById('fixtureId').value = '';
             document.getElementById('fixtureModalTitle').innerText = 'Add Fixture';
             if (item) {
                 document.getElementById('fixtureId').value = item.id;
                 document.getElementById('fixtureOpponent').value = item.opponent;
+                document.getElementById('fixtureStadium').value = item.stadium_id || '';
                 const d = new Date(item.match_date);
                 d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
                 document.getElementById('fixtureDate').value = d.toISOString().slice(0, 16);
@@ -1036,6 +1044,38 @@
                 document.getElementById('fixtureModalTitle').innerText = 'Edit Fixture';
             }
             document.getElementById('fixtureModal').classList.remove('hidden');
+        }
+
+        async function loadStadiumsForFixture() {
+            try {
+                const res = await fetch(`${API_URL}/stadiums`);
+                const json = await res.json();
+                const select = document.getElementById('fixtureStadium');
+                if (!select) {
+                    console.error('fixtureStadium element not found');
+                    return;
+                }
+                select.innerHTML = '<option value="">Select Stadium...</option>';
+
+                // Handle both response formats
+                const stadiums = json.data || json;
+
+                if (Array.isArray(stadiums) && stadiums.length > 0) {
+                    stadiums.forEach(stadium => {
+                        select.innerHTML += `<option value="${stadium.id}">${stadium.name} (Capacity: ${stadium.capacity})</option>`;
+                    });
+                    console.log('Loaded stadiums:', stadiums);
+                } else {
+                    select.innerHTML += '<option value="" disabled>No stadiums available</option>';
+                    console.warn('No stadiums found in response:', json);
+                }
+            } catch(e) {
+                console.error('Failed to load stadiums:', e);
+                const select = document.getElementById('fixtureStadium');
+                if (select) {
+                    select.innerHTML = '<option value="" disabled>Error loading stadiums</option>';
+                }
+            }
         }
 
         async function loadFixtures() {
@@ -1062,18 +1102,33 @@
         async function handleFixtureSubmit(e) {
             e.preventDefault();
             const payload = Object.fromEntries(new FormData(e.target));
+
+            // Ensure stadium_id is included
+            if (!payload.stadium_id) {
+                showToast('Please select a stadium', 'error');
+                return;
+            }
+
             const id = document.getElementById('fixtureId').value;
             const url = id ? `${API_URL}/fixtures/${id}` : `${API_URL}/fixtures`;
             const method = id ? 'PUT' : 'POST';
+
+            console.log('Sending fixture data:', payload);
+
             const res = await fetch(url, {
                 method: method,
                 headers,
                 body: JSON.stringify(payload)
             });
+
             if (res.ok) {
                 showToast('Fixture saved!');
                 closeModal('fixtureModal');
                 loadFixtures();
+            } else {
+                const error = await res.json();
+                showToast(`Error: ${error.message || 'Failed to save fixture'}`, 'error');
+                console.error('API Error:', error);
             }
         }
 
@@ -1586,7 +1641,10 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => loadDashboardStats());
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboardStats();
+            loadStadiums();
+        });
     </script>
 </body>
 
