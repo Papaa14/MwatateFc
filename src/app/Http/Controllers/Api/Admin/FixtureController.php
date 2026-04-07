@@ -11,7 +11,7 @@ class FixtureController extends Controller
 {
     public function index() {
         $fixtures = Fixture::with('stadium')->orderBy('match_date', 'asc')->get();
-        
+
         // Transform to include stadium info and sections in fixture
         $fixtures = $fixtures->map(function ($fixture) {
             return [
@@ -27,7 +27,7 @@ class FixtureController extends Controller
                 'sections_config' => $fixture->stadium?->sections_config ?? [],
             ];
         });
-        
+
         return $this->sendResponse($fixtures, 'Fixtures retrieved successfully');
     }
 
@@ -48,12 +48,12 @@ class FixtureController extends Controller
             $fixtureData['ticket_capacity'] = $stadium->capacity;
 
             $fixture = Fixture::create($fixtureData);
-            
+
             // Generate tickets from stadium sections if they exist
             if ($stadium->sections_config && !empty($stadium->sections_config)) {
                 $stadium->generateTickets();
             }
-            
+
             return $this->sendResponse($fixture->load('stadium'), 'Fixture created successfully');
         } catch (\Exception $e) {
             return $this->sendError('Failed to create fixture: ' . $e->getMessage());
@@ -76,7 +76,7 @@ class FixtureController extends Controller
             if ($request->has('stadium_id')) {
                 $stadium = Stadium::findOrFail($request->stadium_id);
                 $request->merge(['ticket_capacity' => $stadium->capacity]);
-                
+
                 // Regenerate tickets for new stadium
                 if ($stadium->sections_config && !empty($stadium->sections_config)) {
                     $stadium->generateTickets();

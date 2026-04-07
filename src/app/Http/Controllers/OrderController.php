@@ -184,7 +184,7 @@ class OrderController extends Controller
                         ]);
 
                         $user = \App\Models\User::find($meta['user_id']);
-                        
+
                         // Load fixture if ticket order
                         if ($meta['item_type'] === 'ticket' && $meta['fixture_id']) {
                             $fixture = Fixture::find($meta['fixture_id']);

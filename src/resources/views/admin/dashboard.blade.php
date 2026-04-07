@@ -1408,7 +1408,7 @@
 
                 // Load sections if they exist
                 let sections = item.sections_config;
-                
+
                 // Handle sections_config as JSON string from API response
                 if (typeof sections === 'string') {
                     try {
@@ -1584,11 +1584,11 @@
                         sections = [];
                     }
                 }
-                
-                const sectionNames = sections && Array.isArray(sections) 
+
+                const sectionNames = sections && Array.isArray(sections)
                     ? sections.map(s => s.name).join(', ')
                     : 'No sections';
-                
+
                 tbody.innerHTML += `
                     <tr class="border-b hover:bg-gray-50">
                         <td class="px-6 py-4 font-medium text-gray-900">${item.name}</td>
