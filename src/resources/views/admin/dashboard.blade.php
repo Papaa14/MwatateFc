@@ -357,7 +357,8 @@
                             <tr>
                                 <th class="px-6 py-3">Name</th>
                                 <th class="px-6 py-3">Capacity</th>
-                                <th class="px-6 py-3">Added</th>
+                                <th class="px-6 py-3">Sections</th>
+                                <th class="px-6 py-3">Tickets</th>
                                 <th class="px-6 py-3 text-right">Actions</th>
                             </tr>
                         </thead>
@@ -630,30 +631,71 @@
         </div>
     </div>
 
-    <!-- STADIUM MODAL -->
+    <!-- STADIUM MODAL WITH SECTION CONFIGURATOR -->
     <div id="stadiumModal"
-        class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+        class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl my-8">
             <form id="stadiumForm" onsubmit="handleStadiumSubmit(event)" class="p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 id="stadiumModalTitle" class="text-xl font-bold text-gray-800">Add Stadium</h3>
+                <div class="flex justify-between items-center mb-6">
+                    <h3 id="stadiumModalTitle" class="text-2xl font-bold text-gray-800">Add Stadium</h3>
                     <button type="button" onclick="closeModal('stadiumModal')" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times"></i>
+                        <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
 
                 <input type="hidden" name="id" id="stadiumId">
+                <input type="hidden" name="sections_config" id="sectionsConfigInput">
 
-                <div class="space-y-4">
+                <!-- Basic Info Section -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Stadium Name</label>
                         <input type="text" name="name" id="stadiumName" placeholder="e.g., Mwatate Stadium" required
                             class="w-full border rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Capacity</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Total Capacity</label>
                         <input type="number" name="capacity" id="stadiumCapacity" placeholder="e.g., 5000" required min="1"
-                            class="w-full border rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none">
+                            class="w-full border rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" onchange="validateTotalCapacity()">
+                    </div>
+                </div>
+
+                <!-- Sections Configuration -->
+                <div class="border-t pt-6">
+                    <h4 class="text-lg font-bold text-gray-800 mb-4">Ticket Sections</h4>
+
+                    <!-- Stadium Visualization -->
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <div id="stadiumVisualization" class="bg-white p-4 rounded-lg border border-gray-200">
+                            <!-- Visualization will be generated here -->
+                        </div>
+                    </div>
+
+                    <!-- Sections List -->
+                    <div id="sectionsContainer" class="space-y-3 mb-4">
+                        <!-- Sections will be added dynamically -->
+                    </div>
+
+                    <button type="button" onclick="addStadiumSection()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
+                        <i class="fas fa-plus mr-2"></i>Add Section
+                    </button>
+                </div>
+
+                <!-- Capacity Summary -->
+                <div class="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Stadium Capacity</p>
+                            <p class="text-2xl font-bold text-blue-600" id="stadiumCapacityDisplay">0</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Allocated Seats</p>
+                            <p class="text-2xl font-bold text-green-600" id="allocatedSeatsDisplay">0</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Remaining</p>
+                            <p class="text-2xl font-bold" id="remainingSeatsDisplay">0</p>
+                        </div>
                     </div>
                 </div>
 
@@ -1356,13 +1398,171 @@
             document.getElementById('stadiumForm').reset();
             document.getElementById('stadiumId').value = '';
             document.getElementById('stadiumModalTitle').innerText = 'Add Stadium';
+            document.getElementById('sectionsContainer').innerHTML = '';
+
             if (item) {
                 document.getElementById('stadiumId').value = item.id;
                 document.getElementById('stadiumName').value = item.name;
                 document.getElementById('stadiumCapacity').value = item.capacity;
                 document.getElementById('stadiumModalTitle').innerText = 'Edit Stadium';
+
+                // Load sections if they exist
+                let sections = item.sections_config;
+                
+                // Handle sections_config as JSON string from API response
+                if (typeof sections === 'string') {
+                    try {
+                        sections = JSON.parse(sections);
+                    } catch (e) {
+                        console.error('Failed to parse sections_config:', e);
+                        sections = null;
+                    }
+                }
+
+                if (sections && Array.isArray(sections) && sections.length > 0) {
+                    sections.forEach((section, index) => {
+                        addStadiumSection(section);
+                    });
+                } else {
+                    // Add default sections if none exist
+                    addStadiumSection({ name: 'VVIP', seats: 0, price: 0 });
+                    addStadiumSection({ name: 'VIP', seats: 0, price: 0 });
+                    addStadiumSection({ name: 'Regular', seats: 0, price: 0 });
+                }
+            } else {
+                // Add default sections for new stadium
+                addStadiumSection({ name: 'VVIP', seats: 0, price: 0 });
+                addStadiumSection({ name: 'VIP', seats: 0, price: 0 });
+                addStadiumSection({ name: 'Regular', seats: 0, price: 0 });
             }
+
+            updateStadiumVisualization();
+            updateCapacitySummary();
             document.getElementById('stadiumModal').classList.remove('hidden');
+        }
+
+        function addStadiumSection(sectionData = null) {
+            const container = document.getElementById('sectionsContainer');
+            const sectionIndex = container.children.length;
+            const section = sectionData || { name: '', seats: 0, price: 0 };
+
+            const sectionHTML = `
+                <div class="section-item bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <h5 class="font-semibold text-gray-800">Section ${sectionIndex + 1}</h5>
+                        <button type="button" onclick="removeStadiumSection(this)" class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Section Name</label>
+                            <input type="text" class="section-name w-full border rounded p-2 text-sm"
+                                placeholder="e.g., VVIP, VIP, Regular" value="${section.name || ''}"
+                                onchange="updateStadiumVisualization()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Number of Seats</label>
+                            <input type="number" class="section-seats w-full border rounded p-2 text-sm"
+                                placeholder="0" value="${section.seats || 0}" min="0"
+                                onchange="updateStadiumVisualization(); updateCapacitySummary()">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Price (KES)</label>
+                            <input type="number" class="section-price w-full border rounded p-2 text-sm"
+                                placeholder="0" value="${section.price || 0}" min="0" step="0.01"
+                                onchange="updateStadiumVisualization()">
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.innerHTML += sectionHTML;
+            updateStadiumVisualization();
+            updateCapacitySummary();
+        }
+
+        function removeStadiumSection(button) {
+            button.closest('.section-item').remove();
+            updateStadiumVisualization();
+            updateCapacitySummary();
+        }
+
+        function updateCapacitySummary() {
+            const capacity = parseInt(document.getElementById('stadiumCapacity').value) || 0;
+            const sections = document.querySelectorAll('.section-item');
+            let totalSeats = 0;
+
+            sections.forEach(section => {
+                const seats = parseInt(section.querySelector('.section-seats').value) || 0;
+                totalSeats += seats;
+            });
+
+            const remaining = capacity - totalSeats;
+
+            document.getElementById('stadiumCapacityDisplay').textContent = capacity.toLocaleString();
+            document.getElementById('allocatedSeatsDisplay').textContent = totalSeats.toLocaleString();
+            document.getElementById('remainingSeatsDisplay').textContent = remaining.toLocaleString();
+
+            // Change color based on remaining seats
+            const remainingElement = document.getElementById('remainingSeatsDisplay');
+            if (remaining < 0) {
+                remainingElement.className = 'text-2xl font-bold text-red-600';
+            } else if (remaining === 0) {
+                remainingElement.className = 'text-2xl font-bold text-gray-600';
+            } else {
+                remainingElement.className = 'text-2xl font-bold text-gray-600';
+            }
+        }
+
+        function updateStadiumVisualization() {
+            const sections = document.querySelectorAll('.section-item');
+            const vizContainer = document.getElementById('stadiumVisualization');
+
+            let html = `<div class="text-center mb-4">
+                <h5 class="font-semibold text-gray-800 mb-3">Ticket Categories</h5>
+                <div class="flex flex-wrap gap-2 justify-center">`;
+
+            const colors = {
+                'VVIP': '#6d28d9',
+                'VIP': '#2563eb',
+                'Regular': '#10b981',
+                'Premium': '#f59e0b',
+                'Standard': '#6366f1'
+            };
+
+            sections.forEach(section => {
+                const name = section.querySelector('.section-name').value;
+                const seats = parseInt(section.querySelector('.section-seats').value) || 0;
+                const price = section.querySelector('.section-price').value;
+                const color = colors[name] || '#8b5cf6';
+
+                html += `
+                    <div style="background-color: ${color}" class="text-white px-4 py-2 rounded-lg text-sm font-medium">
+                        <div class="font-bold">${name || 'Section'}</div>
+                        <div class="text-xs opacity-90">${seats} seats • KES ${price}</div>
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
+            vizContainer.innerHTML = html;
+        }
+
+        function validateTotalCapacity() {
+            updateCapacitySummary();
+            const capacity = parseInt(document.getElementById('stadiumCapacity').value) || 0;
+            const sections = document.querySelectorAll('.section-item');
+            let totalSeats = 0;
+
+            sections.forEach(section => {
+                const seats = parseInt(section.querySelector('.section-seats').value) || 0;
+                totalSeats += seats;
+            });
+
+            if (totalSeats > capacity) {
+                showToast('Total seats allocated exceed stadium capacity!', 'error');
+            }
         }
 
         async function loadStadiums() {
@@ -1371,15 +1571,30 @@
             const tbody = document.getElementById('stadiums-table');
             tbody.innerHTML = '';
             if (!json.data || json.data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-gray-500">No stadiums added yet</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-500">No stadiums added yet</td></tr>';
                 return;
             }
             json.data.forEach(item => {
+                // Parse sections if it's a string
+                let sections = item.sections_config;
+                if (typeof sections === 'string') {
+                    try {
+                        sections = JSON.parse(sections);
+                    } catch (e) {
+                        sections = [];
+                    }
+                }
+                
+                const sectionNames = sections && Array.isArray(sections) 
+                    ? sections.map(s => s.name).join(', ')
+                    : 'No sections';
+                
                 tbody.innerHTML += `
                     <tr class="border-b hover:bg-gray-50">
                         <td class="px-6 py-4 font-medium text-gray-900">${item.name}</td>
                         <td class="px-6 py-4 text-gray-500">${item.capacity.toLocaleString()} seats</td>
-                        <td class="px-6 py-4 text-gray-500 text-sm">${new Date(item.created_at).toLocaleDateString()}</td>
+                        <td class="px-6 py-4 text-gray-500 text-sm"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">${sectionNames}</span></td>
+                        <td class="px-6 py-4 text-gray-500 text-sm"><span class="bg-green-100 text-green-800 px-2 py-1 rounded">${item.tickets_count || 0} tickets</span></td>
                         <td class="px-6 py-4 text-right space-x-2">
                             <button onclick='openStadiumModal(${JSON.stringify(item)})' class="text-blue-600 hover:underline text-sm">Edit</button>
                             <button onclick="deleteItem('stadiums', ${item.id})" class="text-red-600 hover:underline text-sm">Delete</button>
@@ -1390,7 +1605,43 @@
 
         async function handleStadiumSubmit(e) {
             e.preventDefault();
+
+            // Validate capacity
+            const capacity = parseInt(document.getElementById('stadiumCapacity').value) || 0;
+            const sections = document.querySelectorAll('.section-item');
+            let totalSeats = 0;
+            const sectionsConfig = [];
+
+            sections.forEach(section => {
+                const name = section.querySelector('.section-name').value;
+                const seats = parseInt(section.querySelector('.section-seats').value) || 0;
+                const price = parseFloat(section.querySelector('.section-price').value) || 0;
+
+                if (!name) {
+                    showToast('Please provide a name for all sections', 'error');
+                    return;
+                }
+
+                totalSeats += seats;
+                sectionsConfig.push({ name, seats, price });
+            });
+
+            if (totalSeats > capacity) {
+                showToast('Total allocated seats cannot exceed stadium capacity!', 'error');
+                return;
+            }
+
+            if (totalSeats === 0) {
+                showToast('Please allocate at least some seats to sections', 'error');
+                return;
+            }
+
+            // Set the sections config as JSON
+            document.getElementById('sectionsConfigInput').value = JSON.stringify(sectionsConfig);
+
             const payload = Object.fromEntries(new FormData(e.target));
+            payload.sections_config = JSON.stringify(sectionsConfig);
+
             const id = document.getElementById('stadiumId').value;
             const url = id ? `${API_URL}/stadiums/${id}` : `${API_URL}/stadiums`;
             const method = id ? 'PUT' : 'POST';
@@ -1400,11 +1651,14 @@
                 body: JSON.stringify(payload)
             });
             if (res.ok) {
-                showToast(id ? 'Stadium updated!' : 'Stadium added!');
+                showToast(id ? 'Stadium updated! Tickets generated.' : 'Stadium added! Tickets generated.');
                 closeModal('stadiumModal');
-                loadStadiums();
+                // Refresh both stadiums and tickets to show the new configuration
+                await loadStadiums();
+                await loadTickets();
             } else {
-                showToast('Error saving stadium', 'error');
+                const error = await res.json();
+                showToast(error.message || 'Error saving stadium', 'error');
             }
         }
 

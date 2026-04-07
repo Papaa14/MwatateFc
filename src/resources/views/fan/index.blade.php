@@ -146,6 +146,68 @@
             opacity: 1;
             top: 50%;
         }
+
+        /* Enhanced Stadium Styles */
+        #stadiumVisualizationContainer {
+            background: #1a1a2e; /* Darker professional background */
+            border-radius: 1rem;
+            position: relative;
+        }
+
+        .sector {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            stroke: #1a1a2e;
+            stroke-width: 2;
+            opacity: 0.8;
+        }
+
+        .sector:hover {
+            opacity: 1;
+            filter: brightness(1.2);
+            transform: scale(1.02);
+            transform-origin: center;
+        }
+
+        .sector.selected {
+            stroke: #ffffff;
+            stroke-width: 3;
+            opacity: 1;
+            filter: drop-shadow(0 0 8px rgba(255,255,255,0.5));
+        }
+
+        .field-grass {
+            fill: #2d5a27;
+            stroke: #ffffff33;
+            stroke-width: 2;
+        }
+
+        /* Sidebar Legend styling */
+        .legend-scroll {
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
     </style>
 </head>
 
@@ -396,6 +458,81 @@
         </div>
     </div>
 
+    <!-- STADIUM VISUALIZATION MODAL FOR TICKET BOOKING -->
+    <div id="stadiumModal" class="modal">
+        <div class="modal-content" style="max-width: 900px; max-height: 95vh; overflow-y: auto;">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-bold text-gray-800" id="stadiumModalTitle">Select Your Seats</h3>
+                    <button onclick="hideModal('stadiumModal')" class="text-gray-400 hover:text-gray-500">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+
+                <!-- Match Info -->
+                <div class="bg-blue-50 p-4 rounded-lg mb-6 border border-blue-200">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <p class="text-xs text-gray-600 font-semibold">OPPONENT</p>
+                            <p class="text-lg font-bold text-gray-800" id="stadiumOpponent">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-600 font-semibold">MATCH DATE</p>
+                            <p class="text-lg font-bold text-gray-800" id="stadiumDate">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-600 font-semibold">STADIUM</p>
+                            <p class="text-lg font-bold text-gray-800" id="stadiumName">-</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-600 font-semibold">SECTION</p>
+                            <p class="text-lg font-bold text-blue-600" id="selectedSection">Select</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stadium Grid Visualization -->
+                <div id="stadiumVisualizationContainer" class="mb-6 bg-gray-900 rounded-lg p-6 overflow-x-auto shadow-lg">
+                    <!-- Grid blocks will be injected here -->
+                </div>
+
+                <!-- Legend Below Stadium -->
+                <div id="sectionLegend" class="mb-6 bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <!-- Legend items will be injected here -->
+                </div>
+
+                <!-- Booking Summary Below -->
+                <div class="bg-gray-50 rounded-xl p-5 border border-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Selected Section -->
+                        <div class="bg-white rounded p-4 border border-gray-200">
+                            <p class="text-xs text-gray-600 font-semibold mb-2">SELECTED SECTION</p>
+                            <p class="text-lg font-bold text-gray-800" id="sectionCardName">No Section</p>
+                            <p class="text-sm text-blue-600 font-bold mt-2">KES <span id="sectionCardPrice">0.00</span></p>
+                        </div>
+
+                        <!-- Quantity Selector -->
+                        <div class="bg-white rounded p-4 border border-gray-200">
+                            <p class="text-xs text-gray-600 font-semibold mb-2">NUMBER OF TICKETS</p>
+                            <input type="number" id="seatQuantity" value="1" min="1" onchange="calculateTotalSeats()"
+                                   class="w-full text-center border border-gray-300 rounded-lg py-2 font-bold focus:ring-2 focus:ring-blue-500">
+                        </div>
+
+                        <!-- Total Price -->
+                        <div class="bg-blue-600 text-white rounded-lg p-4">
+                            <p class="text-xs opacity-80 mb-1">TOTAL TO PAY</p>
+                            <p class="text-2xl font-bold">KES <span id="totalSeatPrice">0.00</span></p>
+                            <button type="button" onclick="proceedToPayment()"
+                                    class="w-full mt-3 py-2 bg-blue-700 text-white rounded font-bold hover:bg-blue-800 transition text-sm">
+                                Proceed to Payment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- News Modal -->
     <div id="newsModal" class="modal">
         <div class="modal-content">
@@ -483,12 +620,22 @@
                                 <div class="flex justify-between items-center p-3 bg-gray-50 rounded border">
                                     <div><span class="font-medium text-gray-800">${ticket.type} Ticket</span><p class="text-xs text-gray-500">${ticket.quantity_available} available</p></div>
                                     <div class="text-right"><span class="font-bold text-blue-600">KES ${formatCurrency(ticket.price)}</span>
-                                        <button onclick="prepareTicketOrder('${fixture.opponent}', ${ticket.id}, ${ticket.price})" class="ml-2 btn bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700">Book Now</button>
+                                        <button onclick="prepareTicketWithStadium('${fixture.opponent}', ${ticket.id}, ${ticket.price}, ${JSON.stringify(fixture).replace(/"/g, '&quot;')})" class="ml-2 btn bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700">Book Now</button>
                                     </div>
                                 </div>`).join('')}</div>` : `<p class="text-gray-400 text-sm">No tickets available yet</p>`}
                         </div>`;
                 }
             } catch (e) { console.error(e); }
+        }
+
+        function prepareTicketWithStadium(opponent, ticketId, price, fixture) {
+            // Setup initial modal data
+            document.getElementById('itemType').value = 'ticket';
+            document.getElementById('itemId').value = ticketId;
+            document.getElementById('itemPrice').value = price;
+
+            // Always open stadium visualization modal
+            openStadiumVisualization(opponent, ticketId, fixture);
         }
 
         async function loadNews() {
@@ -608,6 +755,16 @@
                 quantity: document.getElementById('inputQuantity').value
             };
 
+            // Add seat data if it exists
+            const seatData = sessionStorage.getItem('seatData');
+            if (seatData) {
+                const seats = JSON.parse(seatData);
+                payload.section_name = seats.section_name;
+                payload.seat_numbers = seats.seat_numbers;
+                payload.fixture_id = seats.fixture_id;
+                payload.ticket_type = seats.ticket_type;
+            }
+
             // Loading state
             btn.disabled = true;
             btn.classList.add('opacity-50');
@@ -653,6 +810,7 @@
 
                     if (data.status === 'SUCCESS') {
                         clearInterval(interval);
+                        sessionStorage.removeItem('seatData'); // Clear seat data after successful payment
                         showToast('Payment Successful! Order Confirmed and Receipt sent to your email.', 'success');
                         hideModal('orderModal');
                         loadMyOrders(); // Refresh history
@@ -681,6 +839,236 @@
             statusDiv.classList.remove('bg-red-50', 'text-red-800');
             statusDiv.classList.add('bg-yellow-50', 'text-yellow-800');
             statusDiv.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i> Request sent to phone. Enter PIN...';
+        }
+
+        // --- STADIUM VISUALIZATION & SEAT SELECTION ---
+        let currentFixture = null;
+        let currentTicket = null;
+        let currentSection = null;
+        let allocatedSeats = [];
+        const sectionColors = {
+            'VVIP': '#6d28d9',
+            'VIP': '#2563eb',
+            'Regular': '#10b981',
+            'Premium': '#f59e0b',
+            'Standard': '#6366f1',
+            'East': '#8b5cf6',
+            'West': '#ec4899',
+            'North': '#f97316',
+            'South': '#14b8a6'
+        };
+
+        async function openStadiumVisualization(opponent, ticketId, fixture) {
+            currentFixture = fixture;
+            currentTicket = {
+                id: ticketId,
+                price: document.getElementById('itemPrice').value,
+                type: document.getElementById('itemType').value
+            };
+
+            // Hide the order modal and show stadium modal instead
+            hideModal('orderModal');
+
+            // Populate match info
+            document.getElementById('stadiumOpponent').innerText = opponent;
+            document.getElementById('stadiumDate').innerText = new Date(fixture.match_date).toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric'
+            });
+            document.getElementById('stadiumName').innerText = fixture.stadium_name || 'TBA';
+
+            // Default sections if not provided
+            const sections = fixture.sections_config && Array.isArray(fixture.sections_config) ? fixture.sections_config : [
+                { name: 'VVIP', seats: 500, price: 5000 },
+                { name: 'VIP', seats: 800, price: 3000 },
+                { name: 'Regular', seats: 2000, price: 1500 },
+                { name: 'Premium', seats: 1000, price: 2500 }
+            ];
+
+            // Load stadium data and render visualization
+            renderStadiumVisualization(sections);
+            renderLegend(sections);
+
+            // Reset state
+            currentSection = null;
+            allocatedSeats = [];
+            document.getElementById('seatQuantity').value = 1;
+            document.getElementById('selectedSection').innerText = 'Select';
+
+            showModal('stadiumModal');
+        }
+
+        function renderStadiumVisualization(sections) {
+            const container = document.getElementById('stadiumVisualizationContainer');
+
+            const cx = 260, cy = 210, rx = 190, ry = 160, ix = 112, iy = 90;
+            const sectionCount = 80;
+            const gap = 1.2;
+
+            function polar(a, b, deg) {
+                const r = deg * Math.PI / 180;
+                return [cx + a * Math.cos(r), cy + b * Math.sin(r)];
+            }
+
+            function makePath(a1, a2) {
+                const [x1,y1] = polar(rx,ry,a1), [x2,y2] = polar(rx,ry,a2);
+                const [x3,y3] = polar(ix,iy,a2), [x4,y4] = polar(ix,iy,a1);
+                const laf = (a2-a1) > 180 ? 1 : 0;
+                return `M${x1},${y1} A${rx},${ry} 0 ${laf},1 ${x2},${y2} L${x3},${y3} A${ix},${iy} 0 ${laf},0 ${x4},${y4} Z`;
+            }
+
+            function labelPos(a1, a2) {
+                const mid = (a1+a2)/2 * Math.PI/180;
+                return [cx + (rx+ix)/2 * Math.cos(mid), cy + (ry+iy)/2 * Math.sin(mid)];
+            }
+
+            const degPer = 360 / sectionCount;
+            let sectorPaths = '';
+            let labelPaths = '';
+
+            for (let i = 0; i < sectionCount; i++) {
+                const sIdx = Math.floor(i * sections.length / sectionCount);
+                const sec = sections[sIdx];
+                const color = sectionColors[sec.name] || '#666';
+                const a1 = i * degPer - 90 + gap/2;
+                const a2 = (i+1) * degPer - 90 - gap/2;
+                sectorPaths += `<path d="${makePath(a1,a2)}" fill="${color}" opacity="0.85" class="sector"
+                    onclick="selectSection('${sec.name}',${sec.seats},${sec.price})"
+                    title="${sec.name}">
+                    <title>${sec.name} — KES ${sec.price} — ${sec.seats} seats</title>
+                </path>`;
+                if (i % 2 === 0) {
+                    const [lx,ly] = labelPos(a1, a2 + degPer);
+                    labelPaths += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central"
+                        fill="rgba(255,255,255,0.65)" font-size="9" font-family="sans-serif"
+                        pointer-events="none">${i+1}</text>`;
+                }
+            }
+
+            container.innerHTML = `
+            <svg viewBox="0 0 520 430" width="100%" xmlns="http://www.w3.org/2000/svg">
+              <text x="260" y="20" text-anchor="middle" fill="#9ca3af" font-size="12" font-family="sans-serif">East tribune «C»</text>
+              <text x="260" y="422" text-anchor="middle" fill="#9ca3af" font-size="12" font-family="sans-serif">West tribune «A»</text>
+              <text x="16" y="215" text-anchor="middle" fill="#9ca3af" font-size="12" font-family="sans-serif" transform="rotate(-90,16,215)">North tribune «B»</text>
+              <text x="508" y="215" text-anchor="middle" fill="#9ca3af" font-size="12" font-family="sans-serif" transform="rotate(90,508,215)">South tribune «D»</text>
+              ${sectorPaths}
+              ${labelPaths}
+              <ellipse cx="${cx}" cy="${cy}" rx="108" ry="86" fill="#1a5c28"/>
+              <ellipse cx="${cx}" cy="${cy}" rx="108" ry="86" fill="none" stroke="#2d8a3e" stroke-width="2"/>
+              <ellipse cx="${cx}" cy="${cy}" rx="36" ry="28" fill="none" stroke="#2d8a3e" stroke-width="1.5"/>
+              <line x1="${cx-105}" y1="${cy}" x2="${cx+105}" y2="${cy}" stroke="#2d8a3e" stroke-width="1.5"/>
+              <rect x="${cx-45}" y="${cy-43}" width="90" height="42" rx="2" fill="none" stroke="#2d8a3e" stroke-width="1.2"/>
+              <rect x="${cx-23}" y="${cy-29}" width="46" height="28" rx="2" fill="none" stroke="#2d8a3e" stroke-width="1"/>
+              <rect x="${cx-45}" y="${cy+1}" width="90" height="42" rx="2" fill="none" stroke="#2d8a3e" stroke-width="1.2"/>
+              <rect x="${cx-23}" y="${cy+1}" width="46" height="28" rx="2" fill="none" stroke="#2d8a3e" stroke-width="1"/>
+              <circle cx="${cx}" cy="${cy}" r="3" fill="#2d8a3e"/>
+            </svg>`;
+        }
+
+
+
+        function renderLegend(sections) {
+            const container = document.getElementById('sectionLegend');
+            container.innerHTML = `
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Select sector on the scheme</p>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                    ${sections.map(sec => {
+                        const color = sectionColors[sec.name] || '#666';
+                        return `<div class="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition"
+                             onclick="selectSection('${sec.name}', ${sec.seats}, ${sec.price})">
+                            <div class="w-3 h-3 rounded-full flex-shrink-0" style="background:${color}"></div>
+                            <div>
+                                <p class="text-xs font-bold text-gray-800">${sec.name}</p>
+                                <p class="text-xs text-gray-500">${sec.seats.toLocaleString()} seats</p>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>`;
+        }
+
+        function selectSection(sectionName, availableSeats, price) {
+            currentSection = { name: sectionName, availableSeats: availableSeats, price: price };
+
+            // Update UI Labels
+            document.getElementById('selectedSection').innerText = sectionName;
+            document.getElementById('sectionCardName').innerText = sectionName;
+            document.getElementById('sectionCardPrice').innerText = formatCurrency(price);
+
+            // Reset quantity logic
+            document.getElementById('seatQuantity').value = 1;
+            calculateTotalSeats();
+        }
+
+        function increaseQuantity() {
+            const qty = parseInt(document.getElementById('seatQuantity').value);
+            if (currentSection && qty < currentSection.availableSeats) {
+                document.getElementById('seatQuantity').value = qty + 1;
+                calculateTotalSeats();
+            } else {
+                showToast('Not enough seats available in this section', 'error');
+            }
+        }
+
+        function decreaseQuantity() {
+            const qty = parseInt(document.getElementById('seatQuantity').value);
+            if (qty > 1) {
+                document.getElementById('seatQuantity').value = qty - 1;
+                calculateTotalSeats();
+            }
+        }
+
+        function calculateTotalSeats() {
+            if (!currentSection) {
+                document.getElementById('seatQuantity').value = 1;
+                return;
+            }
+
+            const qty = parseInt(document.getElementById('seatQuantity').value);
+
+            // Generate seat numbers
+            allocatedSeats = [];
+            for (let i = 1; i <= qty; i++) {
+                allocatedSeats.push(`${currentSection.name.charAt(0)}${i}`);
+            }
+
+            // Update display
+            document.getElementById('totalSeatPrice').innerText = formatCurrency(currentSection.price * qty);
+        }
+
+        async function proceedToPayment() {
+            if (!currentSection || allocatedSeats.length === 0) {
+                showToast('Please select a section and number of seats', 'error');
+                return;
+            }
+
+            // Store seat data
+            document.getElementById('itemType').value = 'ticket';
+            document.getElementById('itemId').value = currentTicket.id;
+            document.getElementById('itemPrice').value = currentSection.price;
+            document.getElementById('inputQuantity').value = allocatedSeats.length;
+
+            // Store seat and section info in hidden fields
+            const seatData = {
+                section_name: currentSection.name,
+                seat_numbers: allocatedSeats,
+                fixture_id: currentFixture.id,
+                ticket_type: currentFixture.opponent
+            };
+
+            // Store in session storage to pass to payment handler
+            sessionStorage.setItem('seatData', JSON.stringify(seatData));
+
+            // Hide stadium modal and show payment modal
+            hideModal('stadiumModal');
+
+            // Setup and show order modal
+            document.getElementById('orderProductName').innerText = `${currentFixture.opponent} - ${currentSection.name} Tickets`;
+            document.getElementById('orderUnitPrice').innerText = formatCurrency(currentSection.price);
+            document.getElementById('orderTotal').innerText = formatCurrency(currentSection.price * allocatedSeats.length);
+
+            showModal('orderModal');
+            resetPaymentUI();
         }
 
         function openNewsModal(item) {
