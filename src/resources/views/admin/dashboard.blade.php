@@ -602,7 +602,8 @@
                     <!-- Image Input -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Jersey Image</label>
-                        <input type="file" name="image" id="jerseyImage"  accept="image/jpeg,image/png,image/jpg,image/gif" required
+                        <input type="file" name="image" id="jerseyImage"
+                            accept="image/jpeg,image/png,image/jpg,image/gif" required
                             class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         <p class="text-xs text-gray-400 mt-1">Supported: JPG, PNG, JPEG</p>
                     </div>
@@ -638,7 +639,8 @@
             <form id="stadiumForm" onsubmit="handleStadiumSubmit(event)" class="p-6">
                 <div class="flex justify-between items-center mb-6">
                     <h3 id="stadiumModalTitle" class="text-2xl font-bold text-gray-800">Add Stadium</h3>
-                    <button type="button" onclick="closeModal('stadiumModal')" class="text-gray-400 hover:text-gray-600">
+                    <button type="button" onclick="closeModal('stadiumModal')"
+                        class="text-gray-400 hover:text-gray-600">
                         <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
@@ -655,8 +657,10 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Total Capacity</label>
-                        <input type="number" name="capacity" id="stadiumCapacity" placeholder="e.g., 5000" required min="1"
-                            class="w-full border rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none" onchange="validateTotalCapacity()">
+                        <input type="number" name="capacity" id="stadiumCapacity" placeholder="e.g., 5000" required
+                            min="1"
+                            class="w-full border rounded-lg p-2.5 bg-gray-50 focus:ring-2 focus:ring-blue-500 outline-none"
+                            onchange="validateTotalCapacity()">
                     </div>
                 </div>
 
@@ -676,7 +680,8 @@
                         <!-- Sections will be added dynamically -->
                     </div>
 
-                    <button type="button" onclick="addStadiumSection()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
+                    <button type="button" onclick="addStadiumSection()"
+                        class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm">
                         <i class="fas fa-plus mr-2"></i>Add Section
                     </button>
                 </div>
@@ -718,7 +723,8 @@
             <div class="p-6 border-b border-gray-100 sticky top-0 bg-white">
                 <div class="flex justify-between items-center">
                     <h3 class="text-xl font-bold text-gray-800">Player Statistics & History</h3>
-                    <button type="button" onclick="closeModal('playerStatsModal')" class="text-gray-400 hover:text-gray-600">
+                    <button type="button" onclick="closeModal('playerStatsModal')"
+                        class="text-gray-400 hover:text-gray-600">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
@@ -727,7 +733,8 @@
 
             <div class="p-6">
                 <!-- Add New Stat Form -->
-                <form id="playerStatForm" onsubmit="handlePlayerStatSubmit(event)" class="mb-8 pb-8 border-b border-gray-100">
+                <form id="playerStatForm" onsubmit="handlePlayerStatSubmit(event)"
+                    class="mb-8 pb-8 border-b border-gray-100">
                     <h4 class="font-bold text-gray-800 mb-4">Add New Record</h4>
                     <input type="hidden" id="statPlayerId">
                     <input type="hidden" id="statId">
@@ -782,10 +789,12 @@
                     </div>
 
                     <div class="flex gap-3">
-                        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">
+                        <button type="submit"
+                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium">
                             Add Record
                         </button>
-                        <button type="button" onclick="resetStatForm()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-medium">
+                        <button type="button" onclick="resetStatForm()"
+                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-medium">
                             Clear
                         </button>
                     </div>
@@ -841,13 +850,37 @@
             document.getElementById(id).classList.add('hidden');
         }
 
+
         function showToast(msg, type = 'success') {
             const t = document.getElementById('notification');
+
+            // Move toast directly to body so it won't inherit modal blur
+            if (t.parentElement !== document.body) {
+                document.body.appendChild(t);
+            }
+
             t.innerText = msg;
-            t.className =
-                `fixed bottom-5 right-5 transform transition-all duration-300 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
+
+            t.className = `
+        fixed bottom-5 right-5 z-[9999]
+        px-6 py-3 rounded-lg shadow-2xl text-white font-medium
+        transition-all duration-300 transform
+        ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}
+    `;
+
+            // Ensure no blur/filter affects toast
+            t.style.backdropFilter = 'none';
+            t.style.filter = 'none';
+
+            // Show toast
             t.classList.remove('translate-y-20', 'opacity-0');
-            setTimeout(() => t.classList.add('translate-y-20', 'opacity-0'), 3000);
+            t.classList.add('translate-y-0', 'opacity-100');
+
+            // Hide after 3 sec
+            setTimeout(() => {
+                t.classList.remove('translate-y-0', 'opacity-100');
+                t.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
         }
 
         // --- PLAYERS & STAFF LOGIC ---
@@ -1111,7 +1144,7 @@
                     select.innerHTML += '<option value="" disabled>No stadiums available</option>';
                     console.warn('No stadiums found in response:', json);
                 }
-            } catch(e) {
+            } catch (e) {
                 console.error('Failed to load stadiums:', e);
                 const select = document.getElementById('fixtureStadium');
                 if (select) {
@@ -1150,6 +1183,17 @@
                 showToast('Please select a stadium', 'error');
                 return;
             }
+            // Validate past date
+            if (payload.match_date) {
+                const selectedDate = new Date(payload.match_date);
+                const now = new Date();
+
+                if (selectedDate < now) {
+                    showToast('Cannot create a fixture on a past date.', 'error');
+                    return;
+                }
+            }
+
 
             const id = document.getElementById('fixtureId').value;
             const url = id ? `${API_URL}/fixtures/${id}` : `${API_URL}/fixtures`;
