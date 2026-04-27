@@ -11,7 +11,7 @@ use App\Mail\OrderReceipt;
 use App\Mail\TicketBookingConfirmation;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Transaction;
-use App\Services\LipiaService;
+use App\Services\SafaricomService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -20,11 +20,11 @@ use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
-    protected $lipiaService;
+    protected $safaricomService;
 
-    public function __construct(LipiaService $lipiaService)
+    public function __construct(SafaricomService $safaricomService)
     {
-        $this->lipiaService = $lipiaService;
+        $this->safaricomService = $safaricomService;
     }
 
     // 1. Get User Orders
@@ -109,16 +109,20 @@ class OrderController extends Controller
 
             DB::commit();
 
-            // Initiate Push via Service
-            $response = $this->lipiaService->initiateStkPush(
-                $request->phone_number,
+            // Initiate Push via Safaricom
+            $response = $this->safaricomService->initiatePush(
                 $amount,
+                $request->phone_number,
                 $externalRef
             );
 
-            // Update with Lipia Reference
+            if (!$response || ($response['ResponseCode'] ?? '') !== '0') {
+                throw new \Exception($response['ResponseDescription'] ?? 'STK Push failed');
+            }
+
+            // Update with CheckoutRequestID
             $transaction->update([
-                'lipia_reference' => $response['data']['TransactionReference'] ?? null
+                'lipia_reference' => $response['CheckoutRequestID'] ?? null
             ]);
 
             return response()->json([
@@ -144,20 +148,65 @@ class OrderController extends Controller
                 return response()->json(['status' => 'SUCCESS']);
             }
 
-            $response = $this->lipiaService->checkStatus($reference);
-            $apiStatus = strtoupper($response['data']['response']['Status'] ?? 'PENDING');
+            if ($transaction->status === 'FAILED') {
+                return response()->json(['status' => 'FAILED']);
+            }
 
-            if ($apiStatus === 'SUCCESS' || $apiStatus === 'COMPLETED') {
+            $response = $this->safaricomService->queryStk($reference);
+            
+            Log::info('STK Query Response:', ['response' => $response]);
+            
+            if (!$response) {
+                return response()->json(['status' => 'PENDING']);
+            }
+            
+            $resultCode = $response['ResultCode'] ?? null;
+            
+            // Safaricom ResultCodes:
+            // 0 = Success
+            // 4999 = Still processing (pending)
+            // 1032 = Request cancelled by user
+            // 1037 = Timeout (user didn't enter PIN)
+            // 1 = Insufficient funds
+            // 1001 = Unable to lock subscriber
+            // 2001 = Wrong PIN
+            
+            if ($resultCode === '0' || $resultCode === 0) {
+                // SUCCESS
+                $apiStatus = 'SUCCESS';
+            } elseif ($resultCode === '4999' || $resultCode === 4999 || $resultCode === null) {
+                // PENDING (still processing)
+                return response()->json(['status' => 'PENDING']);
+            } else {
+                // FAILED (any other code)
+                $apiStatus = 'FAILED';
+            }
+
+            if ($apiStatus === 'SUCCESS') {
 
                 $order = null;
                 $user = null;
                 $fixture = null;
 
-                DB::transaction(function () use ($transaction, &$order, &$user, &$fixture) {
+                DB::transaction(function () use ($transaction, $response, &$order, &$user, &$fixture) {
                     $trx = Transaction::lockForUpdate()->find($transaction->id);
 
                     if ($trx->status !== 'SUCCESS') {
-                        $trx->update(['status' => 'SUCCESS']);
+                        // Extract receipt number from Safaricom response
+                        $receiptNumber = null;
+                        if (isset($response['CallbackMetadata']['Item'])) {
+                            foreach ($response['CallbackMetadata']['Item'] as $item) {
+                                if ($item['Name'] === 'MpesaReceiptNumber') {
+                                    $receiptNumber = $item['Value'];
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        $trx->update([
+                            'status' => 'SUCCESS',
+                            'receipt_number' => $receiptNumber
+                        ]);
                         $meta = json_decode($trx->metadata, true);
 
                         if ($meta['item_type'] === 'ticket') {
@@ -198,19 +247,22 @@ class OrderController extends Controller
                         // If ticket with seat data, send ticket booking confirmation
                         if ($fixture && $order->seat_numbers) {
                             Mail::to($user->email)->send(new TicketBookingConfirmation($order, $user, $fixture));
+                            Log::info("Ticket booking email sent to {$user->email}");
                         } else {
                             // Otherwise send generic receipt
                             Mail::to($user->email)->send(new OrderReceipt($order, $user));
+                            Log::info("Order receipt email sent to {$user->email}");
                         }
                     } catch (\Exception $e) {
                         Log::error("Email send failed: " . $e->getMessage());
+                        // Don't fail the transaction if email fails
                     }
                 }
 
                 return response()->json(['status' => 'SUCCESS']);
             }
 
-            if ($apiStatus === 'FAILED' || $apiStatus === 'CANCELLED') {
+            if ($apiStatus === 'FAILED') {
                 $transaction->update(['status' => 'FAILED']);
                 return response()->json(['status' => 'FAILED']);
             }

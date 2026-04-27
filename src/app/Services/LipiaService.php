@@ -9,15 +9,29 @@ class LipiaService
 {
     protected $apiKey;
     protected $baseUrl;
+    protected $testMode;
 
     public function __construct()
     {
         $this->apiKey = env('LIPIA_API_KEY');
         $this->baseUrl = rtrim(env('LIPIA_BASE_URL'), '/');
+        $this->testMode = env('LIPIA_TEST_MODE', false);
     }
 
     public function initiateStkPush($phone, $amount, $reference)
     {
+        // TEST MODE: Simulate successful STK push
+        if ($this->testMode) {
+            Log::info("TEST MODE: Simulating STK Push for {$phone}, Amount: {$amount}");
+            return [
+                'success' => true,
+                'message' => 'Test STK Push initiated',
+                'data' => [
+                    'TransactionReference' => 'TEST-' . $reference
+                ]
+            ];
+        }
+
         $endpoint = '/payments/stk-push';
 
         // Clean phone number like Node (just ensure no +)
@@ -36,6 +50,20 @@ class LipiaService
 
     public function checkStatus($lipiaReference)
     {
+        // TEST MODE: Simulate successful payment
+        if ($this->testMode) {
+            Log::info("TEST MODE: Simulating successful payment for {$lipiaReference}");
+            return [
+                'success' => true,
+                'data' => [
+                    'response' => [
+                        'Status' => 'SUCCESS',
+                        'MpesaReceiptNumber' => 'TEST' . time()
+                    ]
+                ]
+            ];
+        }
+
         $endpoint = '/payments/status?reference=' . urlencode($lipiaReference);
         return $this->sendRequest($endpoint, 'GET');
     }

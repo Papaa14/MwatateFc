@@ -240,9 +240,9 @@
         </div>
 
         <!-- Call to Action -->
-        <div style="text-align: center;">
-            <a href="{{ route('fan.fixtures') ?? 'https://mwatatefc.com' }}" class="button">View Match Details</a>
-        </div>
+        {{-- <div style="text-align: center;">
+            <a href="{{ config('app.url') }}" class="button">View Match Details</a>
+        </div> --}}
 
         <!-- Footer -->
         <div class="footer">

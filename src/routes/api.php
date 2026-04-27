@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\Admin\JerseyController;
 use App\Http\Controllers\Api\Admin\PlayerStatController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\SafaricomPaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Admin\TrainingSessionController;
@@ -65,12 +66,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/chat/messages', [ChatController::class, 'index']);
     Route::post('/chat/send', [ChatController::class, 'store']);
     Route::get('/my-orders', [OrderController::class, 'index']);
-     Route::post('/orders/pay', [OrderController::class, 'initiatePayment']);
-    Route::get('/orders/status/{reference}', [OrderController::class, 'checkStatus']);
-
+    Route::post('/orders/pay', [OrderController::class, 'initiatePayment']);
 });
+
+// Order status check (public for polling)
+Route::get('/orders/status/{reference}', [OrderController::class, 'checkStatus']);
 
 
 Route::post('/payments/pay', [PaymentController::class, 'pay']);
 Route::get('/payments/status/{reference}', [PaymentController::class, 'verifyStatus']);
 Route::post('/payments/callback', [PaymentController::class, 'handleCallback']);
+
+// Safaricom M-Pesa routes
+Route::post('/mpesa/pay', [SafaricomPaymentController::class, 'pay']);
+Route::get('/mpesa/status/{checkoutRequestId}', [SafaricomPaymentController::class, 'verifyStatus']);
+Route::post('/mpesa/callback', [SafaricomPaymentController::class, 'handleCallback']);

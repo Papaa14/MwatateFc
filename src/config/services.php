@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'safaricom' => [
+        'env' => env('SAFARICOM_ENV', 'sandbox'),
+        'consumer_key' => env('SAFARICOM_CONSUMER_KEY'),
+        'consumer_secret' => env('SAFARICOM_CONSUMER_SECRET'),
+        'shortcode' => env('SAFARICOM_SHORTCODE'),
+        'passkey' => env('SAFARICOM_PASSKEY'),
+        'callback_url' => env('SAFARICOM_CALLBACK_URL'),
+        'transaction_type' => env('SAFARICOM_TRANSACTION_TYPE', 'CustomerPayBillOnline'),
+    ],
+
 ];
